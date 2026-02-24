@@ -35,6 +35,34 @@
                 <div id="boss-health-bar"></div>
             </div>
         </div>
+
+        <!-- Internship Inquiry Form -->
+        <button id="form-toggle-btn">APPLY FOR INTERNSHIP</button>
+        <div id="intern-form-container" style="display: none;">
+            <div class="form-header">
+                <h2>LAB INTERNSHIP INQUIRY</h2>
+                <button id="form-close-btn">×</button>
+            </div>
+            <form action="https://formspree.io/f/mykdbrzg" method="POST">
+                <div class="form-group">
+                    <label>NAME</label>
+                    <input type="text" name="name" required placeholder="Your Full Name">
+                </div>
+                <div class="form-group">
+                    <label>EMAIL</label>
+                    <input type="email" name="_replyto" required placeholder="email@example.com">
+                </div>
+                <div class="form-group">
+                    <label>MAJOR / AFFILIATION</label>
+                    <input type="text" name="major" required placeholder="CS / University X">
+                </div>
+                <div class="form-group">
+                    <label>INQUIRY</label>
+                    <textarea name="message" rows="4" required placeholder="Tell us about your interest..."></textarea>
+                </div>
+                <button type="submit" class="submit-btn">SEND TRANSMISSION</button>
+            </form>
+        </div>
     </div>
     
     <canvas id="game-canvas"></canvas>

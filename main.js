@@ -495,6 +495,21 @@ class Game {
         window.addEventListener('keyup', (e) => this.onKey(e, false));
         window.addEventListener('resize', () => this.onResize());
 
+        // Form Logic
+        const formContainer = document.getElementById('intern-form-container');
+        const toggleBtn = document.getElementById('form-toggle-btn');
+        const closeBtn = document.getElementById('form-close-btn');
+
+        toggleBtn.addEventListener('click', () => {
+            formContainer.style.display = 'block';
+            this.state = 'paused';
+        });
+
+        closeBtn.addEventListener('click', () => {
+            formContainer.style.display = 'none';
+            this.state = 'playing';
+        });
+
         // Agent Verification
         this.agentVerify();
 
