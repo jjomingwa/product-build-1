@@ -146,6 +146,24 @@
 
         /* Guide Text */
         .guide { font-size: 0.75rem; color: #aaa; margin-top: 5px; line-height: 1.4; }
+
+        @media (max-width: 600px) {
+            #controls {
+                width: 280px;
+            }
+            #controls.collapsed {
+                transform: translateX(-280px);
+            }
+            #toggle-btn {
+                left: 280px;
+            }
+            #controls.collapsed + #toggle-btn {
+                left: 0;
+            }
+            h1 {
+                font-size: 1.2rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -609,10 +627,47 @@
         function init() {
             resize();
             initParticles();
-            // Default preset
-            document.getElementById('presetSelect').value = 'doubleVortex';
-            updateEquation();
+            
+            // Handle URL Parameters for Direct Launch
+            const urlParams = new URLSearchParams(window.location.search);
+            const initialPreset = urlParams.get('preset');
+            
+            if (initialPreset && (presets[initialPreset] || initialPreset === 'custom')) {
+                document.getElementById('presetSelect').value = initialPreset;
+                applyPreset(initialPreset);
+            } else {
+                // Default preset
+                document.getElementById('presetSelect').value = 'doubleVortex';
+                applyPreset('doubleVortex');
+            }
+            
             animate();
+        }
+
+        function applyPreset(val) {
+            const eqDiv = document.getElementById('equation-inputs');
+            const guideDiv = document.getElementById('dynamic-guide');
+
+            if (presets[val] && typeof presets[val] === 'object') { // Math mode
+                cfg.mode = 'math';
+                eqDiv.style.display = 'block';
+                guideDiv.style.display = 'none';
+                document.getElementById('eqU').value = presets[val].u;
+                document.getElementById('eqV').value = presets[val].v;
+                updateEquation();
+            } else if (typeof presets[val] === 'function') { // Dynamic mode
+                cfg.mode = 'dynamic';
+                eqDiv.style.display = 'none';
+                guideDiv.style.display = 'block';
+                cfg.dynamicFn = presets[val];
+            } else {
+                // Custom
+                cfg.mode = 'math';
+                eqDiv.style.display = 'block';
+                guideDiv.style.display = 'none';
+                updateEquation();
+            }
+            initParticles();
         }
 
         function initParticles() {
@@ -685,25 +740,7 @@
         });
 
         document.getElementById('presetSelect').addEventListener('change', e => {
-            const val = e.target.value;
-            const eqDiv = document.getElementById('equation-inputs');
-            const guideDiv = document.getElementById('dynamic-guide');
-
-            if (presets[val]) { // Math mode
-                cfg.mode = 'math';
-                eqDiv.style.display = 'block';
-                guideDiv.style.display = 'none';
-                document.getElementById('eqU').value = presets[val].u;
-                document.getElementById('eqV').value = presets[val].v;
-                updateEquation();
-            } else { // Dynamic mode
-                cfg.mode = 'dynamic';
-                eqDiv.style.display = 'none';
-                guideDiv.style.display = 'block';
-                if (val === 'solar') cfg.dynamicFn = presets.solar;
-                if (val === 'binary') cfg.dynamicFn = presets.binary;
-            }
-            initParticles();
+            applyPreset(e.target.value);
         });
 
         // Toggles & Sliders

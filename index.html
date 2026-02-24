@@ -3,7 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Web Sim Hub | 3D Games & Math Simulations</title>
+    <title>Ultimate Web Sim Hub | High-Quality 3D Games & Math Simulations</title>
+    <meta name="description" content="Experience high-performance, interactive 3D web simulations including Solar System, Binary Star systems, Vector Fields, and Neon Breaker game. Built with Three.js and modern WebGL.">
+    <meta name="keywords" content="web simulations, 3d simulations, three.js, solar system simulator, binary star system, math visualization, web games">
+    <meta name="author" content="Ultimate Web Sim Hub Team">
+    <meta property="og:title" content="Ultimate Web Sim Hub | 3D Games & Math Simulations">
+    <meta property="og:description" content="High-performance interactive web simulations for education and entertainment.">
+    <meta property="og:type" content="website">
+    
     <meta name="google-adsense-account" content="ca-pub-4128292464861536">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4128292464861536"
      crossorigin="anonymous"></script>
@@ -87,6 +94,9 @@
             text-align: left;
             position: relative;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .app-card:hover {
@@ -99,12 +109,14 @@
             font-family: 'Orbitron', sans-serif;
             color: var(--neon-blue);
             margin-top: 0;
+            font-size: 1.4rem;
         }
 
         .app-card p {
             color: #ccc;
             line-height: 1.6;
             margin-bottom: 20px;
+            font-size: 0.95rem;
         }
 
         .btn-launch {
@@ -118,6 +130,7 @@
             font-weight: bold;
             border-radius: 5px;
             transition: all 0.3s;
+            text-align: center;
         }
 
         .btn-launch:hover {
@@ -166,6 +179,27 @@
             cursor: pointer;
             font-family: 'Orbitron', sans-serif;
         }
+
+        /* --- Mobile Responsiveness --- */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+            .subtitle {
+                font-size: 1rem;
+            }
+            nav {
+                flex-wrap: wrap;
+                gap: 15px;
+            }
+            .app-grid {
+                grid-template-columns: 1fr;
+            }
+            #intern-form-container {
+                width: 90%;
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -189,23 +223,46 @@
             <div class="app-grid">
                 <!-- App 1: Neon Breaker 3D -->
                 <div class="app-card">
-                    <h2>NEON BREAKER 3D</h2>
-                    <p>A high-speed pseudo-3D brick breaker experience. Feature-rich with special items, multi-ball mechanics, and a formidable guardian boss. Built with Three.js for superior web performance.</p>
+                    <div>
+                        <h2>NEON BREAKER 3D</h2>
+                        <p>A high-speed pseudo-3D brick breaker experience. Feature-rich with special items, multi-ball mechanics, and a formidable guardian boss. Built with Three.js for superior web performance and smooth 60FPS gameplay.</p>
+                    </div>
                     <a href="#" class="btn-launch" id="launch-breaker">LAUNCH GAME</a>
                 </div>
 
-                <!-- App 2: Vector Field Ultimate -->
+                <!-- App 2: Solar System Sim -->
                 <div class="app-card">
-                    <h2>VECTOR FIELD SIM</h2>
-                    <p>Interactive mathematical visualization tool. Explore fluid dynamics, gravitational fields, and complex differential equations in real-time. Full control over particle physics and field formulas.</p>
-                    <a href="vector.html" class="btn-launch">LAUNCH SIM</a>
+                    <div>
+                        <h2>SOLAR SYSTEM SIM</h2>
+                        <p>A physically accurate N-body gravity simulation of a planetary system. Observe the orbital mechanics of multiple celestial bodies including a central sun and orbiting planets. Interactive particles visualize the gravitational field strength.</p>
+                    </div>
+                    <a href="vector.html?preset=solar" class="btn-launch">LAUNCH SOLAR SIM</a>
+                </div>
+
+                <!-- App 3: Binary Star Sim -->
+                <div class="app-card">
+                    <div>
+                        <h2>BINARY STAR SIM</h2>
+                        <p>Explore the complex gravitational dance of a binary star system. Two massive stars orbit a common center of mass, creating a dynamic vector field that shapes the paths of surrounding space debris and particles.</p>
+                    </div>
+                    <a href="vector.html?preset=binary" class="btn-launch">LAUNCH STAR SIM</a>
+                </div>
+
+                <!-- App 4: Vector Field Ultimate -->
+                <div class="app-card">
+                    <div>
+                        <h2>VECTOR FIELD SIM</h2>
+                        <p>Interactive mathematical visualization tool. Explore fluid dynamics, gravitational fields, and complex differential equations in real-time. Full control over particle physics, field formulas, and measurement probes.</p>
+                    </div>
+                    <a href="vector.html" class="btn-launch">LAUNCH VECTOR SIM</a>
                 </div>
             </div>
         </section>
 
         <section id="about" style="margin-top: 80px; text-align: left; padding: 0 40px;">
             <h2 style="font-family: 'Orbitron'; color: var(--neon-pink);">MISSION & VISION</h2>
-            <p style="color: #aaa; line-height: 1.8;">Our goal is to provide high-quality, open-source web applications that demonstrate the power of modern browser technologies. From gaming to scientific visualization, we push the limits of JavaScript and WebGL. This hub serves as a central point for exploring our latest projects.</p>
+            <p style="color: #aaa; line-height: 1.8;">Ultimate Web Sim Hub is dedicated to pushing the boundaries of what's possible in a web browser. Our mission is to provide high-quality, educational, and entertaining simulations that leverage modern technologies like WebGL, Three.js, and advanced JavaScript physics engines.</p>
+            <p style="color: #aaa; line-height: 1.8;">Each simulation in our hub is carefully crafted to ensure maximum performance and visual fidelity. We believe that interactive visualizations are the most powerful way to learn complex concepts in physics and mathematics. All our projects are open-source and contribute to the growing community of web-based scientific tools.</p>
         </section>
 
         <div id="intern-form-container" style="display: none;">
@@ -241,7 +298,7 @@
         </div>
 
         <footer>
-            &copy; 2026 Ultimate Web Sim Hub. All rights reserved. | <a href="#" style="color: #444;">Privacy Policy</a> | <a href="#" style="color: #444;">Terms of Service</a>
+            &copy; 2026 Ultimate Web Sim Hub. All rights reserved. | <a href="privacy.html" style="color: #666; text-decoration: underline;">Privacy Policy</a> | <a href="terms.html" style="color: #666; text-decoration: underline;">Terms of Service</a>
         </footer>
     </div>
 
@@ -274,31 +331,39 @@
         const launchBtn = document.getElementById('launch-breaker');
         const closeBtn = document.getElementById('close-game');
 
-        launchBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            hub.style.display = 'none';
-            gameContainer.style.display = 'block';
-            window.dispatchEvent(new Event('resize')); // Fix canvas size
-        });
+        if (launchBtn) {
+            launchBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                hub.style.display = 'none';
+                gameContainer.style.display = 'block';
+                window.dispatchEvent(new Event('resize')); // Fix canvas size
+            });
+        }
 
-        closeBtn.addEventListener('click', () => {
-            gameContainer.style.display = 'none';
-            hub.style.display = 'block';
-        });
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                gameContainer.style.display = 'none';
+                hub.style.display = 'block';
+            });
+        }
 
         // Form Logic (Hub integration)
         const formContainer = document.getElementById('intern-form-container');
         const toggleBtnHub = document.getElementById('form-toggle-btn-hub');
         const closeFormBtn = document.getElementById('form-close-btn');
 
-        toggleBtnHub.addEventListener('click', (e) => {
-            e.preventDefault();
-            formContainer.style.display = 'block';
-        });
+        if (toggleBtnHub) {
+            toggleBtnHub.addEventListener('click', (e) => {
+                e.preventDefault();
+                formContainer.style.display = 'block';
+            });
+        }
 
-        closeFormBtn.addEventListener('click', () => {
-            formContainer.style.display = 'none';
-        });
+        if (closeFormBtn) {
+            closeFormBtn.addEventListener('click', () => {
+                formContainer.style.display = 'none';
+            });
+        }
 
         // Disqus
         var disqus_config = function () {
@@ -312,16 +377,19 @@
             (d.head || d.body).appendChild(s);
         })();
 
-        document.getElementById('comments-toggle').onclick = function() {
-            var dt = document.getElementById('disqus_thread');
-            if(dt.style.display === 'none') {
-                dt.style.display = 'block';
-                this.innerText = 'HIDE COMMENTS';
-            } else {
-                dt.style.display = 'none';
-                this.innerText = 'SHOW COMMENTS';
-            }
-        };
+        const commentsToggle = document.getElementById('comments-toggle');
+        if (commentsToggle) {
+            commentsToggle.onclick = function() {
+                var dt = document.getElementById('disqus_thread');
+                if(dt.style.display === 'none') {
+                    dt.style.display = 'block';
+                    this.innerText = 'HIDE COMMENTS';
+                } else {
+                    dt.style.display = 'none';
+                    this.innerText = 'SHOW COMMENTS';
+                }
+            };
+        }
     </script>
 
     <!-- Three.js from CDN -->
