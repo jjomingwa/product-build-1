@@ -15,16 +15,7 @@
             <div>SCORE: <span id="score">0</span></div>
             <div>LEVEL: <span id="level">1</span></div>
         </div>
-        <div id="tutorial-overlay">
-            <h1>NEON BREAKER 3D</h1>
-            <p><strong>MISSION:</strong> DESTROY ALL BLOCKS. DEFEAT THE BOSS.</p>
-            <div class="controls">
-                <div class="key">←</div> <div class="key">→</div>
-                <span>MOVE PADDLE</span>
-            </div>
-            <p class="hint">TIP: REFLECT BOSS PROJECTILES TO DEAL DAMAGE!</p>
-            <p class="loading">SYSTEM INITIALIZING...</p>
-        </div>
+        
         <div id="message-overlay" style="display: none;">
             <h2 id="message-title">LEVEL COMPLETE</h2>
             <p id="message-sub">PREPARING NEXT SECTOR...</p>
@@ -63,9 +54,40 @@
                 <button type="submit" class="submit-btn">SEND TRANSMISSION</button>
             </form>
         </div>
+
+        <!-- Disqus Comments -->
+        <div id="comments-container">
+            <button id="comments-toggle">SHOW COMMENTS</button>
+            <div id="disqus_thread" style="display: none;"></div>
+        </div>
     </div>
     
     <canvas id="game-canvas"></canvas>
+
+    <script>
+        // Disqus Integration
+        var disqus_config = function () {
+            this.page.url = window.location.href;
+            this.page.identifier = 'productbuilder-1';
+        };
+        (function() {
+            var d = document, s = d.createElement('script');
+            s.src = 'https://productbuilder-ukgobgmglb.disqus.com/embed.js';
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+
+        document.getElementById('comments-toggle').onclick = function() {
+            var dt = document.getElementById('disqus_thread');
+            if(dt.style.display === 'none') {
+                dt.style.display = 'block';
+                this.innerText = 'HIDE COMMENTS';
+            } else {
+                dt.style.display = 'none';
+                this.innerText = 'SHOW COMMENTS';
+            }
+        };
+    </script>
 
     <!-- Three.js from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>

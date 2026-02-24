@@ -127,21 +127,42 @@ h1 {
     transition: width 0.2s;
 }
 
-/* Internship Form Styles */
-#form-toggle-btn {
+/* Disqus Comments Styles */
+#comments-container {
     position: absolute;
     bottom: 20px;
-    right: 20px;
-    background: rgba(0, 255, 255, 0.2);
-    border: 2px solid #00ffff;
-    color: #00ffff;
+    left: 20px;
+    width: 300px;
+    pointer-events: auto;
+    z-index: 50;
+}
+
+#comments-toggle {
+    background: rgba(255, 0, 255, 0.2);
+    border: 2px solid #ff00ff;
+    color: #ff00ff;
     padding: 10px 20px;
     font-family: 'Orbitron', sans-serif;
     font-size: 14px;
     cursor: pointer;
-    pointer-events: auto;
     transition: all 0.3s;
-    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+    box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+}
+
+#comments-toggle:hover {
+    background: #ff00ff;
+    color: #fff;
+    box-shadow: 0 0 20px #ff00ff;
+}
+
+#disqus_thread {
+    margin-top: 10px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px;
+    border: 1px solid #ff00ff;
+    max-height: 400px;
+    overflow-y: auto;
+    border-radius: 5px;
 }
 
 #form-toggle-btn:hover {
