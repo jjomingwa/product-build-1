@@ -207,7 +207,7 @@ class Ball {
         this.material = new THREE.MeshStandardMaterial({ color: isClone ? 0x00ffff : 0xffffff });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         scene.add(this.mesh);
-        this.active = !isClone;
+        this.active = false; // Start inactive so it follows paddle
         this.velocity = new THREE.Vector3(0,0,0);
         this.isClone = isClone;
         if (isClone) this.launch();
@@ -218,7 +218,7 @@ class Ball {
         this.active = false;
     }
     launch() {
-        this.velocity.set((Math.random()-0.5)*0.1, CONFIG.ballSpeed, 0);
+        this.velocity.set((Math.random()-0.5)*0.2, CONFIG.ballSpeed, 0);
         this.active = true;
     }
     update(paddle, bricks, boss, soundManager, effects) {
