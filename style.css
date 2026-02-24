@@ -1,22 +1,128 @@
 body {
     margin: 0;
-    background-color: #111;
-    color: #fff;
-    font-family: 'Arial', sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-#container {
-    width: 80%;
-    max-width: 800px;
-    text-align: center;
+    overflow: hidden;
+    background-color: #050505;
+    font-family: 'Orbitron', sans-serif;
+    user-select: none;
 }
 
 canvas {
     display: block;
+    width: 100vw;
+    height: 100vh;
+}
+
+#ui-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: auto;
+    height: 100%;
+    pointer-events: none; /* Let clicks pass through to canvas if needed */
+}
+
+#score-board {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: #00ffff;
+    font-size: 24px;
+    text-shadow: 0 0 10px #00ffff;
+}
+
+#score-board div {
+    margin-bottom: 5px;
+}
+
+#tutorial-overlay, #message-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.85);
+    border: 2px solid #00ffff;
+    padding: 40px;
+    text-align: center;
+    color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+    backdrop-filter: blur(5px);
+    transition: opacity 1s;
+    pointer-events: auto;
+    max-width: 500px;
+    width: 80%;
+}
+
+h1 {
+    margin: 0 0 20px 0;
+    color: #ff00ff;
+    text-shadow: 0 0 10px #ff00ff;
+    font-size: 3em;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 30px 0;
+    font-size: 1.2em;
+}
+
+.key {
+    border: 2px solid #fff;
+    padding: 10px 15px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    font-weight: bold;
+}
+
+.hint {
+    color: #ffff00;
+    margin-top: 20px;
+}
+
+.loading {
+    margin-top: 30px;
+    font-size: 0.8em;
+    color: #888;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
+}
+
+#boss-hud {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    text-align: center;
+}
+
+.boss-name {
+    color: #ff0000;
+    font-size: 20px;
+    margin-bottom: 5px;
+    text-shadow: 0 0 10px #ff0000;
+}
+
+.health-bar-container {
+    width: 100%;
+    height: 20px;
+    background: #330000;
+    border: 2px solid #ff0000;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+#boss-health-bar {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #ff0000, #ff6600);
+    transition: width 0.2s;
 }

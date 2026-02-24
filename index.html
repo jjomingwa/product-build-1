@@ -3,14 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Brick Breaker</title>
+    <title>Neon Breaker 3D</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+    </style>
 </head>
 <body>
-    <div id="container">
-        <canvas id="game-canvas"></canvas>
+    <div id="ui-layer">
+        <div id="score-board">
+            <div>SCORE: <span id="score">0</span></div>
+            <div>LEVEL: <span id="level">1</span></div>
+        </div>
+        <div id="tutorial-overlay">
+            <h1>NEON BREAKER 3D</h1>
+            <p><strong>MISSION:</strong> DESTROY ALL BLOCKS. DEFEAT THE BOSS.</p>
+            <div class="controls">
+                <div class="key">←</div> <div class="key">→</div>
+                <span>MOVE PADDLE</span>
+            </div>
+            <p class="hint">TIP: REFLECT BOSS PROJECTILES TO DEAL DAMAGE!</p>
+            <p class="loading">SYSTEM INITIALIZING...</p>
+        </div>
+        <div id="message-overlay" style="display: none;">
+            <h2 id="message-title">LEVEL COMPLETE</h2>
+            <p id="message-sub">PREPARING NEXT SECTOR...</p>
+        </div>
+        <div id="boss-hud" style="display: none;">
+            <div class="boss-name">GUARDIAN CORE</div>
+            <div class="health-bar-container">
+                <div id="boss-health-bar"></div>
+            </div>
+        </div>
     </div>
+    
+    <canvas id="game-canvas"></canvas>
+
+    <!-- Three.js from CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Game Code -->
     <script src="main.js"></script>
 </body>
 </html>
