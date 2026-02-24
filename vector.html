@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Field Ultimate</title>
+    <style>
+        :root {
+            --bg-color: #050505;
+            --panel-bg: rgba(20, 25, 30, 0.85);
+            --text-primary: #e0e0e0;
+            --accent: #00d2d3; /* Cyan */
+            --accent-warm: #ff9f43; /* Orange */
+            --danger: #ff6b6b; /* Red */
+            --border: rgba(255, 255, 255, 0.15);
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-primary);
+            user-select: none; /* 드래그 방지 */
+        }
+
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* --- UI Panels --- */
+        #ui-container {
+            position: absolute;
+            top: 0; left: 0;
+            height: 100vh;
+            display: flex;
+            z-index: 100;
+            pointer-events: none; /* 캔버스 클릭 허용 */
+        }
+
+        #controls {
+            width: 360px;
+            height: 100%;
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            pointer-events: auto; /* 패널 클릭 허용 */
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+        }
+
+        #controls.collapsed {
+            transform: translateX(-360px);
+        }
+
+        /* Toggle Button */
+        #toggle-btn {
+            position: absolute;
+            left: 360px; top: 20px;
+            width: 30px; height: 40px;
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+            color: var(--accent);
+            cursor: pointer;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: left 0.3s ease;
+        }
+        #controls.collapsed + #toggle-btn {
+            left: 0;
+        }
+        
+        #back-home {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 210, 211, 0.2);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            z-index: 1000;
+            pointer-events: auto;
+            font-size: 0.9rem;
+        }
+        #back-home:hover {
+            background: var(--accent);
+            color: #000;
+        }
+
+        /* --- UI Elements --- */
+        h1 {
+            font-size: 1.4rem; color: var(--accent);
+            margin: 0 0 20px 0; border-bottom: 1px solid var(--border);
+            padding-bottom: 10px; letter-spacing: 1px;
+        }
+
+        .section { margin-bottom: 20px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 15px; }
+        .section-title { font-size: 0.8rem; color: #888; margin-bottom: 10px; text-transform: uppercase; font-weight: bold; }
+        .control-row { margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        
+        label { font-size: 0.85rem; flex: 1; }
+        
+        input[type="range"] { flex: 2; height: 4px; background: #444; border-radius: 2px; appearance: none; outline: none; margin-left: 10px; }
+        input[type="range"]::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; background: var(--accent); border-radius: 50%; cursor: pointer; }
+
+        select, input[type="text"] {
+            width: 100%; padding: 6px; background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border); border-radius: 4px;
+            color: #fff; font-family: monospace; margin-top: 5px;
+        }
+        
+        button.action-btn {
+            width: 100%; padding: 10px; background: var(--accent);
+            border: none; border-radius: 4px; color: #000; font-weight: bold;
+            cursor: pointer; margin-top: 8px; transition: opacity 0.2s;
+        }
+        button.action-btn:hover { opacity: 0.8; }
+
+        /* --- Toggle Switch --- */
+        .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 18px; }
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+        /* --- Probe Info Box --- */
+        #probe-panel {
+            margin-top: 10px; padding: 10px;
+            background: rgba(255, 107, 107, 0.15);
+            border: 1px solid var(--danger); border-radius: 6px;
+            display: none;
+        }
+        .val-row { display: flex; justify-content: space-between; font-family: monospace; font-size: 0.9rem; margin-top: 4px; }
+
+        /* Guide Text */
+        .guide { font-size: 0.75rem; color: #aaa; margin-top: 5px; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" id="back-home">BACK TO HUB</a>
+
+    <div id="ui-container">
+        <div id="controls">
+            <h1>Vector Ultimate</h1>
+
+            <div class="section">
+                <div class="section-title">Field Generator</div>
+                <select id="presetSelect">
+                    <optgroup label="Math Formulas">
+                        <option value="custom">Custom Equation</option>
+                        <option value="doubleVortex" selected>Double Vortex (이중 와류)</option>
+                        <option value="saddle">Saddle Point (안장점)</option>
+                        <option value="sourceSink">Source & Sink</option>
+                        <option value="spiral">Spiral Blackhole</option>
+                    </optgroup>
+                    <optgroup label="Dynamic Simulations">
+                        <option value="solar">Solar System (태양계)</option>
+                        <option value="binary">Binary Star (쌍성계)</option>
+                    </optgroup>
+                </select>
+
+                <div id="equation-inputs">
+                    <input type="text" id="eqU" value="-(y-2)/((x-2)**2+(y-2)**2+0.2) - (y+2)/((x+2)**2+(y+2)**2+0.2)">
+                    <input type="text" id="eqV" value="(x-2)/((x-2)**2+(y-2)**2+0.2) + (x+2)/((x+2)**2+(y+2)**2+0.2)">
+                    <button class="action-btn" id="applyBtn">Apply Equation</button>
+                </div>
+                <div class="guide" id="dynamic-guide" style="display:none; color: var(--accent-warm);">
+                    * Gravity simulation active. Equations are managed by physics engine.
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Measurement Probe</div>
+                <div class="control-row">
+                    <span>Enable Probe</span>
+                    <label class="switch">
+                        <input type="checkbox" id="probeCheck">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div id="probe-panel">
+                    <div style="color:var(--danger); font-weight:bold; margin-bottom:5px;">Real-time Data</div>
+                    <div class="val-row"><span>Curl (∇×F):</span> <span id="valCurl">0.00</span></div>
+                    <div class="val-row"><span>Div (∇·F):</span> <span id="valDiv">0.00</span></div>
+                </div>
+                <div class="guide">Tip: Drag the red crosshair to measure.</div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Mouse Interaction</div>
+                <div class="guide">
+                    • Left Click: Attract (Blue)<br>
+                    • Right Click: Repel (Red)<br>
+                    • Probe ON: Prioritizes Probe Drag
+                </div>
+                <div class="control-row" style="margin-top:10px;">
+                    <label>Force Strength</label>
+                    <input type="range" id="mouseForce" min="1" max="20" value="8">
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-title">Particle Options</div>
+                <div class="control-row">
+                    <label>Shape</label>
+                    <select id="shapeSelect" style="width:60%;">
+                        <option value="circle">Circle</option>
+                        <option value="square">Square</option>
+                        <option value="triangle">Triangle</option>
+                        <option value="star">Star</option>
+                    </select>
+                </div>
+                <div class="control-row">
+                    <label>Count</label>
+                    <input type="range" id="paramCount" min="500" max="4000" step="100" value="1500">
+                </div>
+                <div class="control-row">
+                    <label>Trail</label>
+                    <input type="range" id="paramTrail" min="0" max="0.5" step="0.01" value="0.1">
+                </div>
+                <div class="control-row">
+                    <span>Speed Color</span>
+                    <label class="switch">
+                        <input type="checkbox" id="colorMode" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="section" style="border:none;">
+                <div class="section-title">Global View</div>
+                <div class="control-row">
+                    <span>Show Vector Grid</span>
+                    <label class="switch">
+                        <input type="checkbox" id="gridCheck">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <button class="action-btn" id="resetBtn" style="background:#555; color:#fff;">Reset Particles</button>
+                <button class="action-btn" id="screenshotBtn" style="background:#fff; color:#000;">📸 Screenshot</button>
+            </div>
+        </div>
+        <button id="toggle-btn">◀</button>
+    </div>
+
+    <canvas id="simCanvas"></canvas>
+
+    <script>
+        /**
+         * VECTOR FIELD ULTIMATE EDITION
+         * Integrated Logic for Math Fields, Physics, Mouse Forces, and Probes.
+         */
+
+        // --- 1. System Constants & State ---
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let particles = [];
+        let time = 0;
+        
+        // Input State
+        const input = {
+            x: -1000, y: -1000, // Screen Coords
+            down: false,
+            button: -1, // 0: Left, 2: Right
+            isDraggingProbe: false
+        };
+
+        // Configuration
+        const cfg = {
+            count: 1500,
+            speed: 1.0,
+            trail: 0.1,
+            shape: 'circle',
+            colorMode: true,
+            grid: false,
+            mouseForce: 8,
+            mode: 'math', // 'math' or 'dynamic'
+            // Equation Functions
+            uFunc: null,
+            vFunc: null,
+            // Dynamic Logic Function
+            dynamicFn: null
+        };
+
+        // Probe Object
+        const probe = {
+            active: false,
+            x: 0, y: 0, // World Coordinates
+            screenX: 0, screenY: 0,
+            radius: 20 // Hit radius
+        };
+
+        // Math Shortcuts
+        const { sin, cos, atan2, sqrt, PI, abs, pow, min, max } = Math;
+
+        // --- 2. Field Logic ---
+        
+        const presets = {
+            // Math Presets
+            custom: { u: "0", v: "0" },
+            doubleVortex: { 
+                u: "-(y-2)/((x-2)**2+(y-2)**2+0.2) - (y+2)/((x+2)**2+(y+2)**2+0.2)", 
+                v: "(x-2)/((x-2)**2+(y-2)**2+0.2) + (x+2)/((x+2)**2+(y+2)**2+0.2)"
+            },
+            saddle: { u: "x", v: "-y" },
+            sourceSink: { u: "x/(x*x+y*y+0.1) - (x-3)/((x-3)**2+y**2+0.1)", v: "y/(x*x+y*y+0.1) - y/((x-3)**2+y**2+0.1)" },
+            spiral: { u: "-y - 0.5*x", v: "x - 0.5*y" },
+            
+            // Dynamic Logic
+            solar: (x, y, t) => {
+                // Sun (Center)
+                let u = -15 * x / pow(x*x + y*y + 0.1, 1.5);
+                let v = -15 * y / pow(x*x + y*y + 0.1, 1.5);
+                // Planet 1 (Jupiter)
+                const p1x = 4 * cos(t*0.4), p1y = 4 * sin(t*0.4);
+                const d1 = (x-p1x)**2 + (y-p1y)**2 + 0.1;
+                u += -4 * (x-p1x)/pow(d1, 1.5);
+                v += -4 * (y-p1y)/pow(d1, 1.5);
+                // Planet 2 (Earth)
+                const p2x = 2 * cos(t*1.2), p2y = 2 * sin(t*1.2);
+                const d2 = (x-p2x)**2 + (y-p2y)**2 + 0.1;
+                u += -1 * (x-p2x)/pow(d2, 1.5);
+                v += -1 * (y-p2y)/pow(d2, 1.5);
+                
+                return { u, v, bodies: [
+                    {x:0, y:0, r:0.5, c:'#f1c40f'}, 
+                    {x:p1x, y:p1y, r:0.3, c:'#e67e22'},
+                    {x:p2x, y:p2y, r:0.15, c:'#3498db'}
+                ]};
+            },
+            binary: (x, y, t) => {
+                const R = 2.0;
+                const s1x = R*cos(t), s1y = R*sin(t);
+                const s2x = -s1x, s2y = -s1y;
+                const d1 = (x-s1x)**2 + (y-s1y)**2 + 0.2;
+                const d2 = (x-s2x)**2 + (y-s2y)**2 + 0.2;
+                const M = 6;
+                let u = -M*(x-s1x)/pow(d1,1.5) - M*(x-s2x)/pow(d2,1.5);
+                let v = -M*(y-s1y)/pow(d1,1.5) - M*(y-s2y)/pow(d2,1.5);
+                return { u, v, bodies: [
+                    {x:s1x, y:s1y, r:0.35, c:'#ff6b6b'},
+                    {x:s2x, y:s2y, r:0.35, c:'#ff6b6b'}
+                ]};
+            }
+        };
+
+        // Master Vector Function
+        function getField(x, y, t) {
+            if (cfg.mode === 'math') {
+                try {
+                    return { u: cfg.uFunc(x, y, t), v: cfg.vFunc(x, y, t) };
+                } catch(e) { return {u:0, v:0}; }
+            } else {
+                return cfg.dynamicFn(x, y, t);
+            }
+        }
+
+        // --- 3. Particle System ---
+        
+        class Particle {
+            constructor() { this.reset(); }
+            
+            reset() {
+                const aspect = width / height;
+                this.x = (Math.random() - 0.5) * 12 * aspect;
+                this.y = (Math.random() - 0.5) * 12;
+                this.life = Math.random() * 150 + 50;
+                this.vx = 0; this.vy = 0;
+            }
+
+            update(dt) {
+                this.life -= dt * 10;
+                if (this.life <= 0) this.reset();
+
+                // 1. Get Base Field
+                const vec = getField(this.x, this.y, time);
+                let u = vec.u;
+                let v = vec.v;
+
+                // 2. Apply Mouse Force (Attract/Repel)
+                // Only if NOT dragging the probe
+                if (input.down && !input.isDraggingProbe) {
+                    const aspect = width / height;
+                    const scale = Math.min(width, height) / 10;
+                    // Screen to World for Mouse
+                    const mx = (input.x - width/2) / scale;
+                    const my = -(input.y - height/2) / scale;
+
+                    const dx = this.x - mx;
+                    const dy = this.y - my;
+                    const distSq = dx*dx + dy*dy + 0.1;
+                    
+                    // Force: Left(0) = Attract(-), Right(2) = Repel(+)
+                    const sign = (input.button === 2) ? 1 : -1; 
+                    const force = (cfg.mouseForce * sign) / distSq;
+
+                    u += dx * force;
+                    v += dy * force;
+                }
+
+                // 3. Update Position
+                this.x += u * dt * cfg.speed;
+                this.y += v * dt * cfg.speed;
+                this.vx = u; this.vy = v;
+
+                // 4. Bounds Check
+                if (abs(this.x) > 10 || abs(this.y) > 10) this.reset();
+            }
+
+            draw() {
+                const scale = Math.min(width, height) / 10;
+                const sx = width/2 + this.x * scale;
+                const sy = height/2 - this.y * scale;
+                
+                // Color Logic
+                if (cfg.colorMode) {
+                    const speed = sqrt(this.vx**2 + this.vy**2);
+                    // Cyan(180) to Blue(240) based on speed
+                    const hue = 170 + min(speed * 30, 70); 
+                    const light = 50 + min(speed * 20, 40);
+                    ctx.fillStyle = `hsl(${hue}, 100%, ${light}%)`;
+                } else {
+                    ctx.fillStyle = '#e0e0e0';
+                }
+
+                // Shape Logic
+                const size = 3;
+                ctx.beginPath();
+                if (cfg.shape === 'circle') {
+                    ctx.arc(sx, sy, size/2, 0, PI*2);
+                } else if (cfg.shape === 'square') {
+                    ctx.rect(sx-size/2, sy-size/2, size, size);
+                } else if (cfg.shape === 'triangle') {
+                    ctx.moveTo(sx, sy-size/1.5);
+                    ctx.lineTo(sx+size/1.5, sy+size/1.5);
+                    ctx.lineTo(sx-size/1.5, sy+size/1.5);
+                } else if (cfg.shape === 'star') {
+                    const outer = size, inner = size/2;
+                    for(let i=0; i<5; i++){
+                        ctx.lineTo(sx + cos((18+i*72)/180*PI)*outer, sy - sin((18+i*72)/180*PI)*outer);
+                        ctx.lineTo(sx + cos((54+i*72)/180*PI)*inner, sy - sin((54+i*72)/180*PI)*inner);
+                    }
+                }
+                ctx.fill();
+            }
+        }
+
+        // --- 4. Visualization & Tools ---
+
+        function drawGrid() {
+            if (!cfg.grid) return;
+            const step = 40;
+            const scale = Math.min(width, height) / 10;
+            ctx.lineWidth = 1;
+            
+            for (let x = 0; x < width; x += step) {
+                for (let y = 0; y < height; y += step) {
+                    const wx = (x - width/2) / scale;
+                    const wy = -(y - height/2) / scale;
+                    
+                    const vec = getField(wx, wy, time);
+                    const mag = sqrt(vec.u**2 + vec.v**2);
+                    if (mag < 0.1) continue;
+
+                    const len = min(step*0.7, mag * 8);
+                    const angle = atan2(-vec.v, vec.u);
+
+                    ctx.strokeStyle = `hsla(${mag*40}, 100%, 50%, 0.4)`;
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.rotate(angle);
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0); ctx.lineTo(len, 0);
+                    ctx.lineTo(len-3, -3); ctx.moveTo(len, 0); ctx.lineTo(len-3, 3);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            }
+        }
+
+        function drawBodies(bodies) {
+            if (!bodies) return;
+            const scale = Math.min(width, height) / 10;
+            bodies.forEach(b => {
+                const sx = width/2 + b.x * scale;
+                const sy = height/2 - b.y * scale;
+                const sr = b.r * scale;
+                ctx.beginPath();
+                ctx.arc(sx, sy, sr, 0, PI*2);
+                ctx.fillStyle = b.c;
+                ctx.shadowBlur = 20; ctx.shadowColor = b.c;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+        }
+
+        function updateProbe() {
+            if (!probe.active) return;
+            
+            // Sync Coords
+            const scale = Math.min(width, height) / 10;
+            probe.x = (probe.screenX - width/2) / scale;
+            probe.y = -(probe.screenY - height/2) / scale;
+
+            // Calc Curl & Div (Numerical Diff)
+            const h = 0.01;
+            const vC = getField(probe.x, probe.y, time);
+            const vR = getField(probe.x + h, probe.y, time);
+            const vL = getField(probe.x - h, probe.y, time);
+            const vU = getField(probe.x, probe.y + h, time);
+            const vD = getField(probe.x, probe.y - h, time);
+
+            const dudx = (vR.u - vL.u) / (2*h);
+            const dvdx = (vR.v - vL.v) / (2*h);
+            const dudy = (vU.u - vD.u) / (2*h);
+            const dvdy = (vU.v - vD.v) / (2*h);
+
+            const div = dudx + dvdy;
+            const curl = dvdx - dudy;
+
+            document.getElementById('valCurl').textContent = curl.toFixed(2);
+            document.getElementById('valDiv').textContent = div.toFixed(2);
+        }
+
+        function drawProbe() {
+            if (!probe.active) return;
+            const sx = probe.screenX;
+            const sy = probe.screenY;
+            
+            ctx.save();
+            ctx.strokeStyle = '#ff6b6b';
+            ctx.lineWidth = 2;
+            
+            // Crosshair
+            ctx.beginPath();
+            ctx.moveTo(sx-10, sy); ctx.lineTo(sx+10, sy);
+            ctx.moveTo(sx, sy-10); ctx.lineTo(sx, sy+10);
+            ctx.stroke();
+            
+            // Hit Area Ring
+            ctx.beginPath();
+            ctx.arc(sx, sy, probe.radius, 0, PI*2);
+            ctx.fillStyle = 'rgba(255, 107, 107, 0.2)';
+            ctx.fill();
+            ctx.stroke();
+            
+            // Label
+            ctx.fillStyle = '#ff6b6b';
+            ctx.font = '12px sans-serif';
+            ctx.fillText("PROBE", sx+15, sy-10);
+            ctx.restore();
+        }
+
+        // --- 5. Main Loop ---
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Trail Logic
+            if (cfg.trail <= 0.01) {
+                ctx.clearRect(0, 0, width, height);
+            } else {
+                ctx.fillStyle = `rgba(5, 5, 5, ${cfg.trail})`;
+                ctx.fillRect(0, 0, width, height);
+            }
+
+            const dt = 0.016;
+            time += dt;
+
+            // Logic Updates
+            updateProbe();
+
+            // Draw Layer 1: Grid
+            drawGrid();
+
+            // Draw Layer 2: Bodies (Dynamic Modes)
+            if (cfg.mode === 'dynamic') {
+                const res = cfg.dynamicFn(0, 0, time);
+                if (res.bodies) drawBodies(res.bodies);
+            }
+
+            // Draw Layer 3: Particles
+            for(let p of particles) {
+                p.update(dt);
+                p.draw();
+            }
+
+            // Draw Layer 4: Probe
+            drawProbe();
+        }
+
+        // --- 6. Input Handling & Initialization ---
+
+        function init() {
+            resize();
+            initParticles();
+            // Default preset
+            document.getElementById('presetSelect').value = 'doubleVortex';
+            updateEquation();
+            animate();
+        }
+
+        function initParticles() {
+            particles = [];
+            for(let i=0; i<cfg.count; i++) particles.push(new Particle());
+        }
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            // Center Probe initially
+            probe.screenX = width/2;
+            probe.screenY = height/2;
+        }
+
+        function updateEquation() {
+            const uStr = document.getElementById('eqU').value;
+            const vStr = document.getElementById('eqV').value;
+            try {
+                cfg.uFunc = new Function('x', 'y', 't', `return ${uStr};`);
+                cfg.vFunc = new Function('x', 'y', 't', `return ${vStr};`);
+            } catch(e) {}
+        }
+
+        // --- Event Listeners ---
+        
+        // Mouse / Touch
+        canvas.addEventListener('mousedown', e => {
+            input.down = true;
+            input.button = e.button;
+            input.x = e.clientX;
+            input.y = e.clientY;
+
+            // Probe Hit Test
+            if (probe.active) {
+                const dx = input.x - probe.screenX;
+                const dy = input.y - probe.screenY;
+                if (dx*dx + dy*dy < probe.radius**2) {
+                    input.isDraggingProbe = true;
+                }
+            }
+        });
+
+        window.addEventListener('mousemove', e => {
+            input.x = e.clientX;
+            input.y = e.clientY;
+            if (input.isDraggingProbe) {
+                probe.screenX = input.x;
+                probe.screenY = input.y;
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            input.down = false;
+            input.isDraggingProbe = false;
+        });
+        
+        // Prevent Context Menu on Right Click
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
+        window.addEventListener('resize', resize);
+
+        // UI Controls
+        document.getElementById('applyBtn').addEventListener('click', () => {
+            document.getElementById('presetSelect').value = 'custom';
+            cfg.mode = 'math';
+            document.getElementById('dynamic-guide').style.display = 'none';
+            document.getElementById('equation-inputs').style.display = 'block';
+            updateEquation();
+            initParticles();
+        });
+
+        document.getElementById('presetSelect').addEventListener('change', e => {
+            const val = e.target.value;
+            const eqDiv = document.getElementById('equation-inputs');
+            const guideDiv = document.getElementById('dynamic-guide');
+
+            if (presets[val]) { // Math mode
+                cfg.mode = 'math';
+                eqDiv.style.display = 'block';
+                guideDiv.style.display = 'none';
+                document.getElementById('eqU').value = presets[val].u;
+                document.getElementById('eqV').value = presets[val].v;
+                updateEquation();
+            } else { // Dynamic mode
+                cfg.mode = 'dynamic';
+                eqDiv.style.display = 'none';
+                guideDiv.style.display = 'block';
+                if (val === 'solar') cfg.dynamicFn = presets.solar;
+                if (val === 'binary') cfg.dynamicFn = presets.binary;
+            }
+            initParticles();
+        });
+
+        // Toggles & Sliders
+        const bind = (id, prop, action) => {
+            document.getElementById(id).addEventListener(action, e => {
+                const val = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+                cfg[prop] = (e.target.type === 'range') ? parseFloat(val) : val;
+                if (prop === 'count') initParticles();
+            });
+        };
+
+        bind('paramCount', 'count', 'input');
+        bind('paramTrail', 'trail', 'input');
+        bind('mouseForce', 'mouseForce', 'input');
+        bind('shapeSelect', 'shape', 'change');
+        bind('colorMode', 'colorMode', 'change');
+        bind('gridCheck', 'grid', 'change');
+        
+        document.getElementById('resetBtn').addEventListener('click', initParticles);
+        
+        // Probe Toggle
+        document.getElementById('probeCheck').addEventListener('change', e => {
+            probe.active = e.target.checked;
+            document.getElementById('probe-panel').style.display = probe.active ? 'block' : 'none';
+            if (probe.active) {
+                probe.screenX = width/2; 
+                probe.screenY = height/2;
+            }
+        });
+
+        // UI Collapse
+        const ui = document.getElementById('controls');
+        const btn = document.getElementById('toggle-btn');
+        btn.addEventListener('click', () => {
+            ui.classList.toggle('collapsed');
+            btn.textContent = ui.classList.contains('collapsed') ? '▶' : '◀';
+        });
+
+        // Screenshot
+        document.getElementById('screenshotBtn').addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'vector_sim.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>

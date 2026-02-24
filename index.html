@@ -3,32 +3,208 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Breaker 3D</title>
+    <title>Ultimate Web Sim Hub | 3D Games & Math Simulations</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400&display=swap');
+        
+        :root {
+            --neon-blue: #00ffff;
+            --neon-pink: #ff00ff;
+            --bg-dark: #050505;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-dark);
+            color: #fff;
+            font-family: 'Roboto', sans-serif;
+            overflow-x: hidden;
+        }
+
+        #hub-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        header {
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            color: var(--neon-blue);
+            text-shadow: 0 0 20px var(--neon-blue);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #aaa;
+            letter-spacing: 2px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 50px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 20px;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--neon-pink);
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-top: 40px;
+        }
+
+        .app-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.1);
+            border-color: var(--neon-blue);
+        }
+
+        .app-card h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-blue);
+            margin-top: 0;
+        }
+
+        .app-card p {
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .btn-launch {
+            display: inline-block;
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 10px 25px;
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .btn-launch:hover {
+            background: var(--neon-blue);
+            color: #000;
+        }
+
+        #adsense-placeholder {
+            margin: 40px 0;
+            padding: 20px;
+            background: rgba(255,255,255,0.02);
+            border: 1px dashed #444;
+            color: #666;
+        }
+
+        footer {
+            margin-top: 100px;
+            padding: 40px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #666;
+            font-size: 0.8rem;
+        }
+
+        /* --- Integration Overlays --- */
+        #game-overlay, #intern-form-container {
+            z-index: 2000;
+        }
+        
+        #game-canvas-container {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: #000;
+            z-index: 1500;
+        }
+
+        #close-game {
+            position: fixed;
+            top: 20px; right: 20px;
+            z-index: 2100;
+            background: rgba(255,0,0,0.5);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+        }
     </style>
 </head>
 <body>
-    <div id="ui-layer">
-        <div id="score-board">
-            <div>SCORE: <span id="score">0</span></div>
-            <div>LEVEL: <span id="level">1</span></div>
-        </div>
-        
-        <div id="message-overlay" style="display: none;">
-            <h2 id="message-title">LEVEL COMPLETE</h2>
-            <p id="message-sub">PREPARING NEXT SECTOR...</p>
-        </div>
-        <div id="boss-hud" style="display: none;">
-            <div class="boss-name">GUARDIAN CORE</div>
-            <div class="health-bar-container">
-                <div id="boss-health-bar"></div>
-            </div>
-        </div>
 
-        <!-- Internship Inquiry Form -->
-        <button id="form-toggle-btn">APPLY FOR INTERNSHIP</button>
+    <div id="hub-container">
+        <header>
+            <h1>ULTIMATE WEB SIM HUB</h1>
+            <p class="subtitle">EXPERIENCE HIGH-PERFORMANCE WEB SIMULATIONS</p>
+        </header>
+
+        <nav>
+            <a href="#simulations">SIMULATIONS</a>
+            <a href="#about">ABOUT US</a>
+            <a href="https://github.com/jjomingwa/product-build-1" target="_blank">GITHUB</a>
+            <a href="#" id="form-toggle-btn-hub">INTERNSHIP APPLY</a>
+        </nav>
+
+        <div id="adsense-placeholder">AD SPACE (Google AdSense Ready)</div>
+
+        <section id="simulations">
+            <div class="app-grid">
+                <!-- App 1: Neon Breaker 3D -->
+                <div class="app-card">
+                    <h2>NEON BREAKER 3D</h2>
+                    <p>A high-speed pseudo-3D brick breaker experience. Feature-rich with special items, multi-ball mechanics, and a formidable guardian boss. Built with Three.js for superior web performance.</p>
+                    <a href="#" class="btn-launch" id="launch-breaker">LAUNCH GAME</a>
+                </div>
+
+                <!-- App 2: Vector Field Ultimate -->
+                <div class="app-card">
+                    <h2>VECTOR FIELD SIM</h2>
+                    <p>Interactive mathematical visualization tool. Explore fluid dynamics, gravitational fields, and complex differential equations in real-time. Full control over particle physics and field formulas.</p>
+                    <a href="vector.html" class="btn-launch">LAUNCH SIM</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="about" style="margin-top: 80px; text-align: left; padding: 0 40px;">
+            <h2 style="font-family: 'Orbitron'; color: var(--neon-pink);">MISSION & VISION</h2>
+            <p style="color: #aaa; line-height: 1.8;">Our goal is to provide high-quality, open-source web applications that demonstrate the power of modern browser technologies. From gaming to scientific visualization, we push the limits of JavaScript and WebGL. This hub serves as a central point for exploring our latest projects.</p>
+        </section>
+
         <div id="intern-form-container" style="display: none;">
             <div class="form-header">
                 <h2>LAB INTERNSHIP INQUIRY</h2>
@@ -57,18 +233,74 @@
 
         <!-- Disqus Comments -->
         <div id="comments-container">
-            <button id="comments-toggle">SHOW COMMENTS</button>
+            <button id="comments-toggle">SHOW HUB COMMENTS</button>
             <div id="disqus_thread" style="display: none;"></div>
         </div>
+
+        <footer>
+            &copy; 2026 Ultimate Web Sim Hub. All rights reserved. | <a href="#" style="color: #444;">Privacy Policy</a> | <a href="#" style="color: #444;">Terms of Service</a>
+        </footer>
     </div>
-    
-    <canvas id="game-canvas"></canvas>
+
+    <!-- Game Container (Modal) -->
+    <div id="game-canvas-container">
+        <button id="close-game">BACK TO HUB</button>
+        <div id="ui-layer">
+            <div id="score-board">
+                <div>SCORE: <span id="score">0</span></div>
+                <div>LEVEL: <span id="level">1</span></div>
+            </div>
+            <div id="message-overlay" style="display: none;">
+                <h2 id="message-title">LEVEL COMPLETE</h2>
+                <p id="message-sub">PREPARING NEXT SECTOR...</p>
+            </div>
+            <div id="boss-hud" style="display: none;">
+                <div class="boss-name">GUARDIAN CORE</div>
+                <div class="health-bar-container">
+                    <div id="boss-health-bar"></div>
+                </div>
+            </div>
+        </div>
+        <canvas id="game-canvas"></canvas>
+    </div>
 
     <script>
-        // Disqus Integration
+        // Hub UI Controls
+        const hub = document.getElementById('hub-container');
+        const gameContainer = document.getElementById('game-canvas-container');
+        const launchBtn = document.getElementById('launch-breaker');
+        const closeBtn = document.getElementById('close-game');
+
+        launchBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            hub.style.display = 'none';
+            gameContainer.style.display = 'block';
+            window.dispatchEvent(new Event('resize')); // Fix canvas size
+        });
+
+        closeBtn.addEventListener('click', () => {
+            gameContainer.style.display = 'none';
+            hub.style.display = 'block';
+        });
+
+        // Form Logic (Hub integration)
+        const formContainer = document.getElementById('intern-form-container');
+        const toggleBtnHub = document.getElementById('form-toggle-btn-hub');
+        const closeFormBtn = document.getElementById('form-close-btn');
+
+        toggleBtnHub.addEventListener('click', (e) => {
+            e.preventDefault();
+            formContainer.style.display = 'block';
+        });
+
+        closeFormBtn.addEventListener('click', () => {
+            formContainer.style.display = 'none';
+        });
+
+        // Disqus
         var disqus_config = function () {
             this.page.url = window.location.href;
-            this.page.identifier = 'productbuilder-1';
+            this.page.identifier = 'productbuilder-hub';
         };
         (function() {
             var d = document, s = d.createElement('script');

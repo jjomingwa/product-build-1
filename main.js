@@ -355,6 +355,25 @@ class Game {
         });
         window.addEventListener('keyup', e => { if (e.key.includes('Arrow')) this.keys[e.key.toLowerCase().replace('arrow','')] = false; });
 
+        // Form Logic
+        const formContainer = document.getElementById('intern-form-container');
+        const toggleBtn = document.getElementById('form-toggle-btn');
+        const closeBtn = document.getElementById('form-close-btn');
+
+        if (toggleBtn && formContainer) {
+            toggleBtn.addEventListener('click', () => {
+                formContainer.style.display = 'block';
+                this.state = 'paused';
+            });
+        }
+
+        if (closeBtn && formContainer) {
+            closeBtn.addEventListener('click', () => {
+                formContainer.style.display = 'none';
+                this.state = 'playing';
+            });
+        }
+
         this.startLevel(1);
         this.animate = this.animate.bind(this);
         requestAnimationFrame(this.animate);
