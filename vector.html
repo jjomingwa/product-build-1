@@ -17,24 +17,66 @@
 
         body {
             margin: 0;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
             background-color: var(--bg-color);
             font-family: 'Segoe UI', Roboto, sans-serif;
             color: var(--text-primary);
-            user-select: none; /* 드래그 방지 */
+        }
+
+        #canvas-wrapper {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
         }
 
         canvas {
             display: block;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
         }
+
+        /* --- Educational Content Section --- */
+        #doc-section {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 80px 40px;
+            background-color: #0a0a0a;
+            color: #ccc;
+            line-height: 1.8;
+            border-top: 1px solid var(--border);
+        }
+
+        #doc-section h2 { color: var(--accent); font-family: 'Segoe UI', sans-serif; margin-top: 40px; }
+        #doc-section h3 { color: var(--accent-warm); }
+        #doc-section p { margin-bottom: 20px; }
+        
+        .math-block {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-left: 4px solid var(--accent);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 20px 0;
+            color: #fff;
+        }
+
+        footer {
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            background: #050505;
+            color: #666;
+            font-size: 0.85rem;
+        }
+        footer a { color: #888; text-decoration: none; margin: 0 10px; }
+        footer a:hover { color: var(--accent); }
 
         /* --- UI Panels --- */
         #ui-container {
             position: absolute;
             top: 0; left: 0;
-            height: 100vh;
+            height: 100%;
             display: flex;
             z-index: 100;
             pointer-events: none; /* 캔버스 클릭 허용 */
@@ -168,113 +210,161 @@
 </head>
 <body>
 
-    <a href="index.html" id="back-home">BACK TO HUB</a>
+    <div id="canvas-wrapper">
+        <a href="index.html" id="back-home">BACK TO HUB</a>
 
-    <div id="ui-container">
-        <div id="controls">
-            <h1>Vector Ultimate</h1>
+        <div id="ui-container">
+            <div id="controls">
+                <h1>Vector Ultimate</h1>
 
-            <div class="section">
-                <div class="section-title">Field Generator</div>
-                <select id="presetSelect">
-                    <optgroup label="Math Formulas">
-                        <option value="custom">Custom Equation</option>
-                        <option value="doubleVortex" selected>Double Vortex (이중 와류)</option>
-                        <option value="saddle">Saddle Point (안장점)</option>
-                        <option value="sourceSink">Source & Sink</option>
-                        <option value="spiral">Spiral Blackhole</option>
-                    </optgroup>
-                    <optgroup label="Dynamic Simulations">
-                        <option value="solar">Solar System (태양계)</option>
-                        <option value="binary">Binary Star (쌍성계)</option>
-                    </optgroup>
-                </select>
-
-                <div id="equation-inputs">
-                    <input type="text" id="eqU" value="-(y-2)/((x-2)**2+(y-2)**2+0.2) - (y+2)/((x+2)**2+(y+2)**2+0.2)">
-                    <input type="text" id="eqV" value="(x-2)/((x-2)**2+(y-2)**2+0.2) + (x+2)/((x+2)**2+(y+2)**2+0.2)">
-                    <button class="action-btn" id="applyBtn">Apply Equation</button>
-                </div>
-                <div class="guide" id="dynamic-guide" style="display:none; color: var(--accent-warm);">
-                    * Gravity simulation active. Equations are managed by physics engine.
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="section-title">Measurement Probe</div>
-                <div class="control-row">
-                    <span>Enable Probe</span>
-                    <label class="switch">
-                        <input type="checkbox" id="probeCheck">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div id="probe-panel">
-                    <div style="color:var(--danger); font-weight:bold; margin-bottom:5px;">Real-time Data</div>
-                    <div class="val-row"><span>Curl (∇×F):</span> <span id="valCurl">0.00</span></div>
-                    <div class="val-row"><span>Div (∇·F):</span> <span id="valDiv">0.00</span></div>
-                </div>
-                <div class="guide">Tip: Drag the red crosshair to measure.</div>
-            </div>
-
-            <div class="section">
-                <div class="section-title">Mouse Interaction</div>
-                <div class="guide">
-                    • Left Click: Attract (Blue)<br>
-                    • Right Click: Repel (Red)<br>
-                    • Probe ON: Prioritizes Probe Drag
-                </div>
-                <div class="control-row" style="margin-top:10px;">
-                    <label>Force Strength</label>
-                    <input type="range" id="mouseForce" min="1" max="20" value="8">
-                </div>
-            </div>
-
-            <div class="section">
-                <div class="section-title">Particle Options</div>
-                <div class="control-row">
-                    <label>Shape</label>
-                    <select id="shapeSelect" style="width:60%;">
-                        <option value="circle">Circle</option>
-                        <option value="square">Square</option>
-                        <option value="triangle">Triangle</option>
-                        <option value="star">Star</option>
+                <div class="section">
+                    <div class="section-title">Field Generator</div>
+                    <select id="presetSelect">
+                        <optgroup label="Math Formulas">
+                            <option value="custom">Custom Equation</option>
+                            <option value="doubleVortex" selected>Double Vortex (이중 와류)</option>
+                            <option value="saddle">Saddle Point (안장점)</option>
+                            <option value="sourceSink">Source & Sink</option>
+                            <option value="spiral">Spiral Blackhole</option>
+                        </optgroup>
+                        <optgroup label="Dynamic Simulations">
+                            <option value="solar">Solar System (태양계)</option>
+                            <option value="binary">Binary Star (쌍성계)</option>
+                        </optgroup>
                     </select>
-                </div>
-                <div class="control-row">
-                    <label>Count</label>
-                    <input type="range" id="paramCount" min="500" max="4000" step="100" value="1500">
-                </div>
-                <div class="control-row">
-                    <label>Trail</label>
-                    <input type="range" id="paramTrail" min="0" max="0.5" step="0.01" value="0.1">
-                </div>
-                <div class="control-row">
-                    <span>Speed Color</span>
-                    <label class="switch">
-                        <input type="checkbox" id="colorMode" checked>
-                        <span class="slider"></span>
-                    </label>
-                </div>
-            </div>
 
-            <div class="section" style="border:none;">
-                <div class="section-title">Global View</div>
-                <div class="control-row">
-                    <span>Show Vector Grid</span>
-                    <label class="switch">
-                        <input type="checkbox" id="gridCheck">
-                        <span class="slider"></span>
-                    </label>
+                    <div id="equation-inputs">
+                        <input type="text" id="eqU" value="-(y-2)/((x-2)**2+(y-2)**2+0.2) - (y+2)/((x+2)**2+(y+2)**2+0.2)">
+                        <input type="text" id="eqV" value="(x-2)/((x-2)**2+(y-2)**2+0.2) + (x+2)/((x+2)**2+(y+2)**2+0.2)">
+                        <button class="action-btn" id="applyBtn">Apply Equation</button>
+                    </div>
+                    <div class="guide" id="dynamic-guide" style="display:none; color: var(--accent-warm);">
+                        * Gravity simulation active. Equations are managed by physics engine.
+                    </div>
                 </div>
-                <button class="action-btn" id="resetBtn" style="background:#555; color:#fff;">Reset Particles</button>
-                <button class="action-btn" id="screenshotBtn" style="background:#fff; color:#000;">📸 Screenshot</button>
+
+                <div class="section">
+                    <div class="section-title">Measurement Probe</div>
+                    <div class="control-row">
+                        <span>Enable Probe</span>
+                        <label class="switch">
+                            <input type="checkbox" id="probeCheck">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div id="probe-panel">
+                        <div style="color:var(--danger); font-weight:bold; margin-bottom:5px;">Real-time Data</div>
+                        <div class="val-row"><span>Curl (∇×F):</span> <span id="valCurl">0.00</span></div>
+                        <div class="val-row"><span>Div (∇·F):</span> <span id="valDiv">0.00</span></div>
+                    </div>
+                    <div class="guide">Tip: Drag the red crosshair to measure.</div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Mouse Interaction</div>
+                    <div class="guide">
+                        • Left Click: Attract (Blue)<br>
+                        • Right Click: Repel (Red)<br>
+                        • Probe ON: Prioritizes Probe Drag
+                    </div>
+                    <div class="control-row" style="margin-top:10px;">
+                        <label>Force Strength</label>
+                        <input type="range" id="mouseForce" min="1" max="20" value="8">
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Particle Options</div>
+                    <div class="control-row">
+                        <label>Shape</label>
+                        <select id="shapeSelect" style="width:60%;">
+                            <option value="circle">Circle</option>
+                            <option value="square">Square</option>
+                            <option value="triangle">Triangle</option>
+                            <option value="star">Star</option>
+                        </select>
+                    </div>
+                    <div class="control-row">
+                        <label>Count</label>
+                        <input type="range" id="paramCount" min="500" max="4000" step="100" value="1500">
+                    </div>
+                    <div class="control-row">
+                        <label>Trail</label>
+                        <input type="range" id="paramTrail" min="0" max="0.5" step="0.01" value="0.1">
+                    </div>
+                    <div class="control-row">
+                        <span>Speed Color</span>
+                        <label class="switch">
+                            <input type="checkbox" id="colorMode" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="section" style="border:none;">
+                    <div class="section-title">Global View</div>
+                    <div class="control-row">
+                        <span>Show Vector Grid</span>
+                        <label class="switch">
+                            <input type="checkbox" id="gridCheck">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <button class="action-btn" id="resetBtn" style="background:#555; color:#fff;">Reset Particles</button>
+                    <button class="action-btn" id="screenshotBtn" style="background:#fff; color:#000;">📸 Screenshot</button>
+                </div>
             </div>
+            <button id="toggle-btn">◀</button>
         </div>
-        <button id="toggle-btn">◀</button>
+
+        <canvas id="simCanvas"></canvas>
     </div>
 
-    <canvas id="simCanvas"></canvas>
+    <section id="doc-section">
+        <h2>The Science of Vector Fields</h2>
+        <p>Welcome to the deep-dive documentation for our Vector Field Simulator. A vector field is a mathematical construct that assigns a vector to every point in a subset of space. This tool allows you to explore these fields interactively, providing a visual and intuitive understanding of complex multivariable calculus and physics concepts.</p>
+        
+        <h3>1. What are Vector Fields?</h3>
+        <p>In physics, vector fields are used to model various phenomena such as the velocity of a moving fluid throughout a volume, or the strength and direction of some force, such as the magnetic or gravitational force, as it changes from one point to another point. Mathematically, a vector field <strong>F</strong> in 2D is defined as:</p>
+        <div class="math-block">
+            F(x, y) = P(x, y)i + Q(x, y)j
+        </div>
+        <p>where <em>P</em> and <em>Q</em> are scalar functions of the coordinates <em>x</em> and <em>y</em>, and <em>i</em> and <em>j</em> are unit vectors in the x and y directions respectively.</p>
+
+        <h3>2. Understanding Curl (∇ × F)</h3>
+        <p>One of the most important properties of a vector field is its **Curl**. Curl is a vector operator that describes the infinitesimal rotation of a vector field. At every point in the field, the curl is represented by a vector whose length and direction denote the magnitude and axis of the maximum circulation.</p>
+        <p>In our simulator, you can use the <strong>Measurement Probe</strong> to see the real-time Curl value at any point. A positive Curl usually indicates counter-clockwise rotation, while a negative Curl indicates clockwise rotation. In fluid dynamics, if the curl is non-zero, the flow is said to be "rotational."</p>
+
+        <h3>3. Understanding Divergence (∇ · F)</h3>
+        <p>**Divergence** is another critical operator. It represents the volume density of the outward flux of a vector field from an infinitesimal volume around a given point. Conceptually, it measures how much the field is "spreading out" or "converging" at a point.</p>
+        <p>A point with positive divergence is called a <strong>Source</strong> (the field lines move away from it), while a point with negative divergence is called a <strong>Sink</strong> (the field lines move toward it). If the divergence is zero everywhere, the field is called "solenoidal," similar to an incompressible fluid flow.</p>
+
+        <h3>4. The Saddle Point (안장점)</h3>
+        <p>A <strong>Saddle Point</strong> is a point in the domain of a function of two variables which is a stationary point but not a local extremum. In a vector field, it often appears as a region where the field flows toward the point from one direction and away from it in another. It looks like a "mountain pass" where you can go up in one direction and down in the perpendicular direction. This is a classic example used in the study of differential equations and dynamical systems.</p>
+
+        <h3>5. N-Body Gravity Simulations</h3>
+        <p>When you switch to "Solar System" or "Binary Star" mode, the simulator transitions from a static mathematical field to a dynamic physics simulation. Here, we calculate the gravitational force between multiple massive bodies using Newton's law of universal gravitation:</p>
+        <div class="math-block">
+            F = G * (m1 * m2) / r^2
+        </div>
+        <p>The particles you see on screen are "test particles"—they have negligible mass and are moved by the combined gravitational pull of the stars and planets, effectively tracing the gravitational potential well in real-time. This visualization is unique because it shows the "shape" of space-time around massive objects, similar to the General Relativity concept of curved space.</p>
+        
+        <h3>6. Numerical Integration: Making it Work</h3>
+        <p>To ensure high performance and stability, we use numerical integration methods. While the simplest is Euler integration, it often leads to "explosions" in orbit simulations due to energy gain. Our simulator employs more stable routines that conserve energy over time, allowing for the long-term observation of stable planetary orbits and complex binary star interactions.</p>
+
+        <p>By exploring these presets and even entering your own equations, you can gain a profound intuitive grasp of the laws that govern everything from the smallest subatomic particles to the largest clusters of galaxies.</p>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Ultimate Web Sim Hub. All rights reserved.</p>
+        <div style="margin-top: 10px;">
+            <a href="index.html">Home</a>
+            <a href="about.html">About Us</a>
+            <a href="contact.html">Contact</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms of Service</a>
+        </div>
+    </footer>
 
     <script>
         /**

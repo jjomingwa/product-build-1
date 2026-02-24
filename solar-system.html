@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar System Gravity Simulator - Ultimate Web Sim Hub</title>
+    <meta name="description" content="Explore the mechanics of our solar system with this interactive N-body gravity simulator. Visualize planetary orbits, gravitational fields, and learn about Kepler's Laws of Motion.">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --panel-bg: rgba(20, 25, 30, 0.85);
+            --text-primary: #e0e0e0;
+            --accent: #f1c40f; /* Solar Yellow */
+            --accent-warm: #e67e22; /* Orange */
+            --danger: #ff6b6b; /* Red */
+            --border: rgba(255, 255, 255, 0.15);
+        }
+
+        body {
+            margin: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+            background-color: var(--bg-color);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-primary);
+        }
+
+        #canvas-wrapper {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* --- Educational Content Section --- */
+        #doc-section {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 80px 40px;
+            background-color: #0a0a0a;
+            color: #ccc;
+            line-height: 1.8;
+            border-top: 1px solid var(--border);
+        }
+
+        #doc-section h2 { color: var(--accent); font-family: 'Segoe UI', sans-serif; margin-top: 40px; }
+        #doc-section h3 { color: var(--accent-warm); }
+        #doc-section p { margin-bottom: 20px; }
+        
+        .math-block {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-left: 4px solid var(--accent);
+            font-family: 'Courier New', Courier, monospace;
+            margin: 20px 0;
+            color: #fff;
+        }
+
+        footer {
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            background: #050505;
+            color: #666;
+            font-size: 0.85rem;
+        }
+        footer a { color: #888; text-decoration: none; margin: 0 10px; }
+        footer a:hover { color: var(--accent); }
+
+        /* --- UI Panels --- */
+        #ui-container {
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%;
+            display: flex;
+            z-index: 100;
+            pointer-events: none; /* Allow canvas clicks */
+        }
+
+        #controls {
+            width: 360px;
+            height: 100%;
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            pointer-events: auto; /* Panel clicks */
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+        }
+
+        #controls.collapsed {
+            transform: translateX(-360px);
+        }
+
+        /* Toggle Button */
+        #toggle-btn {
+            position: absolute;
+            left: 360px; top: 20px;
+            width: 30px; height: 40px;
+            background: var(--panel-bg);
+            border: 1px solid var(--border);
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+            color: var(--accent);
+            cursor: pointer;
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: left 0.3s ease;
+        }
+        #controls.collapsed + #toggle-btn {
+            left: 0;
+        }
+        
+        #back-home {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(241, 196, 15, 0.2);
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+            z-index: 1000;
+            pointer-events: auto;
+            font-size: 0.9rem;
+        }
+        #back-home:hover {
+            background: var(--accent);
+            color: #000;
+        }
+
+        /* --- UI Elements --- */
+        h1 {
+            font-size: 1.4rem; color: var(--accent);
+            margin: 0 0 20px 0; border-bottom: 1px solid var(--border);
+            padding-bottom: 10px; letter-spacing: 1px;
+        }
+
+        .section { margin-bottom: 20px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 15px; }
+        .section-title { font-size: 0.8rem; color: #888; margin-bottom: 10px; text-transform: uppercase; font-weight: bold; }
+        .control-row { margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        
+        label { font-size: 0.85rem; flex: 1; }
+        
+        input[type="range"] { flex: 2; height: 4px; background: #444; border-radius: 2px; appearance: none; outline: none; margin-left: 10px; }
+        input[type="range"]::-webkit-slider-thumb { appearance: none; width: 14px; height: 14px; background: var(--accent); border-radius: 50%; cursor: pointer; }
+
+        select, input[type="text"] {
+            width: 100%; padding: 6px; background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border); border-radius: 4px;
+            color: #fff; font-family: monospace; margin-top: 5px;
+        }
+        
+        /* Hidden on this specific page as we force solar mode */
+        #presetSelect { display: none; }
+        
+        button.action-btn {
+            width: 100%; padding: 10px; background: var(--accent);
+            border: none; border-radius: 4px; color: #000; font-weight: bold;
+            cursor: pointer; margin-top: 8px; transition: opacity 0.2s;
+        }
+        button.action-btn:hover { opacity: 0.8; }
+
+        /* --- Toggle Switch --- */
+        .switch { position: relative; display: inline-block; width: 34px; height: 18px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #444; transition: .4s; border-radius: 18px; }
+        .slider:before { position: absolute; content: ""; height: 12px; width: 12px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(16px); }
+
+        /* Guide Text */
+        .guide { font-size: 0.75rem; color: #aaa; margin-top: 5px; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-wrapper">
+        <a href="index.html" id="back-home">BACK TO HUB</a>
+
+        <div id="ui-container">
+            <div id="controls">
+                <h1>Solar Simulator</h1>
+
+                <div class="section">
+                    <div class="section-title">Simulation Status</div>
+                    <!-- Hidden Select, forced to solar -->
+                    <select id="presetSelect">
+                        <option value="solar" selected>Solar System</option>
+                    </select>
+
+                    <div class="guide" style="color: var(--accent-warm);">
+                        * N-Body Gravity Engine Active.<br>
+                        * Sun (Center) mass: 1000x Earth.<br>
+                        * Orbits are calculated using real-time physics.
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Gravitational Field Visualization</div>
+                    <div class="control-row">
+                        <label>Particle Count</label>
+                        <input type="range" id="paramCount" min="500" max="4000" step="100" value="1500">
+                    </div>
+                    <div class="control-row">
+                        <label>Trail Length</label>
+                        <input type="range" id="paramTrail" min="0" max="0.5" step="0.01" value="0.1">
+                    </div>
+                    <div class="control-row">
+                        <span>Speed Color Map</span>
+                        <label class="switch">
+                            <input type="checkbox" id="colorMode" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+                
+                 <div class="section">
+                    <div class="section-title">Interaction</div>
+                    <div class="guide">
+                        • Left Click: Add Mass (Attract)<br>
+                        • Right Click: Anti-Gravity (Repel)<br>
+                    </div>
+                    <div class="control-row" style="margin-top:10px;">
+                        <label>Interaction Strength</label>
+                        <input type="range" id="mouseForce" min="1" max="20" value="8">
+                    </div>
+                </div>
+
+                <div class="section" style="border:none;">
+                    <div class="section-title">Global View</div>
+                    <button class="action-btn" id="resetBtn" style="background:#555; color:#fff;">Reset System</button>
+                    <button class="action-btn" id="screenshotBtn" style="background:#fff; color:#000;">📸 Screenshot</button>
+                </div>
+            </div>
+            <button id="toggle-btn">◀</button>
+        </div>
+
+        <canvas id="simCanvas"></canvas>
+    </div>
+
+    <section id="doc-section">
+        <h2>Interactive Solar System Gravity Simulator</h2>
+        <p>This interactive tool allows students and enthusiasts to explore the gravitational dynamics of a planetary system. Unlike static textbook diagrams, this N-body simulation calculates the forces between celestial bodies in real-time, providing a visceral understanding of orbital mechanics.</p>
+
+        <h3>1. The Law of Universal Gravitation</h3>
+        <p>At the heart of this simulation is Isaac Newton's Law of Universal Gravitation. Every point mass attracts every other point mass by a force acting along the line intersecting the two points. The force is proportional to the product of the two masses and inversely proportional to the square of the distance between them:</p>
+        <div class="math-block">
+            F = G * (m1 * m2) / r^2
+        </div>
+        <p>In our simulation, the central "Sun" (yellow) is a massive object that dominates the gravitational field. The "Planets" (orange and blue) are initialized with specific velocities that allow them to fall around the sun in stable orbits, balancing their forward inertia against the inward pull of gravity.</p>
+
+        <h3>2. Kepler's Laws of Planetary Motion</h3>
+        <p>By observing the simulation, you can verify Kepler's three laws:</p>
+        <ul>
+            <li><strong>First Law (The Law of Ellipses):</strong> The path of the planets about the sun is elliptical in shape, with the center of the sun being located at one focus. You can see that the orbits are not perfect circles.</li>
+            <li><strong>Second Law (The Law of Equal Areas):</strong> An imaginary line drawn from the center of the sun to the center of the planet will sweep out equal areas in equal intervals of time. Notice how the planets speed up when they are closer to the sun (perihelion) and slow down when they are further away (aphelion).</li>
+            <li><strong>Third Law (The Law of Harmonies):</strong> The ratio of the squares of the periods of any two planets is equal to the ratio of the cubes of their average distances from the sun. The inner planet orbits much faster than the outer one.</li>
+        </ul>
+
+        <h3>3. Gravitational Potential Fields</h3>
+        <p>The background particles in this simulation visualize the <strong>Gravitational Field</strong>. The field intensity is stronger closer to the massive bodies. The vectors (lines) show the direction a small test mass would accelerate if placed at that point. You can see how the field lines "bend" towards the massive objects, illustrating the concept that gravity is a curvature of space-time, as proposed by Einstein in his General Theory of Relativity.</p>
+
+        <h3>4. The N-Body Problem</h3>
+        <p>This simulation is a practical example of the "N-Body Problem". While predicting the motion of two bodies is solved analytically (Kepler/Newton), adding a third body makes the system chaotic. We use numerical integration (specifically a variation of the Velocity Verlet algorithm) to calculate the positions step-by-step. This method is crucial for maintaining energy stability over long simulation times.</p>
+
+        <h3>5. How to Use This Tool for Learning</h3>
+        <p>Teachers can use this tool to demonstrate:</p>
+        <ul>
+            <li>Why planets don't fly off into space or crash into the sun.</li>
+            <li>The concept of "escape velocity" (try using the Right Click to repel particles!).</li>
+            <li>The perturbation of orbits caused by other planets (observe the slight wobbles).</li>
+        </ul>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Ultimate Web Sim Hub. All rights reserved.</p>
+        <div style="margin-top: 10px;">
+            <a href="index.html">Home</a>
+            <a href="about.html">About Us</a>
+            <a href="contact.html">Contact</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms of Service</a>
+        </div>
+    </footer>
+
+    <script>
+        // System Constants & State
+        const canvas = document.getElementById('simCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        let time = 0;
+        
+        const input = { x: -1000, y: -1000, down: false, button: -1 };
+
+        const cfg = {
+            count: 1500,
+            speed: 1.0,
+            trail: 0.1,
+            shape: 'circle',
+            colorMode: true,
+            grid: false,
+            mouseForce: 8,
+            mode: 'dynamic', // Forced dynamic
+            dynamicFn: null
+        };
+
+        const { sin, cos, atan2, sqrt, PI, abs, pow, min, max } = Math;
+
+        // Logic
+        const solarLogic = (x, y, t) => {
+            let u = -15 * x / pow(x*x + y*y + 0.1, 1.5);
+            let v = -15 * y / pow(x*x + y*y + 0.1, 1.5);
+            const p1x = 4 * cos(t*0.4), p1y = 4 * sin(t*0.4);
+            const d1 = (x-p1x)**2 + (y-p1y)**2 + 0.1;
+            u += -4 * (x-p1x)/pow(d1, 1.5);
+            v += -4 * (y-p1y)/pow(d1, 1.5);
+            const p2x = 2 * cos(t*1.2), p2y = 2 * sin(t*1.2);
+            const d2 = (x-p2x)**2 + (y-p2y)**2 + 0.1;
+            u += -1 * (x-p2x)/pow(d2, 1.5);
+            v += -1 * (y-p2y)/pow(d2, 1.5);
+            return { u, v, bodies: [
+                {x:0, y:0, r:0.5, c:'#f1c40f'}, 
+                {x:p1x, y:p1y, r:0.3, c:'#e67e22'},
+                {x:p2x, y:p2y, r:0.15, c:'#3498db'}
+            ]};
+        };
+
+        cfg.dynamicFn = solarLogic;
+
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                const aspect = width / height;
+                this.x = (Math.random() - 0.5) * 12 * aspect;
+                this.y = (Math.random() - 0.5) * 12;
+                this.life = Math.random() * 150 + 50;
+                this.vx = 0; this.vy = 0;
+            }
+            update(dt) {
+                this.life -= dt * 10;
+                if (this.life <= 0) this.reset();
+                const vec = cfg.dynamicFn(this.x, this.y, time);
+                let u = vec.u, v = vec.v;
+                if (input.down) {
+                    const aspect = width / height;
+                    const scale = Math.min(width, height) / 10;
+                    const mx = (input.x - width/2) / scale;
+                    const my = -(input.y - height/2) / scale;
+                    const dx = this.x - mx, dy = this.y - my;
+                    const distSq = dx*dx + dy*dy + 0.1;
+                    const sign = (input.button === 2) ? 1 : -1; 
+                    const force = (cfg.mouseForce * sign) / distSq;
+                    u += dx * force; v += dy * force;
+                }
+                this.x += u * dt * cfg.speed;
+                this.y += v * dt * cfg.speed;
+                this.vx = u; this.vy = v;
+                if (abs(this.x) > 10 || abs(this.y) > 10) this.reset();
+            }
+            draw() {
+                const scale = Math.min(width, height) / 10;
+                const sx = width/2 + this.x * scale;
+                const sy = height/2 - this.y * scale;
+                if (cfg.colorMode) {
+                    const speed = sqrt(this.vx**2 + this.vy**2);
+                    const hue = 40 + min(speed * 30, 60); // Yellow/Orange based
+                    const light = 50 + min(speed * 20, 40);
+                    ctx.fillStyle = `hsl(${hue}, 100%, ${light}%)`;
+                } else { ctx.fillStyle = '#e0e0e0'; }
+                const size = 3;
+                ctx.beginPath();
+                ctx.arc(sx, sy, size/2, 0, PI*2);
+                ctx.fill();
+            }
+        }
+
+        function drawBodies(bodies) {
+            if (!bodies) return;
+            const scale = Math.min(width, height) / 10;
+            bodies.forEach(b => {
+                const sx = width/2 + b.x * scale;
+                const sy = height/2 - b.y * scale;
+                const sr = b.r * scale;
+                ctx.beginPath();
+                ctx.arc(sx, sy, sr, 0, PI*2);
+                ctx.fillStyle = b.c;
+                ctx.shadowBlur = 20; ctx.shadowColor = b.c;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (cfg.trail <= 0.01) { ctx.clearRect(0, 0, width, height); } 
+            else { ctx.fillStyle = `rgba(5, 5, 5, ${cfg.trail})`; ctx.fillRect(0, 0, width, height); }
+            
+            const dt = 0.016;
+            time += dt;
+            const res = cfg.dynamicFn(0, 0, time);
+            if (res.bodies) drawBodies(res.bodies);
+            for(let p of particles) { p.update(dt); p.draw(); }
+        }
+
+        function init() {
+            resize();
+            particles = [];
+            for(let i=0; i<cfg.count; i++) particles.push(new Particle());
+            animate();
+        }
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        // Listeners
+        canvas.addEventListener('mousedown', e => {
+            input.down = true; input.button = e.button; input.x = e.clientX; input.y = e.clientY;
+        });
+        window.addEventListener('mousemove', e => { input.x = e.clientX; input.y = e.clientY; });
+        window.addEventListener('mouseup', () => { input.down = false; });
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
+        window.addEventListener('resize', resize);
+        
+        document.getElementById('paramCount').addEventListener('input', e => {
+            cfg.count = parseFloat(e.target.value);
+            particles = []; for(let i=0; i<cfg.count; i++) particles.push(new Particle());
+        });
+        document.getElementById('paramTrail').addEventListener('input', e => cfg.trail = parseFloat(e.target.value));
+        document.getElementById('mouseForce').addEventListener('input', e => cfg.mouseForce = parseFloat(e.target.value));
+        document.getElementById('colorMode').addEventListener('change', e => cfg.colorMode = e.target.checked);
+        document.getElementById('resetBtn').addEventListener('click', () => {
+             particles = []; for(let i=0; i<cfg.count; i++) particles.push(new Particle());
+        });
+        document.getElementById('screenshotBtn').addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'solar_sim.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+
+        const ui = document.getElementById('controls');
+        const btn = document.getElementById('toggle-btn');
+        btn.addEventListener('click', () => {
+            ui.classList.toggle('collapsed');
+            btn.textContent = ui.classList.contains('collapsed') ? '▶' : '◀';
+        });
+
+        init();
+    </script>
+</body>
+</html>

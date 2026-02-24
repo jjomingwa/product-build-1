@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - Ultimate Web Sim Hub</title>
+    <meta name="description" content="Get in touch with the Ultimate Web Sim Hub team for inquiries, feedback, or support regarding our physics simulations.">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400&display=swap');
+        
+        :root {
+            --neon-blue: #00ffff;
+            --neon-pink: #ff00ff;
+            --bg-dark: #050505;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-dark);
+            color: #fff;
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1, h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        h1 { font-size: 2.5rem; margin-bottom: 20px; text-align: center; }
+        
+        .contact-info {
+            text-align: center;
+            margin-bottom: 40px;
+            color: #aaa;
+        }
+
+        form {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 15px;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.8rem;
+            color: var(--neon-blue);
+            margin-bottom: 8px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            color: #fff;
+            font-family: 'Roboto', sans-serif;
+            box-sizing: border-box;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--neon-blue);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: var(--neon-blue);
+            color: #000;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            color: var(--neon-pink);
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover { text-decoration: underline; }
+
+        footer {
+            margin-top: 80px;
+            padding: 40px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            color: #666;
+            font-size: 0.8rem;
+        }
+        footer a { color: #888; text-decoration: none; margin: 0 10px; }
+        footer a:hover { color: var(--neon-blue); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">&lt; BACK TO HUB</a>
+        
+        <h1>Contact Us</h1>
+        <p class="contact-info">Have a question, feedback, or a partnership inquiry? We'd love to hear from you. Fill out the form below and our team will get back to you as soon as possible.</p>
+        
+        <form action="https://formspree.io/f/mykdbrzg" method="POST">
+            <div class="form-group">
+                <label for="name">NAME</label>
+                <input type="text" id="name" name="name" required placeholder="Your Full Name">
+            </div>
+            <div class="form-group">
+                <label for="email">EMAIL ADDRESS</label>
+                <input type="email" id="email" name="_replyto" required placeholder="email@example.com">
+            </div>
+            <div class="form-group">
+                <label for="subject">SUBJECT</label>
+                <input type="text" id="subject" name="subject" required placeholder="What is this regarding?">
+            </div>
+            <div class="form-group">
+                <label for="message">MESSAGE</label>
+                <textarea id="message" name="message" rows="6" required placeholder="How can we help you?"></textarea>
+            </div>
+            <button type="submit" class="submit-btn">SEND TRANSMISSION</button>
+        </form>
+
+        <div style="margin-top: 40px; text-align: center; color: #888;">
+            <p>You can also reach us directly at: <br> <span style="color: var(--neon-pink);">contact@ultimatesimhub.com</span></p>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Ultimate Web Sim Hub. All rights reserved.</p>
+        <div style="margin-top: 10px;">
+            <a href="index.html">Home</a>
+            <a href="about.html">About Us</a>
+            <a href="contact.html">Contact</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms of Service</a>
+        </div>
+    </footer>
+</body>
+</html>

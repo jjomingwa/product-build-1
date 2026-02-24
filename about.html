@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Ultimate Web Sim Hub</title>
+    <meta name="description" content="Learn more about the mission, technology, and team behind the Ultimate Web Sim Hub, the premier destination for high-quality web-based physics simulations.">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400&display=swap');
+        
+        :root {
+            --neon-blue: #00ffff;
+            --neon-pink: #ff00ff;
+            --bg-dark: #050505;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-dark);
+            color: #fff;
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1, h2 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        h1 { font-size: 2.5rem; margin-bottom: 40px; text-align: center; }
+        h2 { font-size: 1.8rem; margin-top: 40px; }
+
+        p { color: #ccc; margin-bottom: 20px; }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 30px;
+            color: var(--neon-pink);
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover { text-decoration: underline; }
+
+        footer {
+            margin-top: 80px;
+            padding: 40px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            color: #666;
+            font-size: 0.8rem;
+        }
+        footer a { color: #888; text-decoration: none; margin: 0 10px; }
+        footer a:hover { color: var(--neon-blue); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">&lt; BACK TO HUB</a>
+        
+        <h1>About Ultimate Web Sim Hub</h1>
+        
+        <section>
+            <h2>Our Mission</h2>
+            <p>The Ultimate Web Sim Hub was founded with a singular vision: to make complex scientific and mathematical concepts accessible and engaging through the power of interactive web technology. We believe that seeing is believing, but interacting is understanding. By providing high-performance, visually stunning simulations, we aim to bridge the gap between theoretical equations and physical intuition.</p>
+            <p>Whether you are a student struggling with vector calculus, a teacher looking for classroom demonstrations, or a curious mind fascinated by the mechanics of the universe, our hub provides the tools to explore these domains in real-time, right in your browser.</p>
+        </section>
+
+        <section>
+            <h2>The Technology</h2>
+            <p>Our simulations are built using the latest web standards and high-performance libraries. We leverage <strong>WebGL</strong> and <strong>Three.js</strong> for 3D rendering, ensuring that even complex N-body simulations run smoothly at 60 frames per second on modern hardware. Our physics engines are custom-built to balance accuracy with performance, utilizing numerical integration methods like Velocity Verlet and Runge-Kutta 4 where appropriate.</p>
+            <p>By using <strong>JavaScript (ES6+)</strong> and optimized math routines, we minimize overhead and maximize the number of particles and interactions we can simulate simultaneously. Our commitment to performance means you can experiment with thousands of particles in a vector field without experiencing lag.</p>
+        </section>
+
+        <section>
+            <h2>Educational Focus</h2>
+            <p>Every tool in the Ultimate Web Sim Hub is designed with educational outcomes in mind. We don't just show pretty pictures; we provide measurement tools, real-time data probes (like our Curl and Divergence analyzers), and customizable parameters. This allows users to test hypotheses, observe the effects of changing variables, and gain a deeper appreciation for the underlying physics of gravity, fluid dynamics, and electromagnetism.</p>
+        </section>
+
+        <section>
+            <h2>The Team</h2>
+            <p>We are a small, passionate group of developers, educators, and science enthusiasts. With backgrounds ranging from software engineering to theoretical physics, we collaborate to ensure that every simulation is both technically sound and user-friendly. We are constantly iterating based on user feedback and new developments in web technology.</p>
+        </section>
+
+        <section>
+            <h2>Open Source & Community</h2>
+            <p>We believe in the power of open-source software. Most of our core simulation logic is available on GitHub for others to learn from, modify, and improve. We encourage collaboration and welcome contributions from the community to help make these tools even better for everyone.</p>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 Ultimate Web Sim Hub. All rights reserved.</p>
+        <div style="margin-top: 10px;">
+            <a href="index.html">Home</a>
+            <a href="about.html">About Us</a>
+            <a href="contact.html">Contact</a>
+            <a href="privacy.html">Privacy Policy</a>
+            <a href="terms.html">Terms of Service</a>
+        </div>
+    </footer>
+</body>
+</html>
