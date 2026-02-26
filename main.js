@@ -290,24 +290,89 @@ class Ball {
     }
 }
 
+// --- Neon Boundary ---
+class Boundary {
+    constructor(scene) {
+        const material = new THREE.MeshStandardMaterial({ 
+            color: 0x00ffff, 
+            emissive: 0x00ffff, 
+            emissiveIntensity: 2 
+        });
+        
+        // Left wall
+        const left = new THREE.Mesh(new THREE.BoxGeometry(0.1, CONFIG.boundaryY * 2 + 2, 0.1), material);
+        left.position.set(-CONFIG.boundaryX - 0.2, 0, 0);
+        
+        // Right wall
+        const right = new THREE.Mesh(new THREE.BoxGeometry(0.1, CONFIG.boundaryY * 2 + 2, 0.1), material);
+        right.position.set(CONFIG.boundaryX + 0.2, 0, 0);
+        
+        // Top wall
+        const top = new THREE.Mesh(new THREE.BoxGeometry(CONFIG.boundaryX * 2 + 0.5, 0.1, 0.1), material);
+        top.position.set(0, CONFIG.boundaryY + 0.2, 0);
+        
+        scene.add(left, right, top);
+        this.walls = [left, right, top];
+    }
+    update(time) {
+        const intensity = 1.5 + Math.sin(time * 0.005) * 0.5;
+        this.walls.forEach(w => w.material.emissiveIntensity = intensity);
+    }
+}
+
 class Brick {
-    constructor(scene, x, y, type, hp = 1) {
-        this.type = type; // normal, multi, item
-        this.hp = hp;
+    constructor(scene, x, y, typeIndex, hp = 1) {
         this.active = true;
         this.scene = scene;
+        this.hp = hp;
+        this.typeIndex = typeIndex; // 0 to 6
         
-        let color = 0x00ff00;
-        if (type === 'multi') color = 0x00ffff; // Cyan for multi-ball
-        if (type === 'item') color = 0xffff00; // Gold for items
-        if (hp > 1) color = 0xff00ff; // Magenta for heavy bricks
+        const colors = [0x00ff00, 0x0088ff, 0xff0088, 0x00ffff, 0xffff00, 0xffffff, 0xff8800];
+        const color = colors[typeIndex % colors.length];
         
-        this.material = new THREE.MeshStandardMaterial({ color: color });
+        // Base Box
+        this.material = new THREE.MeshStandardMaterial({ 
+            color: color, 
+            transparent: typeIndex === 5, 
+            opacity: typeIndex === 5 ? 0.6 : 1 
+        });
         this.mesh = new THREE.Mesh(
             new THREE.BoxGeometry(CONFIG.brickWidth, CONFIG.brickHeight, CONFIG.brickDepth),
             this.material
         );
         this.mesh.position.set(x, y, 0);
+        
+        // Pattern Overlay / Inner Shape
+        this.inner = null;
+        if (typeIndex === 1) { // Wireframe
+            this.inner = new THREE.Mesh(
+                new THREE.BoxGeometry(CONFIG.brickWidth * 0.8, CONFIG.brickHeight * 0.8, CONFIG.brickDepth * 1.1),
+                new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true })
+            );
+        } else if (typeIndex === 2) { // Sphere
+            this.inner = new THREE.Mesh(
+                new THREE.SphereGeometry(0.2),
+                new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: color })
+            );
+        } else if (typeIndex === 3) { // Diamond (Multi-ball)
+            this.inner = new THREE.Mesh(
+                new THREE.OctahedronGeometry(0.25),
+                new THREE.MeshStandardMaterial({ color: 0x00ffff, emissive: 0x00ffff })
+            );
+        } else if (typeIndex === 4) { // Star/Core (Item)
+            this.inner = new THREE.Mesh(
+                new THREE.IcosahedronGeometry(0.2),
+                new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffff00 })
+            );
+        } else if (typeIndex === 6) { // Spikes
+            this.inner = new THREE.Mesh(
+                new THREE.ConeGeometry(0.15, 0.4),
+                new THREE.MeshStandardMaterial({ color: 0xff3300 })
+            );
+            this.inner.rotation.x = Math.PI;
+        }
+
+        if (this.inner) this.mesh.add(this.inner);
         scene.add(this.mesh);
     }
     hit() {
@@ -315,13 +380,17 @@ class Brick {
         if (this.hp <= 0) {
             this.active = false;
             this.mesh.visible = false;
-            return { destroyed: true, type: this.type, pos: this.mesh.position.clone() };
+            return { destroyed: true, type: this.getPowerupType(), pos: this.mesh.position.clone() };
         } else {
-            // Visual feedback for hit
             this.material.emissive.setHex(0xffffff);
             setTimeout(() => { if (this.active) this.material.emissive.setHex(0x000000); }, 50);
             return { destroyed: false };
         }
+    }
+    getPowerupType() {
+        if (this.typeIndex === 3) return 'multi';
+        if (this.typeIndex === 4) return 'item';
+        return 'normal';
     }
 }
 
@@ -388,6 +457,7 @@ class Game {
 
         this.sound = new SoundManager();
         this.starfield = new Starfield(this.scene);
+        this.boundary = new Boundary(this.scene); // Add boundary
         this.grid = new SpaceGrid(this.scene);
         this.effects = new EffectSystem(this.scene);
         this.paddle = new Paddle(this.scene);
@@ -496,35 +566,35 @@ class Game {
                 for (let c = 0; c < cols; c++) {
                     const x = -4.5 + c * 1.3;
                     const y = 1 + r * 0.6;
-                    let type = 'normal';
+                    let typeIndex = 0; // Default
                     let hp = 1;
-
-                    // Probability adjustments
-                    const multiChance = 0.05; // Reduced from 0.15
-                    const itemChance = 0.05;
 
                     // Level Specific Layouts
                     if (lvl === 1) {
-                        // Simple grid
+                        typeIndex = c % 2; // Simple alternating
                     } else if (lvl === 2) {
-                        // Zig-zag pattern
+                        typeIndex = (r + c) % 3; // Mixed
                         if ((r + c) % 2 === 0) continue;
                     } else if (lvl === 3) {
-                        // Fortress: Center bricks have 2HP
-                        if (c >= 2 && c <= 5 && r >= 1 && r <= 3) hp = 2;
-                        if (Math.random() < multiChance) type = 'multi';
+                        if (c >= 2 && c <= 5 && r >= 1 && r <= 3) {
+                            typeIndex = 2; // Heavy
+                            hp = 2;
+                        } else {
+                            typeIndex = 1; // Reinforced
+                        }
                     } else if (lvl === 4) {
-                        // Diamond/Hollow pattern
                         const dist = Math.abs(c - 3.5) + Math.abs(r - 2.5);
                         if (dist > 3) continue;
-                        if (dist < 1) hp = 3; // Core has 3HP
-                        if (Math.random() < itemChance) type = 'item';
+                        typeIndex = Math.floor(dist); // Gradient types
+                        if (dist < 1) hp = 3;
                     }
 
-                    if (Math.random() < multiChance && type === 'normal') type = 'multi';
-                    if (Math.random() < itemChance && type === 'normal') type = 'item';
-                    
-                    this.bricks.push(new Brick(this.scene, x, y, type, hp));
+                    // Sprinkle special items
+                    if (Math.random() < 0.08) typeIndex = 3; // Multi
+                    if (Math.random() < 0.05) typeIndex = 4; // Item
+                    if (Math.random() < 0.1) typeIndex = 6; // Spikes
+
+                    this.bricks.push(new Brick(this.scene, x, y, typeIndex, hp));
                 }
             }
         }
@@ -537,6 +607,7 @@ class Game {
             return;
         }
         this.starfield.update(time);
+        this.boundary.update(time);
         this.grid.update(time);
         this.effects.update();
         this.paddle.update(this.keys);
