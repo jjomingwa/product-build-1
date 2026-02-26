@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이중 진자 카오스 | Double Pendulum Chaos</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+KR:wght@300;400&display=swap');
+        body { margin: 0; overflow: hidden; background: #050505; color: #fff; font-family: 'Noto Sans KR', sans-serif; }
+        canvas { display: block; }
+        #controls { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.8); padding: 20px; border: 1px solid #ff00ff; border-radius: 10px; backdrop-filter: blur(5px); }
+        h1 { font-family: 'Orbitron'; font-size: 1.2rem; color: #ff00ff; margin: 0 0 10px 0; }
+        .back-link { display: inline-block; margin-top: 15px; color: #00ffff; text-decoration: none; font-size: 0.8rem; border: 1px solid #00ffff; padding: 5px 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <h1>DOUBLE PENDULUM</h1>
+        <p style="font-size: 0.8rem; color: #ccc;">초기 조건에 따른 카오스 궤적 시각화 (RK4)</p>
+        <button id="reset-btn" style="background: transparent; border: 1px solid #ff00ff; color: #ff00ff; cursor: pointer; padding: 5px 10px;">재시작</button><br>
+        <a href="index.html" class="back-link">HUB로 돌아가기</a>
+    </div>
+    <canvas id="canvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+
+        const state = {
+            m1: 10, m2: 10, l1: 150, l2: 150,
+            g: 1,
+            a1: Math.PI / 2, a2: Math.PI / 2,
+            v1: 0, v2: 0,
+            trail: []
+        };
+
+        function getDerivatives(s) {
+            const { m1, m2, l1, l2, g, a1, a2, v1, v2 } = s;
+            
+            let num1 = -g * (2 * m1 + m2) * Math.sin(a1);
+            let num2 = -m2 * g * Math.sin(a1 - 2 * a2);
+            let num3 = -2 * Math.sin(a1 - a2) * m2;
+            let num4 = v2 * v2 * l2 + v1 * v1 * l1 * Math.cos(a1 - a2);
+            let den = l1 * (2 * m1 + m2 - m2 * Math.cos(2 * a1 - 2 * a2));
+            const d_v1 = (num1 + num2 + num3 * num4) / den;
+
+            num1 = 2 * Math.sin(a1 - a2);
+            num2 = (v1 * v1 * l1 * (m1 + m2));
+            num3 = g * (m1 + m2) * Math.cos(a1);
+            num4 = v2 * v2 * l2 * m2 * Math.cos(a1 - a2);
+            den = l2 * (2 * m1 + m2 - m2 * Math.cos(2 * a1 - 2 * a2));
+            const d_v2 = (num1 * (num2 + num3 + num4)) / den;
+
+            return { d_a1: v1, d_a2: v2, d_v1, d_v2 };
+        }
+
+        const Simulation = {
+            init() {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+                state.trail = [];
+            },
+            update() {
+                // Runge-Kutta 4th Order Integration
+                const dt = 0.5;
+                const k1 = getDerivatives(state);
+                
+                const s2 = { ...state, 
+                    a1: state.a1 + k1.d_a1 * dt/2, a2: state.a2 + k1.d_a2 * dt/2,
+                    v1: state.v1 + k1.d_v1 * dt/2, v2: state.v2 + k1.d_v2 * dt/2 
+                };
+                const k2 = getDerivatives(s2);
+
+                const s3 = { ...state, 
+                    a1: state.a1 + k2.d_a1 * dt/2, a2: state.a2 + k2.d_a2 * dt/2,
+                    v1: state.v1 + k2.d_v1 * dt/2, v2: state.v2 + k2.d_v2 * dt/2 
+                };
+                const k3 = getDerivatives(s3);
+
+                const s4 = { ...state, 
+                    a1: state.a1 + k3.d_a1 * dt, a2: state.a2 + k3.d_a2 * dt,
+                    v1: state.v1 + k3.d_v1 * dt, v2: state.v2 + k3.d_v2 * dt 
+                };
+                const k4 = getDerivatives(s4);
+
+                state.a1 += (dt/6) * (k1.d_a1 + 2*k2.d_a1 + 2*k3.d_a1 + k4.d_a1);
+                state.a2 += (dt/6) * (k1.d_a2 + 2*k2.d_a2 + 2*k3.d_a2 + k4.d_a2);
+                state.v1 += (dt/6) * (k1.d_v1 + 2*k2.d_v1 + 2*k3.d_v1 + k4.d_v1);
+                state.v2 += (dt/6) * (k1.d_v2 + 2*k2.d_v2 + 2*k3.d_v2 + k4.d_v2);
+
+                const x1 = width/2 + state.l1 * Math.sin(state.a1);
+                const y1 = height/3 + state.l1 * Math.cos(state.a1);
+                const x2 = x1 + state.l2 * Math.sin(state.a2);
+                const y2 = y1 + state.l2 * Math.cos(state.a2);
+
+                state.trail.push({x: x2, y: y2});
+                if(state.trail.length > 500) state.trail.shift();
+            },
+            draw() {
+                ctx.fillStyle = 'rgba(5, 5, 5, 0.2)';
+                ctx.fillRect(0, 0, width, height);
+
+                const x1 = width/2 + state.l1 * Math.sin(state.a1);
+                const y1 = height/3 + state.l1 * Math.cos(state.a1);
+                const x2 = x1 + state.l2 * Math.sin(state.a2);
+                const y2 = y1 + state.l2 * Math.cos(state.a2);
+
+                // Draw Trail
+                ctx.beginPath();
+                ctx.strokeStyle = '#ff00ff';
+                ctx.lineWidth = 2;
+                for(let i=1; i<state.trail.length; i++) {
+                    ctx.moveTo(state.trail[i-1].x, state.trail[i-1].y);
+                    ctx.lineTo(state.trail[i].x, state.trail[i].y);
+                }
+                ctx.stroke();
+
+                // Draw Pendulum
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.moveTo(width/2, height/3);
+                ctx.lineTo(x1, y1);
+                ctx.lineTo(x2, y2);
+                ctx.stroke();
+
+                ctx.fillStyle = '#00ffff';
+                ctx.beginPath(); ctx.arc(x1, y1, 10, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#ff00ff';
+                ctx.beginPath(); ctx.arc(x2, y2, 10, 0, Math.PI*2); ctx.fill();
+            }
+        };
+
+        function animate() {
+            Simulation.update();
+            Simulation.draw();
+            requestAnimationFrame(animate);
+        }
+
+        Simulation.init();
+        animate();
+        window.onresize = () => Simulation.init();
+        document.getElementById('reset-btn').onclick = () => {
+            state.a1 = Math.PI/2 + Math.random(); state.a2 = Math.PI/2;
+            state.v1 = 0; state.v2 = 0; state.trail = [];
+        };
+    </script>
+</body>
+</html>
