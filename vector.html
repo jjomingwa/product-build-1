@@ -228,89 +228,89 @@
 <body>
 
     <div id="canvas-wrapper">
-        <a href="index.html" id="back-home">BACK TO HUB</a>
+        <a href="index.html" id="back-home">허브로 돌아가기</a>
 
         <div id="ui-container">
             <div id="controls">
-                <h1>Vector Ultimate</h1>
+                <h1>벡터 시뮬레이터</h1>
 
                 <div class="section">
-                    <div class="section-title">Field Generator</div>
+                    <div class="section-title">필드 생성기</div>
                     <select id="presetSelect">
-                        <optgroup label="Math Formulas">
-                            <option value="custom">Custom Equation</option>
-                            <option value="doubleVortex" selected>Double Vortex (이중 와류)</option>
-                            <option value="saddle">Saddle Point (안장점)</option>
-                            <option value="sourceSink">Source & Sink</option>
-                            <option value="spiral">Spiral Blackhole</option>
+                        <optgroup label="수학 공식">
+                            <option value="custom">직접 입력</option>
+                            <option value="doubleVortex" selected>이중 와류 (Double Vortex)</option>
+                            <option value="saddle">안장점 (Saddle Point)</option>
+                            <option value="sourceSink">소스 & 싱크 (Source & Sink)</option>
+                            <option value="spiral">나선형 블랙홀 (Spiral)</option>
                         </optgroup>
-                        <optgroup label="Dynamic Simulations">
-                            <option value="solar">Solar System (태양계)</option>
-                            <option value="binary">Binary Star (쌍성계)</option>
+                        <optgroup label="역학 시뮬레이션">
+                            <option value="solar">태양계 (Solar System)</option>
+                            <option value="binary">쌍성계 (Binary Star)</option>
                         </optgroup>
                     </select>
 
                     <div id="equation-inputs">
                         <input type="text" id="eqU" value="-(y-2)/((x-2)**2+(y-2)**2+0.2) - (y+2)/((x+2)**2+(y+2)**2+0.2)">
                         <input type="text" id="eqV" value="(x-2)/((x-2)**2+(y-2)**2+0.2) + (x+2)/((x+2)**2+(y+2)**2+0.2)">
-                        <button class="action-btn" id="applyBtn">Apply Equation</button>
+                        <button class="action-btn" id="applyBtn">공식 적용</button>
                     </div>
                     <div class="guide" id="dynamic-guide" style="display:none; color: var(--accent-warm);">
-                        * Gravity simulation active. Equations are managed by physics engine.
+                        * 중력 시뮬레이션 활성화. 공식은 물리 엔진에 의해 관리됩니다.
                     </div>
                 </div>
 
                 <div class="section">
-                    <div class="section-title">Measurement Probe</div>
+                    <div class="section-title">측정 프로브</div>
                     <div class="control-row">
-                        <span>Enable Probe</span>
+                        <span>프로브 활성화</span>
                         <label class="switch">
                             <input type="checkbox" id="probeCheck">
                             <span class="slider"></span>
                         </label>
                     </div>
                     <div id="probe-panel">
-                        <div style="color:var(--danger); font-weight:bold; margin-bottom:5px;">Real-time Data</div>
-                        <div class="val-row"><span>Curl (∇×F):</span> <span id="valCurl">0.00</span></div>
-                        <div class="val-row"><span>Div (∇·F):</span> <span id="valDiv">0.00</span></div>
+                        <div style="color:var(--danger); font-weight:bold; margin-bottom:5px;">실시간 데이터</div>
+                        <div class="val-row"><span>회전 (∇×F):</span> <span id="valCurl">0.00</span></div>
+                        <div class="val-row"><span>발산 (∇·F):</span> <span id="valDiv">0.00</span></div>
                     </div>
-                    <div class="guide">Tip: Drag the red crosshair to measure.</div>
+                    <div class="guide">팁: 빨간색 십자선을 드래그하여 측정하세요.</div>
                 </div>
 
                 <div class="section">
-                    <div class="section-title">Mouse Interaction</div>
+                    <div class="section-title">마우스 상호작용</div>
                     <div class="guide">
-                        • Left Click: Attract (Blue)<br>
-                        • Right Click: Repel (Red)<br>
-                        • Probe ON: Prioritizes Probe Drag
+                        • 왼쪽 클릭: 끌어당김 (파란색)<br>
+                        • 오른쪽 클릭: 밀어냄 (빨간색)<br>
+                        • 프로브 활성 시: 프로브 드래그 우선
                     </div>
                     <div class="control-row" style="margin-top:10px;">
-                        <label>Force Strength</label>
+                        <label>상호작용 강도</label>
                         <input type="range" id="mouseForce" min="1" max="20" value="8">
                     </div>
                 </div>
 
                 <div class="section">
-                    <div class="section-title">Particle Options</div>
+                    <div class="section-title">입자 설정</div>
                     <div class="control-row">
-                        <label>Shape</label>
+                        <label>모양</label>
                         <select id="shapeSelect" style="width:60%;">
-                            <option value="circle">Circle</option>
-                            <option value="square">Square</option>
-                            <option value="triangle">Triangle</option>
-                            <option value="star">Star</option>
+                            <option value="circle">원형</option>
+                            <option value="square">사각형</option>
+                            <option value="triangle">삼각형</option>
+                            <option value="star">별모양</option>
                         </select>
                     </div>
                     <div class="control-row">
-                        <label>Count</label>
+                        <label>개수</label>
                         <input type="range" id="paramCount" min="500" max="4000" step="100" value="1500">
                     </div>
                     <div class="control-row">
-                        <label>Trail</label>
+                        <label>잔상</label>
                         <input type="range" id="paramTrail" min="0" max="0.5" step="0.01" value="0.1">
                     </div>
                     <div class="control-row">
-                        <span>Speed Color</span>
+                        <span>속도별 색상</span>
                         <label class="switch">
                             <input type="checkbox" id="colorMode" checked>
                             <span class="slider"></span>
@@ -319,16 +319,16 @@
                 </div>
 
                 <div class="section" style="border:none;">
-                    <div class="section-title">Global View</div>
+                    <div class="section-title">전역 보기</div>
                     <div class="control-row">
-                        <span>Show Vector Grid</span>
+                        <span>벡터 그리드 표시</span>
                         <label class="switch">
                             <input type="checkbox" id="gridCheck">
                             <span class="slider"></span>
                         </label>
                     </div>
-                    <button class="action-btn" id="resetBtn" style="background:#555; color:#fff;">Reset Particles</button>
-                    <button class="action-btn" id="screenshotBtn" style="background:#fff; color:#000;">📸 Screenshot</button>
+                    <button class="action-btn" id="resetBtn" style="background:#555; color:#fff;">입자 초기화</button>
+                    <button class="action-btn" id="screenshotBtn" style="background:#fff; color:#000;">📸 스크린샷 저장</button>
                 </div>
             </div>
             <button id="toggle-btn">◀</button>

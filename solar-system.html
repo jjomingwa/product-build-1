@@ -20,8 +20,8 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solar System Gravity Simulator - Ultimate Web Sim Hub</title>
-    <meta name="description" content="Explore the mechanics of our solar system with this interactive N-body gravity simulator. Visualize planetary orbits, gravitational fields, and learn about Kepler's Laws of Motion.">
+    <title>태양계 중력 시뮬레이터 | Solar System Sim</title>
+    <meta name="description" content="대화형 N-body 중력 시뮬레이터로 태양계의 역학을 탐구해 보세요. 행성 궤도, 중력장을 시각화하고 케플러의 운동 법칙에 대해 배워보세요.">
     <style>
         :root {
             --bg-color: #050505;
@@ -38,7 +38,7 @@
             overflow-x: hidden;
             overflow-y: auto;
             background-color: var(--bg-color);
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', 'Noto Sans KR', Roboto, sans-serif;
             color: var(--text-primary);
         }
 
@@ -152,6 +152,7 @@
             z-index: 1000;
             pointer-events: auto;
             font-size: 0.9rem;
+            font-weight: bold;
         }
         #back-home:hover {
             background: var(--accent);
@@ -205,38 +206,38 @@
 <body>
 
     <div id="canvas-wrapper">
-        <a href="index.html" id="back-home">BACK TO HUB</a>
+        <a href="index.html" id="back-home">허브로 돌아가기</a>
 
         <div id="ui-container">
             <div id="controls">
-                <h1>Solar Simulator</h1>
+                <h1>태양계 시뮬레이터</h1>
 
                 <div class="section">
-                    <div class="section-title">Simulation Status</div>
+                    <div class="section-title">시뮬레이션 상태</div>
                     <!-- Hidden Select, forced to solar -->
                     <select id="presetSelect">
                         <option value="solar" selected>Solar System</option>
                     </select>
 
                     <div class="guide" style="color: var(--accent-warm);">
-                        * N-Body Gravity Engine Active.<br>
-                        * Sun (Center) mass: 1000x Earth.<br>
-                        * Orbits are calculated using real-time physics.
+                        * N-Body 중력 엔진 활성 상태.<br>
+                        * 태양(중심) 질량: 지구의 1000배.<br>
+                        * 실시간 물리 계산에 의한 궤적 시뮬레이션.
                     </div>
                 </div>
 
                 <div class="section">
-                    <div class="section-title">Gravitational Field Visualization</div>
+                    <div class="section-title">중력장 시각화</div>
                     <div class="control-row">
-                        <label>Particle Count</label>
+                        <label>입자 수</label>
                         <input type="range" id="paramCount" min="500" max="4000" step="100" value="1500">
                     </div>
                     <div class="control-row">
-                        <label>Trail Length</label>
+                        <label>잔상 길이</label>
                         <input type="range" id="paramTrail" min="0" max="0.5" step="0.01" value="0.1">
                     </div>
                     <div class="control-row">
-                        <span>Speed Color Map</span>
+                        <span>속도별 색상 맵</span>
                         <label class="switch">
                             <input type="checkbox" id="colorMode" checked>
                             <span class="slider"></span>
@@ -245,21 +246,21 @@
                 </div>
                 
                  <div class="section">
-                    <div class="section-title">Interaction</div>
+                    <div class="section-title">상호작용</div>
                     <div class="guide">
-                        • Left Click: Add Mass (Attract)<br>
-                        • Right Click: Anti-Gravity (Repel)<br>
+                        • 왼쪽 클릭: 질량 추가 (끌어당김)<br>
+                        • 오른쪽 클릭: 반중력 생성 (밀어냄)<br>
                     </div>
                     <div class="control-row" style="margin-top:10px;">
-                        <label>Interaction Strength</label>
+                        <label>상호작용 강도</label>
                         <input type="range" id="mouseForce" min="1" max="20" value="8">
                     </div>
                 </div>
 
                 <div class="section" style="border:none;">
-                    <div class="section-title">Global View</div>
-                    <button class="action-btn" id="resetBtn" style="background:#555; color:#fff;">Reset System</button>
-                    <button class="action-btn" id="screenshotBtn" style="background:#fff; color:#000;">📸 Screenshot</button>
+                    <div class="section-title">전역 설정</div>
+                    <button class="action-btn" id="resetBtn" style="background:#555; color:#fff;">시스템 초기화</button>
+                    <button class="action-btn" id="screenshotBtn" style="background:#fff; color:#000;">📸 스크린샷 저장</button>
                 </div>
             </div>
             <button id="toggle-btn">◀</button>
@@ -269,47 +270,39 @@
     </div>
 
     <section id="doc-section">
-        <h2>Interactive Solar System Gravity Simulator</h2>
-        <p>This interactive tool allows students and enthusiasts to explore the gravitational dynamics of a planetary system. Unlike static textbook diagrams, this N-body simulation calculates the forces between celestial bodies in real-time, providing a visceral understanding of orbital mechanics.</p>
+        <h2>대화형 태양계 중력 시뮬레이터</h2>
+        <p>이 도구는 행성계의 중력 역학을 탐구할 수 있게 해줍니다. 정적인 교과서 도표와 달리, 이 N-body 시뮬레이션은 천체 간의 힘을 실시간으로 계산하여 궤도 역학에 대한 직관적인 이해를 돕습니다.</p>
 
-        <h3>1. The Law of Universal Gravitation</h3>
-        <p>At the heart of this simulation is Isaac Newton's Law of Universal Gravitation. Every point mass attracts every other point mass by a force acting along the line intersecting the two points. The force is proportional to the product of the two masses and inversely proportional to the square of the distance between them:</p>
+        <h3>1. 만유인력의 법칙</h3>
+        <p>이 시뮬레이션의 핵심은 아이작 뉴턴의 만유인력 법칙입니다. 모든 질량은 두 점을 잇는 선을 따라 서로를 끌어당깁니다. 이 힘은 두 질량의 곱에 비례하고 거리의 제곱에 반비례합니다.</p>
         <div class="math-block">
             F = G * (m1 * m2) / r^2
         </div>
-        <p>In our simulation, the central "Sun" (yellow) is a massive object that dominates the gravitational field. The "Planets" (orange and blue) are initialized with specific velocities that allow them to fall around the sun in stable orbits, balancing their forward inertia against the inward pull of gravity.</p>
+        <p>시뮬레이션에서 중앙의 '태양'(노란색)은 거대한 질량으로 중력장을 지배합니다. '행성'들은 특정 속도로 초기화되어 태양 주변을 공전하며, 전진하려는 관성과 안으로 끌어당기는 중력 사이의 균형을 유지합니다.</p>
 
-        <h3>2. Kepler's Laws of Planetary Motion</h3>
-        <p>By observing the simulation, you can verify Kepler's three laws:</p>
+        <h3>2. 케플러의 행성 운동 법칙</h3>
+        <p>시뮬레이션을 통해 케플러의 세 가지 법칙을 확인할 수 있습니다.</p>
         <ul>
-            <li><strong>First Law (The Law of Ellipses):</strong> The path of the planets about the sun is elliptical in shape, with the center of the sun being located at one focus. You can see that the orbits are not perfect circles.</li>
-            <li><strong>Second Law (The Law of Equal Areas):</strong> An imaginary line drawn from the center of the sun to the center of the planet will sweep out equal areas in equal intervals of time. Notice how the planets speed up when they are closer to the sun (perihelion) and slow down when they are further away (aphelion).</li>
-            <li><strong>Third Law (The Law of Harmonies):</strong> The ratio of the squares of the periods of any two planets is equal to the ratio of the cubes of their average distances from the sun. The inner planet orbits much faster than the outer one.</li>
+            <li><strong>제1법칙 (타원 궤도의 법칙):</strong> 행성은 태양을 한 초점으로 하는 타원 궤도를 따라 공전합니다.</li>
+            <li><strong>제2법칙 (면적 속도 일정의 법칙):</strong> 태양과 행성을 잇는 선분은 같은 시간 동안 같은 면적을 휩쓸고 지나갑니다. 행성이 태양에 가까워질 때(근일점) 속도가 빨라지고, 멀어질 때(원일점) 느려지는 것을 관찰해 보세요.</li>
+            <li><strong>제3법칙 (조화의 법칙):</strong> 행성의 공전 주기의 제곱은 궤도 장반경의 세제곱에 비례합니다. 안쪽 행성이 바깥쪽 행성보다 훨씬 빠르게 공전하는 이유입니다.</li>
         </ul>
 
-        <h3>3. Gravitational Potential Fields</h3>
-        <p>The background particles in this simulation visualize the <strong>Gravitational Field</strong>. The field intensity is stronger closer to the massive bodies. The vectors (lines) show the direction a small test mass would accelerate if placed at that point. You can see how the field lines "bend" towards the massive objects, illustrating the concept that gravity is a curvature of space-time, as proposed by Einstein in his General Theory of Relativity.</p>
+        <h3>3. 중력 퍼텐셜 장</h3>
+        <p>배경의 입자들은 <strong>중력장</strong>을 시각화합니다. 중력의 세기는 질량이 큰 천체에 가까울수록 강해집니다. 선들은 그 지점에 놓인 작은 질량이 가속되는 방향을 나타냅니다. 장의 선들이 천체 쪽으로 휘어지는 모습은 아인슈타인의 일반 상대성 이론에서 제안된 '시공간의 곡률' 개념을 잘 보여줍니다.</p>
 
-        <h3>4. The N-Body Problem</h3>
-        <p>This simulation is a practical example of the "N-Body Problem". While predicting the motion of two bodies is solved analytically (Kepler/Newton), adding a third body makes the system chaotic. We use numerical integration (specifically a variation of the Velocity Verlet algorithm) to calculate the positions step-by-step. This method is crucial for maintaining energy stability over long simulation times.</p>
-
-        <h3>5. How to Use This Tool for Learning</h3>
-        <p>Teachers can use this tool to demonstrate:</p>
-        <ul>
-            <li>Why planets don't fly off into space or crash into the sun.</li>
-            <li>The concept of "escape velocity" (try using the Right Click to repel particles!).</li>
-            <li>The perturbation of orbits caused by other planets (observe the slight wobbles).</li>
-        </ul>
+        <h3>4. N-체 문제 (N-Body Problem)</h3>
+        <p>이 시뮬레이션은 'N-체 문제'의 실제 사례입니다. 두 천체의 운동은 수학적으로 정확히 예측 가능하지만, 세 번째 천체가 추가되는 순간 시스템은 카오스적으로 변합니다. 우리는 수치 적분(Velocity Verlet 알고리즘 변형)을 사용하여 위치를 단계별로 계산하며, 이는 장기적인 시뮬레이션에서도 에너지 안정성을 유지하는 데 필수적입니다. </p>
     </section>
 
     <footer>
-        <p>&copy; 2026 Ultimate Web Sim Hub. All rights reserved.</p>
+        <p>&copy; 2026 Ultimate Web Sim Hub. 모든 권리 보유.</p>
         <div style="margin-top: 10px;">
-            <a href="index.html">Home</a>
-            <a href="about.html">About Us</a>
-            <a href="contact.html">Contact</a>
-            <a href="privacy.html">Privacy Policy</a>
-            <a href="terms.html">Terms of Service</a>
+            <a href="index.html">홈</a>
+            <a href="about.html">정보</a>
+            <a href="contact.html">문의</a>
+            <a href="privacy.html">개인정보 처리방침</a>
+            <a href="terms.html">이용 약관</a>
         </div>
     </footer>
 

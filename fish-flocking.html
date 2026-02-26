@@ -269,9 +269,9 @@
                 this.acceleration.y += alignment.y;
 
                 // Inject Custom Script
-                if (userScript) {
+                if (typeof userScript !== 'undefined' && userScript) {
                     const motor = { steerX: 0, steerY: 0 };
-                    const sensor = { neighbors: fishes.filter(f => f !== this && Math.hypot(this.x - f.x, this.y - f.y) < 50) };
+                    const sensor = { neighbors: fishes.filter(f => f !== this && Math.hypot(this.position.x - f.position.x, this.position.y - f.position.y) < 50) };
                     try {
                         userScript(sensor, motor);
                         this.acceleration.x += motor.steerX;
