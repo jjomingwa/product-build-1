@@ -320,59 +320,169 @@ class Boundary {
     }
 }
 
+// --- Sound Manager (Jersey Club + New Age) ---
+class SoundManager {
+    constructor() {
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        this.enabled = true;
+        this.bgmNode = null;
+    }
+
+    playTone(freq, type, duration, vol = 0.1, decay = true) {
+        if (!this.enabled) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+        if (decay) gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+    }
+
+    playKick() {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.frequency.setValueAtTime(150, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.1);
+    }
+
+    startBGM() {
+        if (this.bgmNode) return;
+        this.bgmNode = true;
+        const tempo = 140; // Jersey Club Tempo
+        const beat = 60 / tempo;
+        let step = 0;
+        
+        // Cmaj - Gmaj - Am - Fmaj (New Age Pop Progression)
+        const chords = [
+            [261.63, 329.63, 392.00], // C
+            [196.00, 246.94, 293.66], // G
+            [220.00, 261.63, 329.63], // Am
+            [174.61, 220.00, 261.63]  // F
+        ];
+
+        const playLoop = () => {
+            if (!this.bgmNode) return;
+            
+            // Jersey Club Kick Pattern: 1 - - 4 - 6 - - (in 8 steps)
+            const kickSteps = [1, 0, 0, 1, 0, 1, 0, 0];
+            if (kickSteps[step % 8]) this.playKick();
+
+            // Chords (Atmospheric New Age)
+            if (step % 16 === 0) {
+                const chord = chords[Math.floor(step / 16) % chords.length];
+                chord.forEach(f => this.playTone(f, 'sine', beat * 8, 0.03, false));
+            }
+
+            step++;
+            this.bgmTimeout = setTimeout(playLoop, (beat / 2) * 1000);
+        };
+        playLoop();
+    }
+
+    stopBGM() { this.bgmNode = false; clearTimeout(this.bgmTimeout); }
+    hitPaddle() { this.playTone(440, 'triangle', 0.1, 0.05); }
+    hitWall() { this.playTone(330, 'sine', 0.05, 0.02); }
+    hitBrick() { this.playTone(600, 'sine', 0.1, 0.05); }
+    breakBrick() { this.playTone(800, 'sawtooth', 0.15, 0.1); }
+    bossHit() { this.playTone(100, 'sawtooth', 0.3, 0.2); }
+    powerup() { this.playTone(880, 'sine', 0.5, 0.05); this.playTone(1320, 'sine', 0.5, 0.05); }
+}
+
+// --- Brick Pattern Generator ---
+function createBrickTexture(colorHex, patternType) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    const color = `#${new THREE.Color(colorHex).getHexString()}`;
+
+    // Background (Balanced brightness)
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 128, 64);
+
+    // Border (To distinguish bricks)
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = 8;
+    ctx.strokeRect(0, 0, 128, 64);
+    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(4, 4, 120, 56);
+
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+    ctx.lineWidth = 2;
+
+    if (patternType === 'hatch') { // 빗살무늬
+        for(let i=-64; i<128; i+=12) {
+            ctx.beginPath();
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i+64, 64);
+            ctx.stroke();
+        }
+    } else if (patternType === 'dotted') { // 점박이
+        for(let x=10; x<128; x+=20) {
+            for(let y=10; y<64; y+=20) {
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, Math.PI*2);
+                ctx.fillStyle = 'rgba(255,255,255,0.5)';
+                ctx.fill();
+            }
+        }
+    } else if (patternType === 'lightning') { // 번개무늬
+        ctx.beginPath();
+        ctx.moveTo(20, 10); ctx.lineTo(100, 20); ctx.lineTo(40, 40); ctx.lineTo(110, 55);
+        ctx.stroke();
+    }
+    // 'plain' has no extra drawing
+
+    const texture = new THREE.CanvasTexture(canvas);
+    return texture;
+}
+
 class Brick {
     constructor(scene, x, y, typeIndex, hp = 1) {
         this.active = true;
         this.scene = scene;
         this.hp = hp;
-        this.typeIndex = typeIndex; // 0 to 6
+        this.typeIndex = typeIndex;
         
-        const colors = [0x00ff00, 0x0088ff, 0xff0088, 0x00ffff, 0xffff00, 0xffffff, 0xff8800];
+        const colors = [0x44ff44, 0x4488ff, 0xff4488, 0x44ffff, 0xffff44, 0xeeeeee, 0xff8844];
         const color = colors[typeIndex % colors.length];
+        const patterns = ['plain', 'hatch', 'dotted', 'lightning'];
+        const pattern = patterns[typeIndex % patterns.length];
         
-        // Base Box
-        this.material = new THREE.MeshStandardMaterial({ 
-            color: color, 
-            transparent: typeIndex === 5, 
-            opacity: typeIndex === 5 ? 0.6 : 1 
-        });
-        this.mesh = new THREE.Mesh(
-            new THREE.BoxGeometry(CONFIG.brickWidth, CONFIG.brickHeight, CONFIG.brickDepth),
-            this.material
-        );
-        this.mesh.position.set(x, y, 0);
-        
-        // Pattern Overlay / Inner Shape
-        this.inner = null;
-        if (typeIndex === 1) { // Wireframe
-            this.inner = new THREE.Mesh(
-                new THREE.BoxGeometry(CONFIG.brickWidth * 0.8, CONFIG.brickHeight * 0.8, CONFIG.brickDepth * 1.1),
-                new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true })
-            );
-        } else if (typeIndex === 2) { // Sphere
-            this.inner = new THREE.Mesh(
-                new THREE.SphereGeometry(0.2),
-                new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: color })
-            );
-        } else if (typeIndex === 3) { // Diamond (Multi-ball)
-            this.inner = new THREE.Mesh(
-                new THREE.OctahedronGeometry(0.25),
-                new THREE.MeshStandardMaterial({ color: 0x00ffff, emissive: 0x00ffff })
-            );
-        } else if (typeIndex === 4) { // Star/Core (Item)
-            this.inner = new THREE.Mesh(
-                new THREE.IcosahedronGeometry(0.2),
-                new THREE.MeshStandardMaterial({ color: 0xffff00, emissive: 0xffff00 })
-            );
-        } else if (typeIndex === 6) { // Spikes
-            this.inner = new THREE.Mesh(
-                new THREE.ConeGeometry(0.15, 0.4),
-                new THREE.MeshStandardMaterial({ color: 0xff3300 })
-            );
-            this.inner.rotation.x = Math.PI;
-        }
+        // Rounded Rect Shape
+        const shape = new THREE.Shape();
+        const w = CONFIG.brickWidth, h = CONFIG.brickHeight, r = 0.1;
+        shape.moveTo(-w/2+r, -h/2);
+        shape.lineTo(w/2-r, -h/2);
+        shape.quadraticCurveTo(w/2, -h/2, w/2, -h/2+r);
+        shape.lineTo(w/2, h/2-r);
+        shape.quadraticCurveTo(w/2, h/2, w/2-r, h/2);
+        shape.lineTo(-w/2+r, h/2);
+        shape.quadraticCurveTo(-w/2, h/2, -w/2, h/2-r);
+        shape.lineTo(-w/2, -h/2+r);
+        shape.quadraticCurveTo(-w/2, -h/2, -w/2+r, -h/2);
 
-        if (this.inner) this.mesh.add(this.inner);
+        const extrudeSettings = { depth: CONFIG.brickDepth, bevelEnabled: false };
+        this.geometry = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+        this.material = new THREE.MeshStandardMaterial({ 
+            map: createBrickTexture(color, pattern),
+            roughness: 0.3,
+            metalness: 0.5
+        });
+        
+        this.mesh = new THREE.Mesh(this.geometry, this.material);
+        this.mesh.position.set(x, y, -CONFIG.brickDepth/2);
         scene.add(this.mesh);
     }
     hit() {
@@ -382,7 +492,7 @@ class Brick {
             this.mesh.visible = false;
             return { destroyed: true, type: this.getPowerupType(), pos: this.mesh.position.clone() };
         } else {
-            this.material.emissive.setHex(0xffffff);
+            this.material.emissive.setHex(0x333333);
             setTimeout(() => { if (this.active) this.material.emissive.setHex(0x000000); }, 50);
             return { destroyed: false };
         }
