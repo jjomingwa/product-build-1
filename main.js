@@ -87,6 +87,7 @@ class SoundManager {
     stopBossBGM() { this.bossBgmNode = false; clearTimeout(this.bossBgmTimeout); }
 
     hitPaddle() { this.playTone(440, 'square', 0.1); }
+    hitWall() { this.playTone(330, 'sine', 0.05, 0.05); }
     hitBrick() { this.playTone(600, 'sine', 0.1); }
     breakBrick() { this.playTone(800, 'sawtooth', 0.15, 0.2); }
     bossHit() { this.playTone(100, 'sawtooth', 0.3, 0.3); }
@@ -348,12 +349,33 @@ class Game {
         this.boss = new Boss(this.scene);
         this.items = [];
         this.keys = { left: false, right: false };
+        this.score = 0;
+        this.lives = 3;
+        this.state = 'playing';
 
         window.addEventListener('keydown', e => { 
             if (e.key.includes('Arrow')) this.keys[e.key.toLowerCase().replace('arrow','')] = true;
             if (e.code === 'Space' && !this.balls[0].active) { this.balls[0].launch(); this.sound.startBGM(); }
         });
         window.addEventListener('keyup', e => { if (e.key.includes('Arrow')) this.keys[e.key.toLowerCase().replace('arrow','')] = false; });
+
+        // Mouse movement support
+        window.addEventListener('mousemove', e => {
+            const rect = this.renderer.domElement.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            const targetX = x * CONFIG.boundaryX;
+            this.paddle.mesh.position.x = Math.max(-CONFIG.boundaryX + this.paddle.width/2, Math.min(CONFIG.boundaryX - this.paddle.width/2, targetX));
+        });
+
+        // Touch support
+        window.addEventListener('touchmove', e => {
+            if (e.touches.length > 0) {
+                const rect = this.renderer.domElement.getBoundingClientRect();
+                const x = ((e.touches[0].clientX - rect.left) / rect.width) * 2 - 1;
+                const targetX = x * CONFIG.boundaryX;
+                this.paddle.mesh.position.x = Math.max(-CONFIG.boundaryX + this.paddle.width/2, Math.min(CONFIG.boundaryX - this.paddle.width/2, targetX));
+            }
+        }, { passive: false });
 
         // Form Logic
         const formContainer = document.getElementById('intern-form-container');
@@ -371,6 +393,13 @@ class Game {
             closeBtn.addEventListener('click', () => {
                 formContainer.style.display = 'none';
                 this.state = 'playing';
+            });
+        }
+
+        const restartBtn = document.getElementById('restart-btn');
+        if (restartBtn) {
+            restartBtn.addEventListener('click', () => {
+                this.restartGame();
             });
         }
 
@@ -402,6 +431,10 @@ class Game {
 
     animate(time) {
         requestAnimationFrame(this.animate);
+        if (this.state === 'gameover') {
+            this.renderer.render(this.scene, this.camera);
+            return;
+        }
         this.grid.update(time);
         this.effects.update();
         this.paddle.update(this.keys);
@@ -413,6 +446,9 @@ class Game {
             if (res) {
                 this.sound.breakBrick();
                 this.effects.emitExplosion(res.pos, 0x00ff00);
+                this.score += 100;
+                document.getElementById('score').innerText = this.score;
+                
                 if (res.type === 'multi') {
                     this.balls.push(new Ball(this.scene, true), new Ball(this.scene, true));
                     this.balls[this.balls.length-1].mesh.position.copy(res.pos);
@@ -427,7 +463,18 @@ class Game {
                     this.scene.remove(this.balls[i].mesh);
                     this.balls.splice(i, 1);
                 } else {
-                    this.balls[i].reset(this.paddle);
+                    this.lives--;
+                    document.getElementById('lives').innerText = this.lives;
+                    if (this.lives <= 0) {
+                        this.state = 'gameover';
+                        const overlay = document.getElementById('message-overlay');
+                        document.getElementById('message-title').innerText = "GAME OVER";
+                        document.getElementById('message-sub').innerText = "FINAL SCORE: " + this.score;
+                        document.getElementById('restart-btn').style.display = 'inline-block';
+                        overlay.style.display = 'block';
+                    } else {
+                        this.balls[i].reset(this.paddle);
+                    }
                 }
             }
         }
@@ -443,11 +490,36 @@ class Game {
             }
         }
 
-        if (this.bricks.length > 0 && this.bricks.every(b => !b.active)) {
+        if (this.state === 'playing' && this.bricks.length > 0 && this.bricks.every(b => !b.active)) {
             this.startLevel(this.level + 1);
         }
 
         this.renderer.render(this.scene, this.camera);
+    }
+
+    restartGame() {
+        this.score = 0;
+        this.lives = 3;
+        this.level = 1;
+        document.getElementById('score').innerText = '0';
+        document.getElementById('lives').innerText = '3';
+        document.getElementById('level').innerText = '1';
+        document.getElementById('message-overlay').style.display = 'none';
+        document.getElementById('restart-btn').style.display = 'none';
+        
+        // Reset bricks, boss, balls
+        this.bricks.forEach(b => this.scene.remove(b.mesh));
+        this.bricks = [];
+        this.items.forEach(item => item.destroy());
+        this.items = [];
+        this.balls.forEach(b => this.scene.remove(b.mesh));
+        this.balls = [new Ball(this.scene)];
+        this.boss.hp = 500;
+        this.boss.active = false;
+        this.boss.mesh.visible = false;
+        
+        this.state = 'playing';
+        this.startLevel(1);
     }
 }
 
