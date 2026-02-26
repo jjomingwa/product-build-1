@@ -371,9 +371,9 @@ class Game {
         if (this.balls.length > 1) { for (let i = 1; i < this.balls.length; i++) this.scene.remove(this.balls[i].mesh); this.balls = [this.balls[0]]; }
         this.balls[0].reset(this.paddle); this.boss.active = false; this.boss.mesh.visible = false;
         document.getElementById('boss-hud').style.display = 'none';
-        if (lvl === 5) { this.boss.activate(); document.getElementById('boss-hud').style.display = 'block'; this.sound.startBossBGM(); }
+        if (lvl === 5) { this.boss.activate(); document.getElementById('boss-hud').style.display = 'block'; }
         else {
-            this.sound.startBGM(); const rows = 4 + (lvl - 1); const cols = 8;
+            const rows = 4 + (lvl - 1); const cols = 8;
             for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
                 const x = -4.5 + c * 1.3, y = 1 + r * 0.6; let typeIndex = 0, hp = 1;
                 if (lvl === 1) typeIndex = c % 2;

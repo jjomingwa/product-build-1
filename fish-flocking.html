@@ -111,6 +111,81 @@
     <canvas id="simCanvas"></canvas>
 
     <script>
+        // --- Sound Manager (Dreamy Water Drops) ---
+        class SoundManager {
+            constructor() {
+                this.ctx = null;
+                this.active = false;
+            }
+
+            init() {
+                if (this.ctx) return;
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                this.active = true;
+                this.startPad();
+                this.startDrips();
+            }
+
+            playDrip() {
+                if (!this.active) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                const freq = 400 + Math.random() * 1200;
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(freq * 1.5, this.ctx.currentTime + 0.1);
+                
+                gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.8);
+                
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.value = 2000;
+                
+                osc.connect(gain);
+                gain.connect(filter);
+                filter.connect(this.ctx.destination);
+                
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.8);
+            }
+
+            startPad() {
+                const playChord = (freqs) => {
+                    if (!this.active) return;
+                    freqs.forEach(f => {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.value = f;
+                        gain.gain.setValueAtTime(0, this.ctx.currentTime);
+                        gain.gain.linearRampToValueAtTime(0.02, this.ctx.currentTime + 2);
+                        gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 6);
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        osc.start();
+                        osc.stop(this.ctx.currentTime + 6);
+                    });
+                    setTimeout(() => playChord(freqs), 5000);
+                };
+                playChord([261.63, 329.63, 392.00, 493.88]); // Cmaj7
+            }
+
+            startDrips() {
+                const nextDrip = () => {
+                    if (!this.active) return;
+                    this.playDrip();
+                    setTimeout(nextDrip, 1000 + Math.random() * 3000);
+                };
+                nextDrip();
+            }
+        }
+
+        const sounds = new SoundManager();
+        window.addEventListener('mousedown', () => sounds.init(), { once: true });
+        window.addEventListener('touchstart', () => sounds.init(), { once: true });
+
         const canvas = document.getElementById('simCanvas');
         const ctx = canvas.getContext('2d');
         
