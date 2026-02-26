@@ -245,7 +245,9 @@ class Ball {
         for (let b of bricks) {
             if (b.active && new THREE.Box3().setFromObject(b.mesh).intersectsSphere(sphere)) {
                 this.velocity.y *= -1;
-                return b.hit();
+                // Move ball slightly to prevent sticking
+                this.mesh.position.y += this.velocity.y > 0 ? 0.1 : -0.1;
+                return b.hit(); // Returns {destroyed: true/false, ...}
             }
         }
 
@@ -260,24 +262,37 @@ class Ball {
 }
 
 class Brick {
-    constructor(scene, x, y, type) {
+    constructor(scene, x, y, type, hp = 1) {
         this.type = type; // normal, multi, item
+        this.hp = hp;
         this.active = true;
-        let color = 0x00ff00;
-        if (type === 'multi') color = 0x0000ff; // Blue for multi-ball
-        if (type === 'item') color = 0xffff00; // Gold for items
+        this.scene = scene;
         
+        let color = 0x00ff00;
+        if (type === 'multi') color = 0x00ffff; // Cyan for multi-ball
+        if (type === 'item') color = 0xffff00; // Gold for items
+        if (hp > 1) color = 0xff00ff; // Magenta for heavy bricks
+        
+        this.material = new THREE.MeshStandardMaterial({ color: color });
         this.mesh = new THREE.Mesh(
             new THREE.BoxGeometry(CONFIG.brickWidth, CONFIG.brickHeight, CONFIG.brickDepth),
-            new THREE.MeshStandardMaterial({ color: color })
+            this.material
         );
         this.mesh.position.set(x, y, 0);
         scene.add(this.mesh);
     }
     hit() {
-        this.active = false;
-        this.mesh.visible = false;
-        return { type: this.type, pos: this.mesh.position.clone() };
+        this.hp--;
+        if (this.hp <= 0) {
+            this.active = false;
+            this.mesh.visible = false;
+            return { destroyed: true, type: this.type, pos: this.mesh.position.clone() };
+        } else {
+            // Visual feedback for hit
+            this.material.emissive.setHex(0xffffff);
+            setTimeout(() => { if (this.active) this.material.emissive.setHex(0x000000); }, 50);
+            return { destroyed: false };
+        }
     }
 }
 
@@ -411,19 +426,73 @@ class Game {
     startLevel(lvl) {
         this.level = lvl;
         document.getElementById('level').innerText = lvl;
+        
+        // 1. Reset Game State
         this.bricks.forEach(b => this.scene.remove(b.mesh));
         this.bricks = [];
+        this.items.forEach(item => item.destroy());
+        this.items = [];
         
-        if (lvl === 4) {
+        // 2. Reset Balls: Remove all but one
+        if (this.balls.length > 1) {
+            for (let i = 1; i < this.balls.length; i++) {
+                this.scene.remove(this.balls[i].mesh);
+            }
+            this.balls = [this.balls[0]];
+        }
+        this.balls[0].reset(this.paddle);
+        
+        // 3. Clear existing Boss/Projectiles if any
+        this.boss.active = false;
+        this.boss.mesh.visible = false;
+        this.boss.projectiles.forEach(p => this.scene.remove(p));
+        this.boss.projectiles = [];
+        document.getElementById('boss-hud').style.display = 'none';
+
+        // 4. Build Levels
+        if (lvl === 5) {
+            // THE BOSS STAGE
             this.boss.activate();
+            document.getElementById('boss-hud').style.display = 'block';
             this.sound.startBossBGM();
         } else {
-            for (let r=0; r<4+lvl; r++) {
-                for (let c=0; c<8; c++) {
+            this.sound.startBGM();
+            const rows = 4 + (lvl - 1);
+            const cols = 8;
+            
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const x = -4.5 + c * 1.3;
+                    const y = 1 + r * 0.6;
                     let type = 'normal';
-                    if (Math.random() < 0.15) type = 'multi';
-                    if (Math.random() < 0.1) type = 'item';
-                    this.bricks.push(new Brick(this.scene, -4.5 + c*1.3, 1 + r*0.6, type));
+                    let hp = 1;
+
+                    // Probability adjustments
+                    const multiChance = 0.05; // Reduced from 0.15
+                    const itemChance = 0.05;
+
+                    // Level Specific Layouts
+                    if (lvl === 1) {
+                        // Simple grid
+                    } else if (lvl === 2) {
+                        // Zig-zag pattern
+                        if ((r + c) % 2 === 0) continue;
+                    } else if (lvl === 3) {
+                        // Fortress: Center bricks have 2HP
+                        if (c >= 2 && c <= 5 && r >= 1 && r <= 3) hp = 2;
+                        if (Math.random() < multiChance) type = 'multi';
+                    } else if (lvl === 4) {
+                        // Diamond/Hollow pattern
+                        const dist = Math.abs(c - 3.5) + Math.abs(r - 2.5);
+                        if (dist > 3) continue;
+                        if (dist < 1) hp = 3; // Core has 3HP
+                        if (Math.random() < itemChance) type = 'item';
+                    }
+
+                    if (Math.random() < multiChance && type === 'normal') type = 'multi';
+                    if (Math.random() < itemChance && type === 'normal') type = 'item';
+                    
+                    this.bricks.push(new Brick(this.scene, x, y, type, hp));
                 }
             }
         }
@@ -443,19 +512,25 @@ class Game {
         // Balls update
         for (let i = this.balls.length-1; i>=0; i--) {
             let res = this.balls[i].update(this.paddle, this.bricks, this.boss, this.sound, this.effects);
+            
             if (res) {
-                this.sound.breakBrick();
-                this.effects.emitExplosion(res.pos, 0x00ff00);
-                this.score += 100;
-                document.getElementById('score').innerText = this.score;
-                
-                if (res.type === 'multi') {
-                    this.balls.push(new Ball(this.scene, true), new Ball(this.scene, true));
-                    this.balls[this.balls.length-1].mesh.position.copy(res.pos);
-                    this.balls[this.balls.length-2].mesh.position.copy(res.pos);
-                }
-                if (res.type === 'item') {
-                    this.items.push(new Powerup(this.scene, res.pos, 'grow'));
+                if (res.destroyed) {
+                    this.sound.breakBrick();
+                    this.effects.emitExplosion(res.pos, 0x00ff00);
+                    this.score += 100;
+                    document.getElementById('score').innerText = this.score;
+                    
+                    if (res.type === 'multi' && this.balls.length < 5) { // Limit ball count
+                        this.balls.push(new Ball(this.scene, true), new Ball(this.scene, true));
+                        this.balls[this.balls.length-1].mesh.position.copy(res.pos);
+                        this.balls[this.balls.length-2].mesh.position.copy(res.pos);
+                    }
+                    if (res.type === 'item') {
+                        this.items.push(new Powerup(this.scene, res.pos, 'grow'));
+                    }
+                } else {
+                    // Just a hit (not destroyed)
+                    this.sound.hitBrick();
                 }
             }
             if (this.balls[i].mesh.position.y < -6) {
@@ -491,7 +566,27 @@ class Game {
         }
 
         if (this.state === 'playing' && this.bricks.length > 0 && this.bricks.every(b => !b.active)) {
-            this.startLevel(this.level + 1);
+            if (this.level < 5) {
+                this.startLevel(this.level + 1);
+            } else {
+                // VICTORY!
+                this.state = 'gameover';
+                const overlay = document.getElementById('message-overlay');
+                document.getElementById('message-title').innerText = "VICTORY!";
+                document.getElementById('message-sub').innerText = "SYSTEM SECURED. FINAL SCORE: " + this.score;
+                document.getElementById('restart-btn').style.display = 'inline-block';
+                overlay.style.display = 'block';
+            }
+        }
+
+        // Special check for Boss Level 5
+        if (this.state === 'playing' && this.level === 5 && !this.boss.active) {
+            this.state = 'gameover';
+            const overlay = document.getElementById('message-overlay');
+            document.getElementById('message-title').innerText = "VICTORY!";
+            document.getElementById('message-sub').innerText = "GUARDIAN DEFEATED. FINAL SCORE: " + this.score;
+            document.getElementById('restart-btn').style.display = 'inline-block';
+            overlay.style.display = 'block';
         }
 
         this.renderer.render(this.scene, this.camera);
