@@ -267,6 +267,20 @@
                 let alignment = this.align(fishes);
                 this.acceleration.x += alignment.x;
                 this.acceleration.y += alignment.y;
+
+                // Inject Custom Script
+                if (userScript) {
+                    const motor = { steerX: 0, steerY: 0 };
+                    const sensor = { neighbors: fishes.filter(f => f !== this && Math.hypot(this.x - f.x, this.y - f.y) < 50) };
+                    try {
+                        userScript(sensor, motor);
+                        this.acceleration.x += motor.steerX;
+                        this.acceleration.y += motor.steerY;
+                    } catch(e) {
+                        console.error("Script Error", e);
+                        userScript = null; // Disable on error
+                    }
+                }
             }
 
             update() {
