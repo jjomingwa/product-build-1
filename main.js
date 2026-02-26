@@ -95,19 +95,48 @@ class SoundManager {
     powerup() { this.playTone(880, 'sine', 0.5, 0.1); this.playTone(1320, 'sine', 0.5, 0.1); }
 }
 
+// --- Starfield (Space Background) ---
+class Starfield {
+    constructor(scene) {
+        const geometry = new THREE.BufferGeometry();
+        const vertices = [];
+        const colors = [];
+        for (let i = 0; i < 1500; i++) {
+            vertices.push((Math.random() - 0.5) * 50, (Math.random() - 0.5) * 50, (Math.random() - 0.5) * 20);
+            const c = new THREE.Color();
+            c.setHSL(Math.random(), 0.7, 0.7);
+            colors.push(c.r, c.g, c.b);
+        }
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+        const material = new THREE.PointsMaterial({ size: 0.1, vertexColors: true, transparent: true, opacity: 0.8 });
+        this.stars = new THREE.Points(geometry, material);
+        scene.add(this.stars);
+    }
+    update(time) {
+        this.stars.rotation.y = time * 0.0001;
+        this.stars.rotation.x = Math.sin(time * 0.0002) * 0.1;
+    }
+}
+
 // --- Background Grid ---
 class SpaceGrid {
     constructor(scene) {
-        const size = 20;
-        const divisions = 20;
-        this.grid = new THREE.GridHelper(size, divisions, CONFIG.colors.grid, CONFIG.colors.grid);
-        this.grid.position.z = -2;
+        const size = 30;
+        const divisions = 30;
+        this.grid = new THREE.GridHelper(size, divisions, 0x00ffff, 0x003344);
+        this.grid.position.z = -5;
         this.grid.rotation.x = Math.PI / 2;
         scene.add(this.grid);
+        this.originalColor = new THREE.Color(0x00ffff);
     }
     update(time) {
-        this.grid.position.y = Math.sin(time * 0.001) * 0.2;
-        this.grid.rotation.z += 0.001;
+        // Dynamic color shifting for the grid
+        const hue = (time * 0.0001) % 1.0;
+        this.grid.material.color.setHSL(hue, 0.8, 0.5);
+        this.grid.position.y = Math.sin(time * 0.001) * 0.3;
+        this.grid.position.x = Math.cos(time * 0.0005) * 0.2;
+        this.grid.rotation.z = Math.sin(time * 0.0002) * 0.1;
     }
 }
 
@@ -349,13 +378,16 @@ class Game {
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 100);
         this.camera.position.set(0, -5, 10); this.camera.lookAt(0,0,0);
-        this.renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('game-canvas'), antialias: true });
+        this.renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('game-canvas'), antialias: true, alpha: true });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setClearColor(0x000000, 0); // Transparent background for the CSS gradient
         
-        this.scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-        const sun = new THREE.PointLight(0xffffff, 1); sun.position.set(0,0,10); this.scene.add(sun);
+        this.scene.add(new THREE.AmbientLight(0xffffff, 1.2)); // Much brighter ambient light
+        const sun = new THREE.PointLight(0xffffff, 1.5); sun.position.set(0,0,15); this.scene.add(sun);
+        const rimLight = new THREE.SpotLight(0x00ffff, 1); rimLight.position.set(10, 10, 10); this.scene.add(rimLight);
 
         this.sound = new SoundManager();
+        this.starfield = new Starfield(this.scene);
         this.grid = new SpaceGrid(this.scene);
         this.effects = new EffectSystem(this.scene);
         this.paddle = new Paddle(this.scene);
@@ -504,6 +536,7 @@ class Game {
             this.renderer.render(this.scene, this.camera);
             return;
         }
+        this.starfield.update(time);
         this.grid.update(time);
         this.effects.update();
         this.paddle.update(this.keys);

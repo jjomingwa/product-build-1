@@ -1,15 +1,25 @@
 body {
     margin: 0;
     overflow: hidden;
-    background-color: #050505;
+    background: radial-gradient(circle at center, #1a0b2e 0%, #050505 100%);
     font-family: 'Orbitron', sans-serif;
     user-select: none;
+    animation: bgPulse 10s ease-in-out infinite alternate;
 }
 
-canvas {
-    display: block;
-    width: 100vw;
-    height: 100vh;
+@keyframes bgPulse {
+    0% { background-color: #050505; }
+    100% { background-color: #1a0b2e; }
+}
+
+#game-canvas-container {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+    z-index: 1500;
+    overflow: hidden;
 }
 
 #ui-layer {
