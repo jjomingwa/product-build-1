@@ -3,20 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>슬라임 곰팡이 | Physarum Simulation</title>
+    <title>슬라임 곰팡이 시뮬레이션 | Physarum Sim</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+KR:wght@300;400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap');
         body { margin: 0; overflow: hidden; background: #000; color: #fff; font-family: 'Noto Sans KR', sans-serif; }
         canvas { display: block; filter: contrast(1.5) brightness(1.2); }
-        #gui { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.8); padding: 20px; border-radius: 10px; border: 1px solid #ffaa00; }
-        .back-link { display: inline-block; margin-top: 15px; color: #00ffff; text-decoration: none; font-size: 0.8rem; border: 1px solid #00ffff; padding: 5px 10px; border-radius: 5px; }
+        
+        #gui { 
+            position: absolute; 
+            top: 20px; 
+            left: 20px; 
+            background: rgba(0,0,0,0.85); 
+            padding: 25px; 
+            border-radius: 12px; 
+            border: 2px solid #ffaa00;
+            box-shadow: 0 0 20px rgba(255, 170, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 { font-family: 'Orbitron'; font-size: 1.4rem; color: #ffaa00; margin: 0; }
+        p { font-size: 0.8rem; color: #ccc; margin: 10px 0 20px 0; }
+
+        .back-link { 
+            display: block; 
+            text-align: center;
+            background: rgba(0, 255, 255, 0.1); 
+            color: #00ffff; 
+            text-decoration: none; 
+            font-size: 0.9rem; 
+            font-weight: bold;
+            border: 2px solid #00ffff; 
+            padding: 12px 20px; 
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .back-link:hover {
+            background: #00ffff;
+            color: #000;
+            box-shadow: 0 0 15px #00ffff;
+        }
     </style>
 </head>
 <body>
     <div id="gui">
-        <h1 style="font-family: 'Orbitron'; font-size: 1.2rem; color: #ffaa00; margin: 0;">SLIME MOLD</h1>
-        <p style="font-size: 0.7rem; color: #ccc;">Physarum Polycephalum 성장 시뮬레이션</p>
-        <a href="index.html" class="back-link" style="background: rgba(0, 255, 255, 0.1); font-weight: bold; border-width: 2px;">HUB로 돌아가기</a>
+        <h1>SLIME MOLD</h1>
+        <p>Physarum Polycephalum 성장 시뮬레이션</p>
+        <a href="index.html" class="back-link">허브로 돌아가기</a>
     </div>
     <canvas id="canvas"></canvas>
 
@@ -24,7 +57,7 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d', {alpha: false});
         let width, height;
-        let trailMap; // Float32Array for better precision
+        let trailMap;
         let agents = [];
         const numAgents = 8000;
         const sensorAngle = Math.PI / 4;
@@ -61,7 +94,7 @@
 
         const Simulation = {
             init() {
-                width = canvas.width = Math.floor(window.innerWidth / 2); // Resolution reduction for performance
+                width = canvas.width = Math.floor(window.innerWidth / 2);
                 height = canvas.height = Math.floor(window.innerHeight / 2);
                 canvas.style.width = window.innerWidth + 'px';
                 canvas.style.height = window.innerHeight + 'px';
@@ -76,7 +109,6 @@
                     trailMap[Math.floor(a.x) + Math.floor(a.y) * width] = 1.0;
                 });
 
-                // Diffuse and Decay
                 let nextMap = new Float32Array(width * height);
                 for (let y = 1; y < height - 1; y++) {
                     for (let x = 1; x < width - 1; x++) {
@@ -87,7 +119,7 @@
                                 sum += trailMap[(x + dx) + (y + dy) * width];
                             }
                         }
-                        nextMap[idx] = (sum / 9) * 0.95; // Diffusion + Decay
+                        nextMap[idx] = (sum / 9) * 0.95;
                     }
                 }
                 trailMap = nextMap;
@@ -114,6 +146,7 @@
 
         Simulation.init();
         animate();
+        window.onresize = () => Simulation.init();
     </script>
 </body>
 </html>

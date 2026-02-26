@@ -1,30 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WGNH3RM9SK"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-WGNH3RM9SK');
-    </script>
-    <script type="text/javascript">
-        (function(c,l,a,r,i,t,y){
-            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-        })(window, document, "clarity", "script", "vn9co0imxx");
-    </script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us - Ultimate Web Sim Hub</title>
-    <meta name="description" content="Get in touch with the Ultimate Web Sim Hub team for inquiries, feedback, or support regarding our physics simulations.">
+    <title>문의하기 - 얼티밋 웹 시뮬레이션 허브</title>
+    <meta name="description" content="물리 시뮬레이션에 대한 문의, 피드백 또는 지원을 위해 얼티밋 웹 시뮬레이션 허브 팀에 연락하세요.">
     <link rel="stylesheet" href="style.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap');
         
         :root {
             --neon-blue: #00ffff;
@@ -36,7 +19,7 @@
             margin: 0;
             background-color: var(--bg-dark);
             color: #fff;
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Noto Sans KR', sans-serif;
             line-height: 1.6;
         }
 
@@ -47,7 +30,7 @@
         }
 
         h1, h2 {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
             color: var(--neon-blue);
             text-shadow: 0 0 10px var(--neon-blue);
         }
@@ -58,6 +41,7 @@
             text-align: center;
             margin-bottom: 40px;
             color: #aaa;
+            font-weight: 300;
         }
 
         form {
@@ -73,7 +57,7 @@
 
         label {
             display: block;
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
             font-size: 0.8rem;
             color: var(--neon-blue);
             margin-bottom: 8px;
@@ -86,7 +70,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 5px;
             color: #fff;
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Noto Sans KR', sans-serif;
             box-sizing: border-box;
         }
 
@@ -102,7 +86,7 @@
             background: transparent;
             border: 2px solid var(--neon-blue);
             color: var(--neon-blue);
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
@@ -120,11 +104,14 @@
             margin-bottom: 30px;
             color: var(--neon-pink);
             text-decoration: none;
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
             font-size: 0.9rem;
+            border: 1px solid var(--neon-pink);
+            padding: 5px 15px;
+            border-radius: 5px;
         }
 
-        .back-link:hover { text-decoration: underline; }
+        .back-link:hover { background: var(--neon-pink); color: #000; }
 
         footer {
             margin-top: 80px;
@@ -140,44 +127,44 @@
 </head>
 <body>
     <div class="container">
-        <a href="index.html" class="back-link">&lt; BACK TO HUB</a>
+        <a href="index.html" class="back-link">&lt; 허브로 돌아가기</a>
         
-        <h1>Contact Us</h1>
-        <p class="contact-info">Have a question, feedback, or a partnership inquiry? We'd love to hear from you. Fill out the form below and our team will get back to you as soon as possible.</p>
+        <h1>문의하기</h1>
+        <p class="contact-info">질문, 피드백 또는 파트너십 문의가 있으신가요? 여러분의 의견을 기다립니다. 아래 양식을 작성해 주시면 최대한 빨리 답변해 드리겠습니다.</p>
         
         <form action="https://formspree.io/f/mykdbrzg" method="POST">
             <div class="form-group">
-                <label for="name">NAME</label>
-                <input type="text" id="name" name="name" required placeholder="Your Full Name">
+                <label for="name">이름 (NAME)</label>
+                <input type="text" id="name" name="name" required placeholder="성함을 입력하세요">
             </div>
             <div class="form-group">
-                <label for="email">EMAIL ADDRESS</label>
+                <label for="email">이메일 주소 (EMAIL)</label>
                 <input type="email" id="email" name="_replyto" required placeholder="email@example.com">
             </div>
             <div class="form-group">
-                <label for="subject">SUBJECT</label>
-                <input type="text" id="subject" name="subject" required placeholder="What is this regarding?">
+                <label for="subject">제목 (SUBJECT)</label>
+                <input type="text" id="subject" name="subject" required placeholder="문의 제목을 입력하세요">
             </div>
             <div class="form-group">
-                <label for="message">MESSAGE</label>
-                <textarea id="message" name="message" rows="6" required placeholder="How can we help you?"></textarea>
+                <label for="message">메시지 (MESSAGE)</label>
+                <textarea id="message" name="message" rows="6" required placeholder="무엇을 도와드릴까요?"></textarea>
             </div>
-            <button type="submit" class="submit-btn">SEND TRANSMISSION</button>
+            <button type="submit" class="submit-btn">전송하기</button>
         </form>
 
         <div style="margin-top: 40px; text-align: center; color: #888;">
-            <p>You can also reach us directly at: <br> <span style="color: var(--neon-pink);">contact@ultimatesimhub.com</span></p>
+            <p>직접 이메일을 보내실 수도 있습니다: <br> <span style="color: var(--neon-pink);">contact@ultimatesimhub.com</span></p>
         </div>
     </div>
 
     <footer>
-        <p>&copy; 2026 Ultimate Web Sim Hub. All rights reserved.</p>
+        <p>&copy; 2026 Ultimate Web Sim Hub. 모든 권리 보유.</p>
         <div style="margin-top: 10px;">
-            <a href="index.html">Home</a>
-            <a href="about.html">About Us</a>
-            <a href="contact.html">Contact</a>
-            <a href="privacy.html">Privacy Policy</a>
-            <a href="terms.html">Terms of Service</a>
+            <a href="index.html">홈</a>
+            <a href="about.html">정보</a>
+            <a href="contact.html">문의</a>
+            <a href="privacy.html">개인정보 처리방침</a>
+            <a href="terms.html">이용 약관</a>
         </div>
     </footer>
 </body>

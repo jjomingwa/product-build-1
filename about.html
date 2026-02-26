@@ -1,30 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-WGNH3RM9SK"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-WGNH3RM9SK');
-    </script>
-    <script type="text/javascript">
-        (function(c,l,a,r,i,t,y){
-            c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-        })(window, document, "clarity", "script", "vn9co0imxx");
-    </script>
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us - Ultimate Web Sim Hub</title>
-    <meta name="description" content="Learn more about the mission, technology, and team behind the Ultimate Web Sim Hub, the premier destination for high-quality web-based physics simulations.">
+    <title>정보 - 얼티밋 웹 시뮬레이션 허브</title>
+    <meta name="description" content="고품질 웹 기반 물리 시뮬레이션을 제공하는 얼티밋 웹 시뮬레이션 허브의 미션, 기술 및 팀에 대해 알아보세요.">
     <link rel="stylesheet" href="style.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap');
         
         :root {
             --neon-blue: #00ffff;
@@ -36,7 +19,7 @@
             margin: 0;
             background-color: var(--bg-dark);
             color: #fff;
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Noto Sans KR', sans-serif;
             line-height: 1.6;
         }
 
@@ -47,26 +30,29 @@
         }
 
         h1, h2 {
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
             color: var(--neon-blue);
             text-shadow: 0 0 10px var(--neon-blue);
         }
 
         h1 { font-size: 2.5rem; margin-bottom: 40px; text-align: center; }
-        h2 { font-size: 1.8rem; margin-top: 40px; }
+        h2 { font-size: 1.8rem; margin-top: 40px; border-bottom: 1px solid rgba(0, 255, 255, 0.3); padding-bottom: 10px; }
 
-        p { color: #ccc; margin-bottom: 20px; }
+        p { color: #ccc; margin-bottom: 20px; font-weight: 300; }
 
         .back-link {
             display: inline-block;
             margin-bottom: 30px;
             color: var(--neon-pink);
             text-decoration: none;
-            font-family: 'Orbitron', sans-serif;
+            font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
             font-size: 0.9rem;
+            border: 1px solid var(--neon-pink);
+            padding: 5px 15px;
+            border-radius: 5px;
         }
 
-        .back-link:hover { text-decoration: underline; }
+        .back-link:hover { background: var(--neon-pink); color: #000; }
 
         footer {
             margin-top: 80px;
@@ -82,46 +68,46 @@
 </head>
 <body>
     <div class="container">
-        <a href="index.html" class="back-link">&lt; BACK TO HUB</a>
+        <a href="index.html" class="back-link">&lt; 허브로 돌아가기</a>
         
-        <h1>About Ultimate Web Sim Hub</h1>
+        <h1>얼티밋 웹 시뮬레이션 허브에 대하여</h1>
         
         <section>
-            <h2>Our Mission</h2>
-            <p>The Ultimate Web Sim Hub was founded with a singular vision: to make complex scientific and mathematical concepts accessible and engaging through the power of interactive web technology. We believe that seeing is believing, but interacting is understanding. By providing high-performance, visually stunning simulations, we aim to bridge the gap between theoretical equations and physical intuition.</p>
-            <p>Whether you are a student struggling with vector calculus, a teacher looking for classroom demonstrations, or a curious mind fascinated by the mechanics of the universe, our hub provides the tools to explore these domains in real-time, right in your browser.</p>
+            <h2>우리의 미션</h2>
+            <p>얼티밋 웹 시뮬레이션 허브는 대화형 웹 기술의 힘을 통해 복잡한 과학 및 수학적 개념을 누구나 쉽게 접하고 흥미를 느낄 수 있도록 하겠다는 단 하나의 비전으로 설립되었습니다. 우리는 보는 것이 믿는 것이지만, 상호작용하는 것이 이해하는 것이라고 믿습니다. 고성능의 시각적으로 뛰어난 시뮬레이션을 제공함으로써 이론적 방정식과 물리적 직관 사이의 간극을 메우는 것을 목표로 합니다.</p>
+            <p>벡터 미적분학으로 고민하는 학생, 수업 시연을 위한 도구를 찾는 교사, 혹은 우주의 역학에 매료된 호기심 많은 영혼 등 모든 분께 브라우저에서 실시간으로 이러한 영역을 탐구할 수 있는 도구를 제공합니다.</p>
         </section>
 
         <section>
-            <h2>The Technology</h2>
-            <p>Our simulations are built using the latest web standards and high-performance libraries. We leverage <strong>WebGL</strong> and <strong>Three.js</strong> for 3D rendering, ensuring that even complex N-body simulations run smoothly at 60 frames per second on modern hardware. Our physics engines are custom-built to balance accuracy with performance, utilizing numerical integration methods like Velocity Verlet and Runge-Kutta 4 where appropriate.</p>
-            <p>By using <strong>JavaScript (ES6+)</strong> and optimized math routines, we minimize overhead and maximize the number of particles and interactions we can simulate simultaneously. Our commitment to performance means you can experiment with thousands of particles in a vector field without experiencing lag.</p>
+            <h2>적용 기술</h2>
+            <p>우리의 시뮬레이션은 최신 웹 표준과 고성능 라이브러리를 사용하여 구축되었습니다. 3D 렌더링을 위해 <strong>WebGL</strong>과 <strong>Three.js</strong>를 활용하여 복잡한 N-body 시뮬레이션도 최신 하드웨어에서 초당 60프레임으로 매끄럽게 실행되도록 보장합니다. 물리 엔진은 정확성과 성능의 균형을 맞추기 위해 커스텀 제작되었으며, 필요한 경우 Velocity Verlet 및 Runge-Kutta 4와 같은 수치 적분 방법을 사용합니다.</p>
+            <p><strong>JavaScript (ES6+)</strong>와 최적화된 수학 루틴을 사용하여 오버헤드를 최소화하고 동시에 시뮬레이션할 수 있는 입자와 상호작용의 수를 극대화했습니다. 성능에 대한 우리의 약속은 여러분이 랙 없이 벡터 필드에서 수천 개의 입자를 실험할 수 있음을 의미합니다.</p>
         </section>
 
         <section>
-            <h2>Educational Focus</h2>
-            <p>Every tool in the Ultimate Web Sim Hub is designed with educational outcomes in mind. We don't just show pretty pictures; we provide measurement tools, real-time data probes (like our Curl and Divergence analyzers), and customizable parameters. This allows users to test hypotheses, observe the effects of changing variables, and gain a deeper appreciation for the underlying physics of gravity, fluid dynamics, and electromagnetism.</p>
+            <h2>교육적 가치</h2>
+            <p>얼티밋 웹 시뮬레이션 허브의 모든 도구는 교육적 성과를 염두에 두고 설계되었습니다. 단순히 예쁜 그림을 보여주는 데 그치지 않고, 측정 도구, 실시간 데이터 프로브(회전 및 발산 분석기 등), 커스터마이징 가능한 매개변수를 제공합니다. 이를 통해 사용자는 가설을 테스트하고, 변수 변경의 효과를 관찰하며, 중력, 유체 역학 및 전자기학의 기초 물리에 대한 더 깊은 이해를 얻을 수 있습니다.</p>
         </section>
 
         <section>
-            <h2>The Team</h2>
-            <p>We are a small, passionate group of developers, educators, and science enthusiasts. With backgrounds ranging from software engineering to theoretical physics, we collaborate to ensure that every simulation is both technically sound and user-friendly. We are constantly iterating based on user feedback and new developments in web technology.</p>
+            <h2>개발 팀</h2>
+            <p>우리는 개발자, 교육자, 그리고 과학 애호가들로 구성된 작지만 열정적인 그룹입니다. 소프트웨어 엔지니어링에서 이론 물리학에 이르는 다양한 배경을 가진 팀원들이 협력하여 모든 시뮬레이션이 기술적으로 견고하면서도 사용자 친화적이 되도록 노력하고 있습니다. 우리는 항상 사용자 피드백과 웹 기술의 새로운 발전을 바탕으로 서비스를 개선하고 있습니다.</p>
         </section>
 
         <section>
-            <h2>Open Source & Community</h2>
-            <p>We believe in the power of open-source software. Most of our core simulation logic is available on GitHub for others to learn from, modify, and improve. We encourage collaboration and welcome contributions from the community to help make these tools even better for everyone.</p>
+            <h2>오픈 소스 및 커뮤니티</h2>
+            <p>우리는 오픈 소스 소프트웨어의 힘을 믿습니다. 핵심 시뮬레이션 로직의 대부분은 GitHub에서 누구나 배우고, 수정하고, 개선할 수 있도록 공개되어 있습니다. 우리는 협업을 장려하며, 모든 이에게 더 나은 도구를 만들기 위한 커뮤니티의 기여를 언제나 환영합니다.</p>
         </section>
     </div>
 
     <footer>
-        <p>&copy; 2026 Ultimate Web Sim Hub. All rights reserved.</p>
+        <p>&copy; 2026 Ultimate Web Sim Hub. 모든 권리 보유.</p>
         <div style="margin-top: 10px;">
-            <a href="index.html">Home</a>
-            <a href="about.html">About Us</a>
-            <a href="contact.html">Contact</a>
-            <a href="privacy.html">Privacy Policy</a>
-            <a href="terms.html">Terms of Service</a>
+            <a href="index.html">홈</a>
+            <a href="about.html">정보</a>
+            <a href="contact.html">문의</a>
+            <a href="privacy.html">개인정보 처리방침</a>
+            <a href="terms.html">이용 약관</a>
         </div>
     </footer>
 </body>

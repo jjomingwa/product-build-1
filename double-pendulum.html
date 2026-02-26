@@ -5,20 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>이중 진자 카오스 | Double Pendulum Chaos</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+KR:wght@300;400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap');
         body { margin: 0; overflow: hidden; background: #050505; color: #fff; font-family: 'Noto Sans KR', sans-serif; }
         canvas { display: block; }
-        #controls { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.8); padding: 20px; border: 1px solid #ff00ff; border-radius: 10px; backdrop-filter: blur(5px); }
-        h1 { font-family: 'Orbitron'; font-size: 1.2rem; color: #ff00ff; margin: 0 0 10px 0; }
-        .back-link { display: inline-block; margin-top: 15px; color: #00ffff; text-decoration: none; font-size: 0.8rem; border: 1px solid #00ffff; padding: 5px 10px; border-radius: 5px; }
+        #controls { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.85); padding: 25px; border: 2px solid #ff00ff; border-radius: 12px; backdrop-filter: blur(10px); box-shadow: 0 0 20px rgba(255, 0, 255, 0.2); }
+        h1 { font-family: 'Orbitron'; font-size: 1.2rem; color: #ff00ff; margin: 0 0 10px 0; text-shadow: 0 0 10px #ff00ff; }
+        p { font-size: 0.8rem; color: #ccc; margin: 0 0 20px 0; }
+        .back-link { display: inline-block; margin-top: 15px; color: #00ffff; text-decoration: none; font-size: 0.9rem; font-weight: bold; border: 2px solid #00ffff; padding: 10px 20px; border-radius: 8px; transition: 0.3s; background: rgba(0, 255, 255, 0.1); }
+        .back-link:hover { background: #00ffff; color: #000; box-shadow: 0 0 15px #00ffff; }
+        #reset-btn { background: transparent; border: 1px solid #ff00ff; color: #ff00ff; cursor: pointer; padding: 8px 15px; border-radius: 5px; font-family: 'Orbitron', 'Noto Sans KR'; transition: 0.3s; }
+        #reset-btn:hover { background: #ff00ff; color: #000; }
     </style>
 </head>
 <body>
     <div id="controls">
         <h1>DOUBLE PENDULUM</h1>
-        <p style="font-size: 0.8rem; color: #ccc;">초기 조건에 따른 카오스 궤적 시각화 (RK4)</p>
-        <button id="reset-btn" style="background: transparent; border: 1px solid #ff00ff; color: #ff00ff; cursor: pointer; padding: 5px 10px;">재시작</button><br>
-        <a href="index.html" class="back-link">HUB로 돌아가기</a>
+        <p>초기 조건에 따른 카오스 궤적 시각화 (RK4 적분)</p>
+        <button id="reset-btn">시뮬레이션 재시작</button><br>
+        <a href="index.html" class="back-link">허브로 돌아가기</a>
     </div>
     <canvas id="canvas"></canvas>
 
@@ -62,22 +66,18 @@
                 state.trail = [];
             },
             update() {
-                // Runge-Kutta 4th Order Integration
                 const dt = 0.5;
                 const k1 = getDerivatives(state);
-                
                 const s2 = { ...state, 
                     a1: state.a1 + k1.d_a1 * dt/2, a2: state.a2 + k1.d_a2 * dt/2,
                     v1: state.v1 + k1.d_v1 * dt/2, v2: state.v2 + k1.d_v2 * dt/2 
                 };
                 const k2 = getDerivatives(s2);
-
                 const s3 = { ...state, 
                     a1: state.a1 + k2.d_a1 * dt/2, a2: state.a2 + k2.d_a2 * dt/2,
                     v1: state.v1 + k2.d_v1 * dt/2, v2: state.v2 + k2.d_v2 * dt/2 
                 };
                 const k3 = getDerivatives(s3);
-
                 const s4 = { ...state, 
                     a1: state.a1 + k3.d_a1 * dt, a2: state.a2 + k3.d_a2 * dt,
                     v1: state.v1 + k3.d_v1 * dt, v2: state.v2 + k3.d_v2 * dt 
@@ -100,13 +100,10 @@
             draw() {
                 ctx.fillStyle = 'rgba(5, 5, 5, 0.2)';
                 ctx.fillRect(0, 0, width, height);
-
                 const x1 = width/2 + state.l1 * Math.sin(state.a1);
                 const y1 = height/3 + state.l1 * Math.cos(state.a1);
                 const x2 = x1 + state.l2 * Math.sin(state.a2);
                 const y2 = y1 + state.l2 * Math.cos(state.a2);
-
-                // Draw Trail
                 ctx.beginPath();
                 ctx.strokeStyle = '#ff00ff';
                 ctx.lineWidth = 2;
@@ -115,8 +112,6 @@
                     ctx.lineTo(state.trail[i].x, state.trail[i].y);
                 }
                 ctx.stroke();
-
-                // Draw Pendulum
                 ctx.strokeStyle = '#fff';
                 ctx.lineWidth = 4;
                 ctx.beginPath();
@@ -124,7 +119,6 @@
                 ctx.lineTo(x1, y1);
                 ctx.lineTo(x2, y2);
                 ctx.stroke();
-
                 ctx.fillStyle = '#00ffff';
                 ctx.beginPath(); ctx.arc(x1, y1, 10, 0, Math.PI*2); ctx.fill();
                 ctx.fillStyle = '#ff00ff';
@@ -132,12 +126,7 @@
             }
         };
 
-        function animate() {
-            Simulation.update();
-            Simulation.draw();
-            requestAnimationFrame(animate);
-        }
-
+        function animate() { Simulation.update(); Simulation.draw(); requestAnimationFrame(animate); }
         Simulation.init();
         animate();
         window.onresize = () => Simulation.init();
