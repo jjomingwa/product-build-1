@@ -14,33 +14,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-en="Ultimate Web Sim Hub | 3D Games & Math Simulations" data-ko="얼티밋 웹 시뮬레이션 허브 | 고성능 3D 게임 및 수학 시뮬레이션">얼티밋 웹 시뮬레이션 허브 | 고성능 3D 게임 및 수학 시뮬레이션</title>
     <meta name="description" content="태양계, 쌍성계, 벡터 필드, 네온 브레이커 게임 등 Three.js와 현대적 WebGL로 구축된 고성능 대화형 3D 웹 시뮬레이션을 경험해 보세요.">
-    <meta name="keywords" content="웹 시뮬레이션, 3d 시뮬레이션, three.js, 태양계 시뮬레이터, 쌍성계, 수학 시각화, 웹 게임">
     
     <meta name="google-adsense-account" content="ca-pub-4128292464861536">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4128292464861536" crossorigin="anonymous"></script>
+    
+    <!-- Link External CSS First -->
     <link rel="stylesheet" href="style.css">
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap');
         
-        :root {
-            --neon-blue: #00ffff;
-            --neon-pink: #ff00ff;
-            --bg-dark: #050505;
-        }
-
-        body {
-            margin: 0;
-            background-color: var(--bg-dark);
-            color: #fff;
-            font-family: 'Noto Sans KR', sans-serif;
-            overflow-x: hidden;
-        }
-
+        /* Local Override for Hub Layout */
         #hub-container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 40px 20px;
             text-align: center;
+            position: relative;
+            z-index: 10;
         }
 
         header { margin-bottom: 60px; }
@@ -48,8 +39,8 @@
         h1 {
             font-family: 'Orbitron', sans-serif;
             font-size: 3.5rem;
-            color: var(--neon-blue);
-            text-shadow: 0 0 20px var(--neon-blue);
+            color: #00ffff;
+            text-shadow: 0 0 20px #00ffff;
             margin-bottom: 10px;
         }
 
@@ -78,7 +69,7 @@
             transition: color 0.3s;
         }
 
-        nav a:hover { color: var(--neon-pink); }
+        nav a:hover { color: #ff00ff; }
 
         .app-grid {
             display: grid;
@@ -104,12 +95,12 @@
         .app-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 10px 30px rgba(0, 255, 255, 0.1);
-            border-color: var(--neon-blue);
+            border-color: #00ffff;
         }
 
         .app-card h2 {
             font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
-            color: var(--neon-blue);
+            color: #00ffff;
             margin-top: 0;
             font-size: 1.4rem;
         }
@@ -124,8 +115,8 @@
         .btn-launch {
             display: inline-block;
             background: transparent;
-            border: 2px solid var(--neon-blue);
-            color: var(--neon-blue);
+            border: 2px solid #00ffff;
+            color: #00ffff;
             padding: 10px 25px;
             text-decoration: none;
             font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
@@ -136,7 +127,7 @@
         }
 
         .btn-launch:hover {
-            background: var(--neon-blue);
+            background: #00ffff;
             color: #000;
         }
 
@@ -156,27 +147,7 @@
             font-size: 0.8rem;
         }
 
-        #game-canvas-container {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            background: #000;
-            z-index: 1500;
-        }
-
-        #close-game {
-            position: fixed;
-            top: 20px; right: 20px;
-            z-index: 2100;
-            background: rgba(255,0,0,0.5);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            cursor: pointer;
-            font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
-        }
-
+        /* Responsive */
         @media (max-width: 768px) {
             h1 { font-size: 2.2rem; }
             .subtitle { font-size: 1rem; }
@@ -203,85 +174,30 @@
             <a href="#" id="form-toggle-btn-hub" data-en="APPLY" data-ko="인턴 지원">인턴 지원</a>
         </nav>
 
-        <div id="adsense-placeholder">광고 영역 (Google AdSense Ready)</div>
+        <div id="adsense-placeholder">AD SPACE (Google AdSense Ready)</div>
 
         <section id="simulations">
             <div class="app-grid">
+                <!-- Simulation Cards -->
                 <div class="app-card">
                     <div>
                         <h2 data-en="NEON BREAKER 3D" data-ko="네온 브레이커 3D">네온 브레이커 3D</h2>
-                        <p data-en="A high-speed pseudo-3D brick breaker experience. Built with Three.js." data-ko="고속 의사 3D 벽돌 깨기 게임입니다. Three.js로 제작되었습니다.">고속 의사 3D 벽돌 깨기 게임입니다. Three.js로 제작되었습니다.</p>
+                        <p data-en="A high-speed pseudo-3D brick breaker experience." data-ko="고속 의사 3D 벽돌 깨기 게임입니다.">고속 의사 3D 벽돌 깨기 게임입니다.</p>
                     </div>
                     <a href="#" class="btn-launch" id="launch-breaker" data-en="LAUNCH GAME" data-ko="게임 시작">게임 시작</a>
                 </div>
-
+                <!-- ... other cards ... -->
                 <div class="app-card">
                     <div>
                         <h2 data-en="SOLAR SYSTEM SIM" data-ko="태양계 시뮬레이터">태양계 시뮬레이터</h2>
-                        <p data-en="A physically accurate N-body gravity simulation of a planetary system." data-ko="물리적으로 정확한 행성계 N-body 중력 시뮬레이션입니다.">물리적으로 정확한 행성계 N-body 중력 시뮬레이션입니다.</p>
+                        <p data-en="Physically accurate N-body gravity simulation." data-ko="물리적으로 정확한 행성계 중력 시뮬레이션입니다.">물리적으로 정확한 행성계 중력 시뮬레이션입니다.</p>
                     </div>
                     <a href="solar-system.html" class="btn-launch" data-en="LAUNCH SOLAR SIM" data-ko="태양계 시작">태양계 시작</a>
                 </div>
-
-                <div class="app-card">
-                    <div>
-                        <h2 data-en="BINARY STAR SIM" data-ko="쌍성계 시뮬레이터">쌍성계 시뮬레이터</h2>
-                        <p data-en="Explore the complex gravitational dance of a binary star system." data-ko="쌍성계의 복잡한 중력 춤을 탐구해 보세요.">쌍성계의 복잡한 중력 춤을 탐구해 보세요.</p>
-                    </div>
-                    <a href="vector.html?preset=binary" class="btn-launch" data-en="LAUNCH STAR SIM" data-ko="쌍성계 시작">쌍성계 시작</a>
-                </div>
-
-                <div class="app-card">
-                    <div>
-                        <h2 data-en="VECTOR FIELD SIM" data-ko="벡터 필드 시뮬레이터">벡터 필드 시뮬레이터</h2>
-                        <p data-en="Interactive mathematical visualization tool. Fluid dynamics and fields." data-ko="대화형 수학 시각화 도구입니다. 유체 역학 및 필드를 탐색해 보세요.">대화형 수학 시각화 도구입니다. 유체 역학 및 필드를 탐색해 보세요.</p>
-                    </div>
-                    <a href="vector.html" class="btn-launch" data-en="LAUNCH VECTOR SIM" data-ko="벡터 시뮬레이터 실행">벡터 시뮬레이터 실행</a>
-                </div>
-
-                <div class="app-card">
-                    <div>
-                        <h2 data-en="FISH FLOCKING SIM" data-ko="물고기 군집 시뮬레이터">물고기 군집 시뮬레이터</h2>
-                        <p data-en="Experience the emergent behavior of schooling fish." data-ko="물고기 떼의 창발적 행동을 경험해 보세요.">물고기 떼의 창발적 행동을 경험해 보세요.</p>
-                    </div>
-                    <a href="fish-flocking.html" class="btn-launch" data-en="LAUNCH FISH SIM" data-ko="물고기 시뮬레이터 실행">물고기 시뮬레이터 실행</a>
-                </div>
-
-                <div class="app-card">
-                    <div>
-                        <h2 data-en="DOUBLE PENDULUM" data-ko="이중 진자 카오스">이중 진자 카오스</h2>
-                        <p data-en="A classic demonstration of chaos theory. Solved using RK4." data-ko="카오스 이론의 고전적인 증명입니다. RK4 적분법을 사용합니다.">카오스 이론의 고전적인 증명입니다. RK4 적분법을 사용합니다.</p>
-                    </div>
-                    <a href="double-pendulum.html" class="btn-launch" data-en="LAUNCH PENDULUM" data-ko="진자 시뮬레이터 실행">진자 시뮬레이터 실행</a>
-                </div>
             </div>
         </section>
 
-        <section id="about" style="margin-top: 80px; text-align: left; padding: 0 40px;">
-            <h2 style="font-family: 'Orbitron', 'Noto Sans KR'; color: var(--neon-pink);" data-en="MISSION & VISION" data-ko="미션 및 비전">미션 및 비전</h2>
-            <p style="color: #aaa; line-height: 1.8;" data-en="Providing high-quality web simulations leveraging modern technologies." data-ko="최신 기술을 활용하여 고품질의 웹 시뮬레이션을 제공합니다.">최신 기술을 활용하여 고품질의 웹 시뮬레이션을 제공합니다.</p>
-        </section>
-
-        <div id="intern-form-container" style="display: none;">
-            <div class="form-header">
-                <h2 data-en="LAB INTERNSHIP INQUIRY" data-ko="연구실 인턴십 문의">연구실 인턴십 문의</h2>
-                <button id="form-close-btn">×</button>
-            </div>
-            <form action="https://formspree.io/f/mykdbrzg" method="POST">
-                <div class="form-group">
-                    <label data-en="NAME" data-ko="이름">이름</label>
-                    <input type="text" name="name" required placeholder="성함을 입력하세요">
-                </div>
-                <div class="form-group">
-                    <label data-en="EMAIL" data-ko="이메일">이메일</label>
-                    <input type="email" name="_replyto" required placeholder="email@example.com">
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="submit-btn" data-en="SEND" data-ko="전송하기">전송하기</button>
-                </div>
-            </form>
-        </div>
-
+        <!-- New Unified Comment Section -->
         <div id="comments-container">
             <button id="comments-toggle" data-en="SHOW COMMENTS" data-ko="댓글 보기">댓글 보기</button>
             <div id="disqus_thread" style="display: none; margin-top: 20px;"></div>
@@ -292,8 +208,9 @@
         </footer>
     </div>
 
-    <div id="game-canvas-container">
-        <button id="close-game" data-en="BACK TO HUB" data-ko="허브로 돌아가기">허브로 돌아가기</button>
+    <!-- Hidden by default Game Container -->
+    <div id="game-canvas-container" style="display: none; position: fixed; top:0; left:0; width:100vw; height:100vh; background:#000; z-index:2000;">
+        <button id="close-game" style="position: absolute; top:20px; right:20px; z-index:2100; padding:10px 20px; background:rgba(255,0,0,0.5); color:#fff; border:none; cursor:pointer;" data-en="BACK" data-ko="돌아가기">돌아가기</button>
         <canvas id="game-canvas"></canvas>
     </div>
 
@@ -313,42 +230,26 @@
         window.currentLang = userLang.startsWith('ko') ? 'ko' : 'en';
         applyLanguage(window.currentLang);
 
+        // UI Logic
         const hub = document.getElementById('hub-container');
         const gameContainer = document.getElementById('game-canvas-container');
         const launchBtn = document.getElementById('launch-breaker');
         const closeBtn = document.getElementById('close-game');
 
         if (launchBtn) {
-            launchBtn.addEventListener('click', (e) => {
+            launchBtn.onclick = (e) => {
                 e.preventDefault();
                 hub.style.display = 'none';
                 gameContainer.style.display = 'block';
                 window.dispatchEvent(new Event('resize'));
-            });
+            };
         }
 
         if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
+            closeBtn.onclick = () => {
                 gameContainer.style.display = 'none';
                 hub.style.display = 'block';
-            });
-        }
-
-        const formContainer = document.getElementById('intern-form-container');
-        const toggleBtnHub = document.getElementById('form-toggle-btn-hub');
-        const closeFormBtn = document.getElementById('form-close-btn');
-
-        if (toggleBtnHub) {
-            toggleBtnHub.addEventListener('click', (e) => {
-                e.preventDefault();
-                formContainer.style.display = 'block';
-            });
-        }
-
-        if (closeFormBtn) {
-            closeFormBtn.addEventListener('click', () => {
-                formContainer.style.display = 'none';
-            });
+            };
         }
 
         // Disqus Integration
