@@ -8,21 +8,77 @@
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap');
         body { margin: 0; overflow: hidden; background: #050505; color: #fff; font-family: 'Noto Sans KR', sans-serif; }
         canvas { display: block; }
-        #controls { position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.85); padding: 25px; border: 2px solid #ff00ff; border-radius: 12px; backdrop-filter: blur(10px); box-shadow: 0 0 20px rgba(255, 0, 255, 0.2); }
+        #controls { 
+            position: absolute; 
+            top: 20px; 
+            left: 20px; 
+            background: rgba(0,0,0,0.85); 
+            padding: 25px; 
+            border: 2px solid #ff00ff; 
+            border-radius: 12px; 
+            backdrop-filter: blur(10px); 
+            box-shadow: 0 0 20px rgba(255, 0, 255, 0.2); 
+            width: 280px;
+        }
         h1 { font-family: 'Orbitron'; font-size: 1.2rem; color: #ff00ff; margin: 0 0 10px 0; text-shadow: 0 0 10px #ff00ff; }
-        p { font-size: 0.8rem; color: #ccc; margin: 0 0 20px 0; }
-        .back-link { display: inline-block; margin-top: 15px; color: #00ffff; text-decoration: none; font-size: 0.9rem; font-weight: bold; border: 2px solid #00ffff; padding: 10px 20px; border-radius: 8px; transition: 0.3s; background: rgba(0, 255, 255, 0.1); }
+        .desc { font-size: 0.8rem; color: #ccc; margin: 0 0 20px 0; line-height: 1.4; }
+        
+        .control-group { margin-bottom: 20px; }
+        .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .label-row label { font-size: 0.85rem; color: #00ffff; font-family: 'Orbitron', 'Noto Sans KR'; }
+        .value-display { font-family: 'Orbitron'; color: #ff00ff; font-weight: bold; }
+        
+        input[type=range] {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            height: 6px;
+            border-radius: 3px;
+            appearance: none;
+            outline: none;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #ff00ff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px #ff00ff;
+        }
+
+        .back-link { display: inline-block; margin-top: 15px; color: #00ffff; text-decoration: none; font-size: 0.9rem; font-weight: bold; border: 2px solid #00ffff; padding: 10px 20px; border-radius: 8px; transition: 0.3s; background: rgba(0, 255, 255, 0.1); text-align: center; width: calc(100% - 44px); }
         .back-link:hover { background: #00ffff; color: #000; box-shadow: 0 0 15px #00ffff; }
-        #reset-btn { background: transparent; border: 1px solid #ff00ff; color: #ff00ff; cursor: pointer; padding: 8px 15px; border-radius: 5px; font-family: 'Orbitron', 'Noto Sans KR'; transition: 0.3s; }
+        
+        #reset-btn { 
+            width: 100%;
+            background: transparent; 
+            border: 1px solid #ff00ff; 
+            color: #ff00ff; 
+            cursor: pointer; 
+            padding: 10px; 
+            border-radius: 5px; 
+            font-family: 'Orbitron', 'Noto Sans KR'; 
+            transition: 0.3s;
+            margin-bottom: 10px;
+        }
         #reset-btn:hover { background: #ff00ff; color: #000; }
     </style>
 </head>
 <body>
     <div id="controls">
-        <h1>DOUBLE PENDULUM</h1>
-        <p>초기 조건에 따른 카오스 궤적 시각화 (RK4 적분)</p>
-        <button id="reset-btn">시뮬레이션 재시작</button><br>
-        <a href="index.html" class="back-link">허브로 돌아가기</a>
+        <h1 data-en="DOUBLE PENDULUM" data-ko="이중 진자 카오스">이중 진자 카오스</h1>
+        <p class="desc" data-en="Chaos visualization using RK4 integration." data-ko="초기 조건에 따른 카오스 궤적 시각화 (RK4 적분법 사용)">초기 조건에 따른 카오스 궤적 시각화 (RK4 적분법 사용)</p>
+        
+        <div class="control-group">
+            <div class="label-row">
+                <label data-en="TIME SCALE" data-ko="시간 배율">시간 배율</label>
+                <span id="speed-val" class="value-display">1.0x</span>
+            </div>
+            <input type="range" id="speed-slider" min="0.1" max="5.0" step="0.1" value="1.0">
+        </div>
+
+        <button id="reset-btn" data-en="RESET SIMULATION" data-ko="시뮬레이션 재시작">시뮬레이션 재시작</button>
+        <a href="index.html" class="back-link" data-en="BACK TO HUB" data-ko="허브로 돌아가기">허브로 돌아가기</a>
     </div>
     <canvas id="canvas"></canvas>
 
@@ -36,8 +92,19 @@
             g: 1,
             a1: Math.PI / 2, a2: Math.PI / 2,
             v1: 0, v2: 0,
-            trail: []
+            trail: [],
+            timeScale: 1.0
         };
+
+        // Multi-language Support
+        function applyLanguage(lang) {
+            document.querySelectorAll('[data-en]').forEach(el => {
+                const text = el.getAttribute(`data-${lang}`);
+                if (text) el.innerText = text;
+            });
+        }
+        const userLang = navigator.language.startsWith('ko') ? 'ko' : 'en';
+        applyLanguage(userLang);
 
         function getDerivatives(s) {
             const { m1, m2, l1, l2, g, a1, a2, v1, v2 } = s;
@@ -66,7 +133,10 @@
                 state.trail = [];
             },
             update() {
-                const dt = 0.5;
+                // Apply timeScale to the base time step
+                const baseDt = 0.5;
+                const dt = baseDt * state.timeScale;
+
                 const k1 = getDerivatives(state);
                 const s2 = { ...state, 
                     a1: state.a1 + k1.d_a1 * dt/2, a2: state.a2 + k1.d_a2 * dt/2,
@@ -90,50 +160,82 @@
                 state.v2 += (dt/6) * (k1.d_v2 + 2*k2.d_v2 + 2*k3.d_v2 + k4.d_v2);
 
                 const x1 = width/2 + state.l1 * Math.sin(state.a1);
-                const y1 = height/3 + state.l1 * Math.cos(state.a1);
+                const y1 = height/2 - 50 + state.l1 * Math.cos(state.a1);
                 const x2 = x1 + state.l2 * Math.sin(state.a2);
                 const y2 = y1 + state.l2 * Math.cos(state.a2);
 
                 state.trail.push({x: x2, y: y2});
+                // Trail length adjustment based on speed might be needed, but fixed at 500 for now
                 if(state.trail.length > 500) state.trail.shift();
             },
             draw() {
                 ctx.fillStyle = 'rgba(5, 5, 5, 0.2)';
                 ctx.fillRect(0, 0, width, height);
+
                 const x1 = width/2 + state.l1 * Math.sin(state.a1);
-                const y1 = height/3 + state.l1 * Math.cos(state.a1);
+                const y1 = height/2 - 50 + state.l1 * Math.cos(state.a1);
                 const x2 = x1 + state.l2 * Math.sin(state.a2);
                 const y2 = y1 + state.l2 * Math.cos(state.a2);
-                ctx.beginPath();
-                ctx.strokeStyle = '#ff00ff';
-                ctx.lineWidth = 2;
-                for(let i=1; i<state.trail.length; i++) {
-                    ctx.moveTo(state.trail[i-1].x, state.trail[i-1].y);
-                    ctx.lineTo(state.trail[i].x, state.trail[i].y);
+
+                // Draw Trail
+                if (state.trail.length > 1) {
+                    ctx.beginPath();
+                    ctx.strokeStyle = 'rgba(255, 0, 255, 0.5)';
+                    ctx.lineWidth = 1.5;
+                    for(let i=1; i<state.trail.length; i++) {
+                        ctx.moveTo(state.trail[i-1].x, state.trail[i-1].y);
+                        ctx.lineTo(state.trail[i].x, state.trail[i].y);
+                    }
+                    ctx.stroke();
                 }
-                ctx.stroke();
+
+                // Draw Pendulum Arms
                 ctx.strokeStyle = '#fff';
                 ctx.lineWidth = 4;
                 ctx.beginPath();
-                ctx.moveTo(width/2, height/3);
+                ctx.moveTo(width/2, height/2 - 50);
                 ctx.lineTo(x1, y1);
                 ctx.lineTo(x2, y2);
                 ctx.stroke();
+
+                // Draw Joint Points
                 ctx.fillStyle = '#00ffff';
-                ctx.beginPath(); ctx.arc(x1, y1, 10, 0, Math.PI*2); ctx.fill();
+                ctx.shadowBlur = 10; ctx.shadowColor = '#00ffff';
+                ctx.beginPath(); ctx.arc(x1, y1, 8, 0, Math.PI*2); ctx.fill();
+                
                 ctx.fillStyle = '#ff00ff';
-                ctx.beginPath(); ctx.arc(x2, y2, 10, 0, Math.PI*2); ctx.fill();
+                ctx.shadowColor = '#ff00ff';
+                ctx.beginPath(); ctx.arc(x2, y2, 8, 0, Math.PI*2); ctx.fill();
+                ctx.shadowBlur = 0;
             }
         };
 
-        function animate() { Simulation.update(); Simulation.draw(); requestAnimationFrame(animate); }
-        Simulation.init();
-        animate();
-        window.onresize = () => Simulation.init();
+        function animate() { 
+            Simulation.update(); 
+            Simulation.draw(); 
+            requestAnimationFrame(animate); 
+        }
+
+        // Event Listeners
+        const speedSlider = document.getElementById('speed-slider');
+        const speedDisplay = document.getElementById('speed-val');
+
+        speedSlider.oninput = (e) => {
+            const val = parseFloat(e.target.value);
+            state.timeScale = val;
+            speedDisplay.innerText = val.toFixed(1) + 'x';
+        };
+
         document.getElementById('reset-btn').onclick = () => {
-            state.a1 = Math.PI/2 + Math.random(); state.a2 = Math.PI/2;
+            state.a1 = Math.PI/2 + (Math.random() - 0.5); 
+            state.a2 = Math.PI/2 + (Math.random() - 0.5);
             state.v1 = 0; state.v2 = 0; state.trail = [];
         };
+
+        window.onresize = () => Simulation.init();
+
+        Simulation.init();
+        animate();
     </script>
 </body>
 </html>
