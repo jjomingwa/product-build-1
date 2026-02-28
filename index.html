@@ -12,19 +12,31 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-en="Ultimate Web Sim Hub | 3D Games & Math Simulations" data-ko="얼티밋 웹 시뮬레이션 허브 | 고성능 3D 게임 및 수학 시뮬레이션">얼티밋 웹 시뮬레이션 허브 | 고성능 3D 게임 및 수학 시뮬레이션</title>
+    <title data-en="Ultimate Web Sim Hub | High-Performance 3D Simulations" data-ko="얼티밋 웹 시뮬레이션 허브 | 고성능 3D 게임 및 수학 시뮬레이션">얼티밋 웹 시뮬레이션 허브 | 고성능 3D 게임 및 수학 시뮬레이션</title>
     <meta name="description" content="태양계, 쌍성계, 벡터 필드, 네온 브레이커 게임 등 Three.js와 현대적 WebGL로 구축된 고성능 대화형 3D 웹 시뮬레이션을 경험해 보세요.">
     
     <meta name="google-adsense-account" content="ca-pub-4128292464861536">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4128292464861536" crossorigin="anonymous"></script>
     
-    <!-- Link External CSS First -->
     <link rel="stylesheet" href="style.css">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap');
         
-        /* Local Override for Hub Layout */
+        :root {
+            --neon-blue: #00ffff;
+            --neon-pink: #ff00ff;
+            --bg-dark: #050505;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-dark);
+            color: #fff;
+            font-family: 'Noto Sans KR', sans-serif;
+            overflow-x: hidden;
+        }
+
         #hub-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -39,8 +51,8 @@
         h1 {
             font-family: 'Orbitron', sans-serif;
             font-size: 3.5rem;
-            color: #00ffff;
-            text-shadow: 0 0 20px #00ffff;
+            color: var(--neon-blue);
+            text-shadow: 0 0 20px var(--neon-blue);
             margin-bottom: 10px;
         }
 
@@ -69,7 +81,7 @@
             transition: color 0.3s;
         }
 
-        nav a:hover { color: #ff00ff; }
+        nav a:hover { color: var(--neon-pink); }
 
         .app-grid {
             display: grid;
@@ -95,12 +107,12 @@
         .app-card:hover {
             transform: translateY(-10px);
             box-shadow: 0 10px 30px rgba(0, 255, 255, 0.1);
-            border-color: #00ffff;
+            border-color: var(--neon-blue);
         }
 
         .app-card h2 {
             font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
-            color: #00ffff;
+            color: var(--neon-blue);
             margin-top: 0;
             font-size: 1.4rem;
         }
@@ -110,13 +122,14 @@
             line-height: 1.6;
             margin-bottom: 20px;
             font-size: 0.95rem;
+            min-height: 60px;
         }
 
         .btn-launch {
             display: inline-block;
             background: transparent;
-            border: 2px solid #00ffff;
-            color: #00ffff;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
             padding: 10px 25px;
             text-decoration: none;
             font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
@@ -127,7 +140,7 @@
         }
 
         .btn-launch:hover {
-            background: #00ffff;
+            background: var(--neon-blue);
             color: #000;
         }
 
@@ -147,7 +160,6 @@
             font-size: 0.8rem;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             h1 { font-size: 2.2rem; }
             .subtitle { font-size: 1rem; }
@@ -178,26 +190,95 @@
 
         <section id="simulations">
             <div class="app-grid">
-                <!-- Simulation Cards -->
+                <!-- App 1: Neon Breaker 3D -->
                 <div class="app-card">
                     <div>
                         <h2 data-en="NEON BREAKER 3D" data-ko="네온 브레이커 3D">네온 브레이커 3D</h2>
-                        <p data-en="A high-speed pseudo-3D brick breaker experience." data-ko="고속 의사 3D 벽돌 깨기 게임입니다.">고속 의사 3D 벽돌 깨기 게임입니다.</p>
+                        <p data-en="A high-speed pseudo-3D brick breaker experience built with Three.js." data-ko="고속 의사 3D 벽돌 깨기 게임입니다. Three.js로 제작되었습니다.">고속 의사 3D 벽돌 깨기 게임입니다. Three.js로 제작되었습니다.</p>
                     </div>
                     <a href="#" class="btn-launch" id="launch-breaker" data-en="LAUNCH GAME" data-ko="게임 시작">게임 시작</a>
                 </div>
-                <!-- ... other cards ... -->
+
+                <!-- App 2: Solar System Sim -->
                 <div class="app-card">
                     <div>
                         <h2 data-en="SOLAR SYSTEM SIM" data-ko="태양계 시뮬레이터">태양계 시뮬레이터</h2>
-                        <p data-en="Physically accurate N-body gravity simulation." data-ko="물리적으로 정확한 행성계 중력 시뮬레이션입니다.">물리적으로 정확한 행성계 중력 시뮬레이션입니다.</p>
+                        <p data-en="Physically accurate N-body gravity simulation of a planetary system." data-ko="물리적으로 정확한 행성계 N-body 중력 시뮬레이션입니다.">물리적으로 정확한 행성계 N-body 중력 시뮬레이션입니다.</p>
                     </div>
                     <a href="solar-system.html" class="btn-launch" data-en="LAUNCH SOLAR SIM" data-ko="태양계 시작">태양계 시작</a>
+                </div>
+
+                <!-- App 3: Binary Star Sim -->
+                <div class="app-card">
+                    <div>
+                        <h2 data-en="BINARY STAR SIM" data-ko="쌍성계 시뮬레이터">쌍성계 시뮬레이터</h2>
+                        <p data-en="Explore the gravitational dance of a binary star system." data-ko="쌍성계의 복잡한 중력 춤을 탐구해 보세요.">쌍성계의 복잡한 중력 춤을 탐구해 보세요.</p>
+                    </div>
+                    <a href="vector.html?preset=binary" class="btn-launch" data-en="LAUNCH STAR SIM" data-ko="쌍성계 시작">쌍성계 시작</a>
+                </div>
+
+                <!-- App 4: Vector Field -->
+                <div class="app-card">
+                    <div>
+                        <h2 data-en="VECTOR FIELD SIM" data-ko="벡터 필드 시뮬레이터">벡터 필드 시뮬레이터</h2>
+                        <p data-en="Interactive mathematical visualization of fluid dynamics and fields." data-ko="유체 역학 및 필드를 실시간으로 탐색하는 대화형 시각화 도구입니다.">유체 역학 및 필드를 실시간으로 탐색하는 대화형 시각화 도구입니다.</p>
+                    </div>
+                    <a href="vector.html" class="btn-launch" data-en="LAUNCH VECTOR SIM" data-ko="벡터 시뮬레이터 실행">벡터 시뮬레이터 실행</a>
+                </div>
+
+                <!-- App 5: Fish Flocking -->
+                <div class="app-card">
+                    <div>
+                        <h2 data-en="FISH FLOCKING SIM" data-ko="물고기 군집 시뮬레이터">물고기 군집 시뮬레이터</h2>
+                        <p data-en="Experience the emergent behavior of schooling fish agents." data-ko="물고기 떼의 창발적 행동을 경험해 보세요.">물고기 떼의 창발적 행동을 경험해 보세요.</p>
+                    </div>
+                    <a href="fish-flocking.html" class="btn-launch" data-en="LAUNCH FISH SIM" data-ko="물고기 시뮬레이터 실행">물고기 시뮬레이터 실행</a>
+                </div>
+
+                <!-- App 6: Double Pendulum -->
+                <div class="app-card">
+                    <div>
+                        <h2 data-en="DOUBLE PENDULUM" data-ko="이중 진자 카오스">이중 진자 카오스</h2>
+                        <p data-en="A classic demonstration of chaos theory using RK4 integration." data-ko="RK4 적분법을 사용한 카오스 이론의 고전적 시뮬레이션입니다.">RK4 적분법을 사용한 카오스 이론의 고전적 시뮬레이션입니다.</p>
+                    </div>
+                    <a href="double-pendulum.html" class="btn-launch" data-en="LAUNCH PENDULUM" data-ko="진자 시뮬레이터 실행">진자 시뮬레이터 실행</a>
+                </div>
+
+                <!-- App 7: Neuron Sim -->
+                <div class="app-card">
+                    <div>
+                        <h2 data-en="NEURON NETWORK" data-ko="뉴런 네트워크">뉴런 네트워크</h2>
+                        <p data-en="Simulate Spiking Neural Networks using the LIF model." data-ko="LIF 모델을 사용한 스파이킹 신경망 시뮬레이션입니다.">LIF 모델을 사용한 스파이킹 신경망 시뮬레이션입니다.</p>
+                    </div>
+                    <a href="neuron-sim.html" class="btn-launch" data-en="LAUNCH NEURON SIM" data-ko="뉴런 시뮬레이터 실행">뉴런 시뮬레이터 실행</a>
+                </div>
+
+                <!-- App 8: Slime Mold -->
+                <div class="app-card">
+                    <div>
+                        <h2 data-en="SLIME MOLD (PHYSARUM)" data-ko="슬라임 곰팡이">슬라임 곰팡이</h2>
+                        <p data-en="Bio-inspired simulation of organic network growth." data-ko="유기적 네트워크 성장을 보여주는 생물학적 시뮬레이션입니다.">유기적 네트워크 성장을 보여주는 생물학적 시뮬레이션입니다.</p>
+                    </div>
+                    <a href="slime-mold.html" class="btn-launch" data-en="LAUNCH SLIME SIM" data-ko="슬라임 시뮬레이터 실행">슬라임 시뮬레이터 실행</a>
+                </div>
+
+                <!-- App 9: Neuro-evolution -->
+                <div class="app-card">
+                    <div>
+                        <h2 data-en="NEURO-EVOLUTION" data-ko="신경 진화 (SNN)">신경 진화 (SNN)</h2>
+                        <p data-en="Agents with neural brains evolve to find food in real-time." data-ko="먹이를 찾기 위해 신경망을 가진 에이전트들이 진화합니다.">먹이를 찾기 위해 신경망을 가진 에이전트들이 진화합니다.</p>
+                    </div>
+                    <a href="neuro-evolution.html" class="btn-launch" data-en="LAUNCH NEURO SIM" data-ko="신경 진화 실행">신경 진화 실행</a>
                 </div>
             </div>
         </section>
 
-        <!-- New Unified Comment Section -->
+        <section id="about" style="margin-top: 80px; text-align: left; padding: 0 40px;">
+            <h2 style="font-family: 'Orbitron', 'Noto Sans KR'; color: var(--neon-pink);" data-en="MISSION & VISION" data-ko="미션 및 비전">미션 및 비전</h2>
+            <p style="color: #aaa; line-height: 1.8;" data-en="Pushing the boundaries of browser-based physics and mathematical simulations." data-ko="웹 브라우저 기반 물리 및 수학 시뮬레이션의 한계를 넓힙니다.">웹 브라우저 기반 물리 및 수학 시뮬레이션의 한계를 넓힙니다.</p>
+        </section>
+
+        <!-- Comments Section -->
         <div id="comments-container">
             <button id="comments-toggle" data-en="SHOW COMMENTS" data-ko="댓글 보기">댓글 보기</button>
             <div id="disqus_thread" style="display: none; margin-top: 20px;"></div>
@@ -208,7 +289,7 @@
         </footer>
     </div>
 
-    <!-- Hidden by default Game Container -->
+    <!-- Hidden Game Container -->
     <div id="game-canvas-container" style="display: none; position: fixed; top:0; left:0; width:100vw; height:100vh; background:#000; z-index:2000;">
         <button id="close-game" style="position: absolute; top:20px; right:20px; z-index:2100; padding:10px 20px; background:rgba(255,0,0,0.5); color:#fff; border:none; cursor:pointer;" data-en="BACK" data-ko="돌아가기">돌아가기</button>
         <canvas id="game-canvas"></canvas>
@@ -224,13 +305,25 @@
             });
             document.documentElement.lang = lang;
             window.currentLang = lang;
+            
+            // Update comments button text based on visibility
+            const disqusThread = document.getElementById('disqus_thread');
+            const commentsToggle = document.getElementById('comments-toggle');
+            if (commentsToggle && disqusThread) {
+                const isHidden = disqusThread.style.display === 'none';
+                if (lang === 'ko') {
+                    commentsToggle.innerText = isHidden ? '댓글 보기' : '댓글 숨기기';
+                } else {
+                    commentsToggle.innerText = isHidden ? 'SHOW COMMENTS' : 'HIDE COMMENTS';
+                }
+            }
         }
 
         const userLang = navigator.language || navigator.userLanguage;
         window.currentLang = userLang.startsWith('ko') ? 'ko' : 'en';
         applyLanguage(window.currentLang);
 
-        // UI Logic
+        // UI Controls
         const hub = document.getElementById('hub-container');
         const gameContainer = document.getElementById('game-canvas-container');
         const launchBtn = document.getElementById('launch-breaker');
@@ -252,7 +345,7 @@
             };
         }
 
-        // Disqus Integration
+        // Disqus
         var disqus_config = function () {
             this.page.url = window.location.href;
             this.page.identifier = 'productbuilder-hub';
