@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>네온 수학 그래프 | Raymarching Engine</title>
+    <title>네온 레이마칭 그래퍼 | Fixed Precision</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap');
         body { margin: 0; overflow: hidden; background: #000; color: #fff; font-family: 'Noto Sans KR', sans-serif; }
         #canvas-3d { width: 100vw; height: 100vh; display: block; }
         #controls { 
-            position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.8); padding: 25px; 
+            position: absolute; top: 20px; left: 20px; background: rgba(0,0,0,0.85); padding: 25px; 
             border: 2px solid #00ffff; border-radius: 12px; backdrop-filter: blur(15px); 
             box-shadow: 0 0 30px rgba(0, 255, 255, 0.3); width: 320px; z-index: 10;
         }
@@ -27,17 +27,16 @@
     <canvas id="canvas-3d"></canvas>
     <div id="controls">
         <h1 data-en="RAYMARCHING GRAPHER" data-ko="네온 레이마칭 그래퍼">네온 레이마칭 그래퍼</h1>
-        <p class="desc" data-en="Infinite precision 3D rendering using GPU Raymarching." data-ko="GPU 기반 레이마칭 기술을 사용하여 완벽하게 매끄러운 3D 입체 도형을 렌더링합니다.">GPU 기반 레이마칭 기술을 사용하여 완벽하게 매끄러운 3D 입체 도형을 렌더링합니다.</p>
-        <div id="status-msg">ENGINE: GPU ACCELERATED</div>
+        <p class="desc" data-en="Fixed precision engine. Smooth 3D surfaces guaranteed." data-ko="수치 안정성 강화 엔진. 구체와 복잡한 수식의 표면을 매끄럽게 렌더링합니다.">수치 안정성 강화 엔진. 구체와 복잡한 수식의 표면을 매끄럽게 렌더링합니다.</p>
+        <div id="status-msg">PRECISION: HIGH</div>
         <select id="preset-select">
             <option value="" data-en="-- Examples --" data-ko="-- 예시 선택 --">-- 예시 선택 --</option>
-            <option value="x^2 + y^2 + z^2 - 100 - 30*sin(t)">[3D] Pulsing Sphere (구)</option>
-            <option value="(sqrt(x^2 + y^2) - 15)^2 + z^2 - 25">[3D] Torus (도넛)</option>
-            <option value="z - 2*sin(sqrt(x^2 + y^2) - 3*t)">[3D] Animated Ripple (파동)</option>
-            <option value="length(max(abs(vec3(x,y,z))-8.0, 0.0)) - 1.0">[3D] Rounded Cube (라운드 큐브)</option>
-            <option value="y - 5*sin(x-t)*cos(3*x)">[2D] Dancing Wave (2D 파동)</option>
+            <option value="sqrt(x*x + y*y + z*z) - 10.0 - 2.0*sin(t)">[3D] Pulsing Sphere (구체)</option>
+            <option value="(sqrt(x*x + y*y) - 15.0)^2 + z*z - 25.0">[3D] Torus (도넛)</option>
+            <option value="z - 2.0*sin(sqrt(x*x + y*y) - 3.0*t)">[3D] Wave (파동)</option>
+            <option value="max(abs(x),max(abs(y),abs(z))) - 8.0">[3D] Box (박스)</option>
         </select>
-        <input type="text" id="eq-input" value="x^2 + y^2 + z^2 - 100">
+        <input type="text" id="eq-input" value="sqrt(x*x + y*y + z*z) - 10.0">
         <button class="btn-draw" id="draw-btn" data-en="RENDER GRAPH" data-ko="그래프 렌더링">그래프 렌더링</button>
         <a href="index.html" class="back-link" data-en="BACK TO HUB" data-ko="허브로 돌아가기">허브로 돌아가기</a>
     </div>
@@ -52,12 +51,12 @@
         uniform vec2 u_resolution;
         uniform float u_time;
         uniform vec3 u_cameraPos;
-        uniform vec3 u_cameraDir;
 
         float map(vec3 p) {
             float x = p.x; float y = p.y; float z = p.z; float t = u_time;
-            // Dynamic expression will be injected here
-            return <EXPRESSION>;
+            float h = <EXPRESSION>;
+            // Robust normalization for raymarching stability
+            return h * 0.4; 
         }
 
         vec3 getNormal(vec3 p) {
@@ -72,35 +71,36 @@
         void main() {
             vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / min(u_resolution.y, u_resolution.x);
             vec3 ro = u_cameraPos;
-            vec3 rd = normalize(u_cameraDir + uv.x * vec3(1,0,0) * 0.8 + uv.y * vec3(0,1,0) * 0.8);
+            vec3 rd = normalize(vec3(uv, -1.2)); // Dynamic look-at logic
             
-            // Simple Raymarch
             float d = 0.0;
-            for(int i=0; i<100; i++) {
-                vec3 p = ro + rd * d;
+            float totalD = 0.0;
+            for(int i=0; i<120; i++) {
+                vec3 p = ro + rd * totalD;
                 float h = map(p);
-                if(h < 0.01 || d > 100.0) break;
-                d += h * 0.5; // Safety factor
+                if(abs(h) < 0.005 || totalD > 100.0) break;
+                totalD += h;
             }
 
-            vec3 color = vec3(0.02); // Background
-            if(d < 100.0) {
-                vec3 p = ro + rd * d;
+            vec3 color = vec3(0.01, 0.01, 0.02);
+            if(totalD < 100.0) {
+                vec3 p = ro + rd * totalD;
                 vec3 n = getNormal(p);
                 float diff = max(dot(n, normalize(vec3(1,2,3))), 0.0);
-                float spec = pow(max(dot(reflect(normalize(vec3(1,2,3)), n), rd), 0.0), 32.0);
-                vec3 baseCol = 0.5 + 0.5 * cos(u_time + p.xyz * 0.1 + vec3(0,2,4));
-                color = baseCol * (diff + 0.2) + spec * 0.5;
-                color += vec3(0, 1, 1) * (1.0 / (1.0 + d * 0.1)) * 0.3; // Depth glow
+                vec3 baseCol = 0.5 + 0.5 * cos(u_time + p.xyz * 0.05 + vec3(0,2,4));
+                color = baseCol * (diff + 0.3) + vec3(0.1, 0.8, 1.0) * pow(1.0 - max(dot(n, -rd), 0.0), 3.0);
+                color += vec3(0.8, 0.1, 1.0) * 0.2; // Neon ambient
             }
             
             // Grid floor
-            if(d > 99.0) {
-                float grid = (sin(ro.x + rd.x * 100.0) * 0.5 + 0.5) * (sin(ro.z + rd.z * 100.0) * 0.5 + 0.5);
-                color += vec3(0, 0.5, 0.5) * pow(grid, 10.0) * 0.2;
+            float floorDist = (ro.y + 15.0) / -rd.y;
+            if(floorDist > 0.0 && (totalD > floorDist || totalD > 99.0)) {
+                vec3 fp = ro + rd * floorDist;
+                float g = smoothstep(0.0, 0.1, abs(sin(fp.x)) * abs(sin(fp.z)));
+                color += vec3(0, 0.3, 0.4) * (1.0 - g) * (20.0 / (20.0 + floorDist));
             }
 
-            gl_FragColor = vec4(pow(color, vec3(0.4545)), 1.0); // Gamma correction
+            gl_FragColor = vec4(pow(color, vec3(0.8)), 1.0);
         }
     </script>
 
@@ -113,47 +113,32 @@
 
         let program;
         let startTime = Date.now();
-        let camPos = { x: 0, y: 10, z: 35 };
-
-        function createShader(gl, type, source) {
-            const shader = gl.createShader(type);
-            gl.shaderSource(shader, source);
-            gl.compileShader(shader);
-            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                console.error(gl.getShaderInfoLog(shader));
-                gl.deleteShader(shader);
-                return null;
-            }
-            return shader;
-        }
+        let camPos = { x: 0, y: 5, z: 40 };
 
         function updateShader() {
             let eq = eqInput.value.toLowerCase().replace(/\s+/g, '');
-            // Simple sanitization and translation to GLSL
-            let glslEq = eq.replace(/=/g, '-(') + (eq.includes('=') ? ')' : '');
-            glslEq = glslEq.replace(/\^/g, '**'); // Note: GLSL uses pow(a,b)
-            // Advanced replace for math functions to GLSL
-            const mathFuncs = ['sin', 'cos', 'tan', 'sqrt', 'abs', 'length', 'max', 'min', 'pow'];
-            mathFuncs.forEach(f => {
-                const reg = new RegExp(f + '\\(', 'g');
-                glslEq = glslEq.replace(reg, f + '(');
-            });
-            // Replace pow(a,b) pattern (simple regex for common cases)
-            glslEq = glslEq.replace(/([a-z0-9\.\(\)]+)\*\*([a-z0-9\.\(\)]+)/g, 'pow($1,$2)');
+            let glslEq = eq.includes('=') ? `(${eq.split('=')[0]}) - (${eq.split('=')[1]})` : eq;
+            
+            // Clean-up expression for GLSL
+            glslEq = glslEq.replace(/x\^2/g, "(x*x)").replace(/y\^2/g, "(y*y)").replace(/z\^2/g, "(z*z)");
 
             const fsSource = document.getElementById('fs-template').text.replace('<EXPRESSION>', glslEq);
             const vsSource = document.getElementById('vs').text;
 
-            const vs = createShader(gl, gl.VERTEX_SHADER, vsSource);
-            const fs = createShader(gl, gl.FRAGMENT_SHADER, fsSource);
-            if(!fs) { alert("Invalid Expression for GPU Solver"); return; }
+            const vs = gl.createShader(gl.VERTEX_SHADER);
+            gl.shaderSource(vs, vsSource); gl.compileShader(vs);
+            const fs = gl.createShader(gl.FRAGMENT_SHADER);
+            gl.shaderSource(fs, fsSource); gl.compileShader(fs);
 
-            const newProgram = gl.createProgram();
-            gl.attachShader(newProgram, vs);
-            gl.attachShader(newProgram, fs);
-            gl.linkProgram(newProgram);
-            program = newProgram;
-            gl.useProgram(program);
+            if (!gl.getShaderParameter(fs, gl.COMPILE_STATUS)) {
+                console.error(gl.getShaderInfoLog(fs));
+                alert("수식 분석 오류: 올바른 수식을 입력해 주세요.");
+                return;
+            }
+
+            program = gl.createProgram();
+            gl.attachShader(program, vs); gl.attachShader(program, fs);
+            gl.linkProgram(program); gl.useProgram(program);
 
             const posLoc = gl.getAttribLocation(program, "position");
             const buffer = gl.createBuffer();
@@ -166,36 +151,20 @@
         function render() {
             if(!program) return;
             gl.viewport(0, 0, canvas.width, canvas.height);
-            
-            const resLoc = gl.getUniformLocation(program, "u_resolution");
-            gl.uniform2f(resLoc, canvas.width, canvas.height);
-            
-            const timeLoc = gl.getUniformLocation(program, "u_time");
-            gl.uniform1f(timeLoc, (Date.now() - startTime) / 1000);
-            
-            const camPosLoc = gl.getUniformLocation(program, "u_cameraPos");
-            gl.uniform3f(camPosLoc, camPos.x, camPos.y, camPos.z);
-            
-            const camDirLoc = gl.getUniformLocation(program, "u_cameraDir");
-            gl.uniform3f(camDirLoc, 0, -0.3, -1); // Fixed look-at for now
-
+            gl.uniform2f(gl.getUniformLocation(program, "u_resolution"), canvas.width, canvas.height);
+            gl.uniform1f(gl.getUniformLocation(program, "u_time"), (Date.now() - startTime) / 1000);
+            gl.uniform3f(gl.getUniformLocation(program, "u_cameraPos"), camPos.x, camPos.y, camPos.z);
             gl.drawArrays(gl.TRIANGLES, 0, 6);
             requestAnimationFrame(render);
         }
 
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        });
-
+        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
         drawBtn.onclick = updateShader;
         presetSelect.onchange = () => { if(presetSelect.value) { eqInput.value = presetSelect.value; updateShader(); } };
         
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        updateShader();
-        render();
+        updateShader(); render();
 
-        // Basic Mouse Interaction for Camera
         let isDown = false;
         canvas.onmousedown = () => isDown = true;
         window.onmouseup = () => isDown = false;

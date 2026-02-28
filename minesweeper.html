@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>네온 지뢰찾기 | Cyber Minesweeper</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap');
+        
+        :root {
+            --neon-blue: #00ffff;
+            --neon-pink: #ff00ff;
+            --bg-dark: #050505;
+        }
+
+        body { 
+            margin: 0; 
+            background-color: var(--bg-dark); 
+            color: #fff; 
+            font-family: 'Noto Sans KR', sans-serif; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #game-header {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            color: var(--neon-blue);
+            text-shadow: 0 0 20px var(--neon-blue);
+            margin: 0;
+        }
+
+        #game-info {
+            display: flex;
+            gap: 30px;
+            margin: 20px 0;
+            font-family: 'Orbitron';
+            font-size: 1.2rem;
+            color: var(--neon-pink);
+        }
+
+        #board {
+            display: grid;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px;
+            border: 2px solid var(--neon-blue);
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
+        }
+
+        .cell {
+            width: 35px;
+            height: 35px;
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-family: 'Orbitron';
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(0, 255, 255, 0.05);
+            user-select: none;
+        }
+
+        .cell:hover {
+            background: rgba(0, 255, 255, 0.2);
+            box-shadow: inset 0 0 10px var(--neon-blue);
+        }
+
+        .cell.revealed {
+            background: rgba(255, 255, 255, 0.02);
+            cursor: default;
+        }
+
+        .cell.mine {
+            background: var(--neon-pink);
+            box-shadow: 0 0 15px var(--neon-pink);
+        }
+
+        .cell.flagged {
+            color: var(--neon-pink);
+            text-shadow: 0 0 10px var(--neon-pink);
+        }
+
+        .n1 { color: #00ffff; }
+        .n2 { color: #00ff00; }
+        .n3 { color: #ff0000; }
+        .n4 { color: #0000ff; }
+        .n5 { color: #ff00ff; }
+
+        #controls {
+            margin: 30px 0;
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 10px 20px;
+            font-family: 'Orbitron';
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 20px var(--neon-blue);
+        }
+
+        #guide {
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            margin: 40px 20px;
+            border-radius: 15px;
+            line-height: 1.6;
+        }
+
+        .back-link {
+            margin-top: 20px;
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="game-header">
+        <h1>NEON MINESWEEPER</h1>
+        <div id="game-info">
+            <div>MINES: <span id="mine-count">0</span></div>
+            <div>TIME: <span id="timer">0</span>s</div>
+        </div>
+    </div>
+
+    <div id="controls">
+        <button onclick="startGame('easy')">EASY</button>
+        <button onclick="startGame('medium')">MEDIUM</button>
+        <button onclick="startGame('hard')">HARD</button>
+    </div>
+
+    <div id="board"></div>
+
+    <div id="guide">
+        <h3 style="color: var(--neon-pink);">[PLAY GUIDE]</h3>
+        <p>1. <b>왼쪽 클릭:</b> 타일을 엽니다. 지뢰가 있으면 게임 오버!</p>
+        <p>2. <b>오른쪽 클릭:</b> 지뢰가 의심되는 곳에 깃발(F)을 표시합니다.</p>
+        <p>3. <b>숫자의 의미:</b> 해당 타일 주변 8칸에 있는 지뢰의 개수입니다.</p>
+        <p>4. <b>승리 조건:</b> 지뢰가 없는 모든 타일을 열면 미션 클리어!</p>
+        <p style="font-size: 0.9rem; color: #888;">* 이 게임은 화려한 시각 효과와 실시간 데이터 처리를 지원합니다.</p>
+    </div>
+
+    <a href="index.html" class="back-link">← BACK TO HUB</a>
+
+    <script>
+        const boardElement = document.getElementById('board');
+        const mineCountElement = document.getElementById('mine-count');
+        const timerElement = document.getElementById('timer');
+
+        let board = [];
+        let rows, cols, mines;
+        let revealedCount = 0;
+        let timer = 0;
+        let timerInterval;
+        let gameOver = false;
+
+        function startGame(difficulty) {
+            clearInterval(timerInterval);
+            gameOver = false;
+            timer = 0;
+            timerElement.innerText = '0';
+            revealedCount = 0;
+
+            if (difficulty === 'easy') { rows = 9; cols = 9; mines = 10; }
+            else if (difficulty === 'medium') { rows = 16; cols = 16; mines = 40; }
+            else { rows = 16; cols = 30; mines = 99; }
+
+            boardElement.style.gridTemplateColumns = `repeat(${cols}, 35px)`;
+            mineCountElement.innerText = mines;
+            
+            initBoard();
+            startTimer();
+        }
+
+        function initBoard() {
+            board = Array(rows).fill().map(() => Array(cols).fill(0).map(() => ({
+                isMine: false, revealed: false, flagged: false, neighborMines: 0
+            })));
+
+            // Place mines
+            let placedMines = 0;
+            while (placedMines < mines) {
+                let r = Math.floor(Math.random() * rows);
+                let c = Math.floor(Math.random() * cols);
+                if (!board[r][c].isMine) {
+                    board[r][c].isMine = true;
+                    placedMines++;
+                }
+            }
+
+            // Calculate numbers
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (board[r][c].isMine) continue;
+                    let count = 0;
+                    for (let dr = -1; dr <= 1; dr++) {
+                        for (let dc = -1; dc <= 1; dc++) {
+                            let nr = r + dr, nc = c + dc;
+                            if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && board[nr][nc].isMine) count++;
+                        }
+                    }
+                    board[r][c].neighborMines = count;
+                }
+            }
+
+            renderBoard();
+        }
+
+        function renderBoard() {
+            boardElement.innerHTML = '';
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.r = r;
+                    cell.dataset.c = c;
+                    
+                    cell.onclick = () => reveal(r, c);
+                    cell.oncontextmenu = (e) => {
+                        e.preventDefault();
+                        toggleFlag(r, c);
+                    };
+
+                    boardElement.appendChild(cell);
+                }
+            }
+        }
+
+        function reveal(r, c) {
+            if (gameOver || board[r][c].revealed || board[r][c].flagged) return;
+
+            const cellData = board[r][c];
+            cellData.revealed = true;
+            revealedCount++;
+
+            const cellElement = boardElement.children[r * cols + c];
+            cellElement.classList.add('revealed');
+
+            if (cellData.isMine) {
+                endGame(false);
+                return;
+            }
+
+            if (cellData.neighborMines > 0) {
+                cellElement.innerText = cellData.neighborMines;
+                cellElement.classList.add('n' + cellData.neighborMines);
+            } else {
+                // Flood fill
+                for (let dr = -1; dr <= 1; dr++) {
+                    for (let dc = -1; dc <= 1; dc++) {
+                        let nr = r + dr, nc = c + dc;
+                        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) reveal(nr, nc);
+                    }
+                }
+            }
+
+            if (revealedCount === rows * cols - mines) endGame(true);
+        }
+
+        function toggleFlag(r, c) {
+            if (gameOver || board[r][c].revealed) return;
+            board[r][c].flagged = !board[r][c].flagged;
+            const cellElement = boardElement.children[r * cols + c];
+            cellElement.innerText = board[r][c].flagged ? 'F' : '';
+            cellElement.classList.toggle('flagged');
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timer++;
+                timerElement.innerText = timer;
+            }, 1000);
+        }
+
+        function endGame(win) {
+            gameOver = true;
+            clearInterval(timerInterval);
+            
+            // Show all mines
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (board[r][c].isMine) {
+                        const cellElement = boardElement.children[r * cols + c];
+                        cellElement.classList.add('mine');
+                        cellElement.innerText = '●';
+                    }
+                }
+            }
+
+            setTimeout(() => {
+                alert(win ? 'CONGRATULATIONS! MISSION CLEAR!' : 'SYSTEM FAILURE: MINE DETONATED');
+            }, 100);
+        }
+
+        startGame('easy');
+    </script>
+</body>
+</html>

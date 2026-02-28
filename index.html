@@ -12,14 +12,8 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-en="Ultimate Web Sim Hub | High-Performance 3D Simulations" data-ko="얼티밋 웹 시뮬레이션 허브 | 고성능 3D 게임 및 수학 시뮬레이션">얼티밋 웹 시뮬레이션 허브 | 고성능 3D 게임 및 수학 시뮬레이션</title>
-    <meta name="description" content="태양계, 쌍성계, 벡터 필드, 네온 브레이커 게임 등 Three.js와 현대적 WebGL로 구축된 고성능 대화형 3D 웹 시뮬레이션을 경험해 보세요.">
-    
-    <meta name="google-adsense-account" content="ca-pub-4128292464861536">
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4128292464861536" crossorigin="anonymous"></script>
-    
+    <title>Ultimate Web Sim & Game Hub</title>
     <link rel="stylesheet" href="style.css">
-    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap');
         
@@ -37,57 +31,66 @@
             overflow-x: hidden;
         }
 
-        #hub-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
+        #hero {
+            height: 60vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             text-align: center;
-            position: relative;
-            z-index: 10;
+            background: radial-gradient(circle at center, rgba(0,255,255,0.05) 0%, transparent 70%);
         }
-
-        header { margin-bottom: 60px; }
 
         h1 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 3.5rem;
+            font-size: 4rem;
             color: var(--neon-blue);
             text-shadow: 0 0 20px var(--neon-blue);
-            margin-bottom: 10px;
+            margin: 0;
         }
 
-        .subtitle {
-            font-size: 1.2rem;
-            color: #aaa;
-            letter-spacing: 2px;
-            font-weight: 300;
-        }
-
-        nav {
+        .category-selector {
             display: flex;
-            justify-content: center;
-            gap: 20px;
-            margin-bottom: 50px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding-bottom: 20px;
-            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 50px;
         }
 
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
-            font-size: 0.9rem;
-            transition: color 0.3s;
+        .cat-btn {
+            padding: 15px 40px;
+            font-family: 'Orbitron';
+            font-size: 1.1rem;
+            border: 2px solid var(--neon-blue);
+            background: transparent;
+            color: var(--neon-blue);
+            cursor: pointer;
+            transition: 0.3s;
+            border-radius: 5px;
         }
 
-        nav a:hover { color: var(--neon-pink); }
+        .cat-btn:hover, .cat-btn.active {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 30px var(--neon-blue);
+        }
+
+        #app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
 
         .app-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 40px;
-            margin-top: 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 0.5s;
+        }
+
+        .app-grid.visible {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .app-card {
@@ -95,281 +98,154 @@
             border: 1px solid rgba(0, 255, 255, 0.2);
             border-radius: 15px;
             padding: 30px;
-            transition: transform 0.3s, box-shadow 0.3s;
-            text-align: left;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            transition: 0.3s;
+            display: none; /* Initially hidden, controlled by filter */
         }
 
         .app-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.1);
+            transform: scale(1.02);
             border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
         }
 
         .app-card h2 {
-            font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
+            font-family: 'Orbitron', 'Noto Sans KR';
             color: var(--neon-blue);
             margin-top: 0;
-            font-size: 1.4rem;
-        }
-
-        .app-card p {
-            color: #ccc;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            font-size: 0.95rem;
-            min-height: 60px;
         }
 
         .btn-launch {
             display: inline-block;
-            background: transparent;
-            border: 2px solid var(--neon-blue);
-            color: var(--neon-blue);
+            margin-top: 20px;
             padding: 10px 25px;
+            border: 1px solid var(--neon-pink);
+            color: var(--neon-pink);
             text-decoration: none;
-            font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
-            font-weight: bold;
-            border-radius: 5px;
-            transition: all 0.3s;
-            text-align: center;
+            font-family: 'Orbitron';
+            transition: 0.3s;
         }
 
         .btn-launch:hover {
-            background: var(--neon-blue);
-            color: #000;
-        }
-
-        #adsense-placeholder {
-            margin: 40px 0;
-            padding: 20px;
-            background: rgba(255,255,255,0.02);
-            border: 1px dashed #444;
-            color: #666;
+            background: var(--neon-pink);
+            color: #fff;
+            box-shadow: 0 0 20px var(--neon-pink);
         }
 
         footer {
-            margin-top: 100px;
-            padding: 40px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            color: #666;
+            text-align: center;
+            padding: 60px;
+            color: #444;
             font-size: 0.8rem;
-        }
-
-        @media (max-width: 768px) {
-            h1 { font-size: 2.2rem; }
-            .subtitle { font-size: 1rem; }
-            .app-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
 
-    <div id="hub-container">
-        <header>
-            <h1 data-en="ULTIMATE WEB SIM HUB" data-ko="얼티밋 웹 시뮬레이션 허브">얼티밋 웹 시뮬레이션 허브</h1>
-            <p class="subtitle" data-en="EXPERIENCE HIGH-PERFORMANCE WEB SIMULATIONS" data-ko="고성능 대화형 웹 시뮬레이션을 경험하세요">고성능 대화형 웹 시뮬레이션을 경험하세요</p>
-        </header>
-
-        <nav>
-            <a href="#simulations" data-en="ALL SIMS" data-ko="전체 시뮬레이션">전체 시뮬레이션</a>
-            <a href="fish-flocking.html" data-en="FISH" data-ko="물고기">물고기</a>
-            <a href="solar-system.html" data-en="SOLAR" data-ko="태양계">태양계</a>
-            <a href="vector.html" data-en="VECTOR" data-ko="벡터">벡터</a>
-            <a href="about.html" data-en="ABOUT" data-ko="정보">정보</a>
-            <a href="contact.html" data-en="CONTACT" data-ko="문의">문의</a>
-            <a href="https://github.com/jjomingwa/product-build-1" target="_blank">GITHUB</a>
-            <a href="#" id="form-toggle-btn-hub" data-en="APPLY" data-ko="인턴 지원">인턴 지원</a>
-        </nav>
-
-        <div id="adsense-placeholder">AD SPACE (Google AdSense Ready)</div>
-
-        <section id="simulations">
-            <div class="app-grid">
-                <!-- App 1: Neon Breaker 3D -->
-                <div class="app-card">
-                    <div>
-                        <h2 data-en="NEON BREAKER 3D" data-ko="네온 브레이커 3D">네온 브레이커 3D</h2>
-                        <p data-en="A high-speed pseudo-3D brick breaker experience built with Three.js." data-ko="고속 의사 3D 벽돌 깨기 게임입니다. Three.js로 제작되었습니다.">고속 의사 3D 벽돌 깨기 게임입니다. Three.js로 제작되었습니다.</p>
-                    </div>
-                    <a href="#" class="btn-launch" id="launch-breaker" data-en="LAUNCH GAME" data-ko="게임 시작">게임 시작</a>
-                </div>
-
-                <!-- App 2: Solar System Sim -->
-                <div class="app-card">
-                    <div>
-                        <h2 data-en="SOLAR SYSTEM SIM" data-ko="태양계 시뮬레이터">태양계 시뮬레이터</h2>
-                        <p data-en="Physically accurate N-body gravity simulation of a planetary system." data-ko="물리적으로 정확한 행성계 N-body 중력 시뮬레이션입니다.">물리적으로 정확한 행성계 N-body 중력 시뮬레이션입니다.</p>
-                    </div>
-                    <a href="solar-system.html" class="btn-launch" data-en="LAUNCH SOLAR SIM" data-ko="태양계 시작">태양계 시작</a>
-                </div>
-
-                <!-- App 3: Binary Star Sim -->
-                <div class="app-card">
-                    <div>
-                        <h2 data-en="BINARY STAR SIM" data-ko="쌍성계 시뮬레이터">쌍성계 시뮬레이터</h2>
-                        <p data-en="Explore the gravitational dance of a binary star system." data-ko="쌍성계의 복잡한 중력 춤을 탐구해 보세요.">쌍성계의 복잡한 중력 춤을 탐구해 보세요.</p>
-                    </div>
-                    <a href="vector.html?preset=binary" class="btn-launch" data-en="LAUNCH STAR SIM" data-ko="쌍성계 시작">쌍성계 시작</a>
-                </div>
-
-                <!-- App 4: Vector Field -->
-                <div class="app-card">
-                    <div>
-                        <h2 data-en="VECTOR FIELD SIM" data-ko="벡터 필드 시뮬레이터">벡터 필드 시뮬레이터</h2>
-                        <p data-en="Interactive mathematical visualization of fluid dynamics and fields." data-ko="유체 역학 및 필드를 실시간으로 탐색하는 대화형 시각화 도구입니다.">유체 역학 및 필드를 실시간으로 탐색하는 대화형 시각화 도구입니다.</p>
-                    </div>
-                    <a href="vector.html" class="btn-launch" data-en="LAUNCH VECTOR SIM" data-ko="벡터 시뮬레이터 실행">벡터 시뮬레이터 실행</a>
-                </div>
-
-                <!-- App 5: Fish Flocking -->
-                <div class="app-card">
-                    <div>
-                        <h2 data-en="FISH FLOCKING SIM" data-ko="물고기 군집 시뮬레이터">물고기 군집 시뮬레이터</h2>
-                        <p data-en="Experience the emergent behavior of schooling fish agents." data-ko="물고기 떼의 창발적 행동을 경험해 보세요.">물고기 떼의 창발적 행동을 경험해 보세요.</p>
-                    </div>
-                    <a href="fish-flocking.html" class="btn-launch" data-en="LAUNCH FISH SIM" data-ko="물고기 시뮬레이터 실행">물고기 시뮬레이터 실행</a>
-                </div>
-
-                <!-- App 6: Double Pendulum -->
-                <div class="app-card">
-                    <div>
-                        <h2 data-en="DOUBLE PENDULUM" data-ko="이중 진자 카오스">이중 진자 카오스</h2>
-                        <p data-en="A classic demonstration of chaos theory using RK4 integration." data-ko="RK4 적분법을 사용한 카오스 이론의 고전적 시뮬레이션입니다.">RK4 적분법을 사용한 카오스 이론의 고전적 시뮬레이션입니다.</p>
-                    </div>
-                    <a href="double-pendulum.html" class="btn-launch" data-en="LAUNCH PENDULUM" data-ko="진자 시뮬레이터 실행">진자 시뮬레이터 실행</a>
-                </div>
-
-                <!-- App 7: Neuron Sim -->
-                <div class="app-card">
-                    <div>
-                        <h2 data-en="NEURON NETWORK" data-ko="뉴런 네트워크">뉴런 네트워크</h2>
-                        <p data-en="Simulate Spiking Neural Networks using the LIF model." data-ko="LIF 모델을 사용한 스파이킹 신경망 시뮬레이션입니다.">LIF 모델을 사용한 스파이킹 신경망 시뮬레이션입니다.</p>
-                    </div>
-                    <a href="neuron-sim.html" class="btn-launch" data-en="LAUNCH NEURON SIM" data-ko="뉴런 시뮬레이터 실행">뉴런 시뮬레이터 실행</a>
-                </div>
-
-                <!-- App 8: Function Grapher -->
-                <div class="app-card">
-                    <div>
-                        <h2 data-en="MATH GRAPHER 3D" data-ko="네온 수학 그래프">네온 수학 그래프</h2>
-                        <p data-en="Visualize complex 2D and 3D mathematical functions in real-time." data-ko="함수를 입력하면 자동으로 인식하여 2D 및 3D로 화려하게 시각화합니다.">함수를 입력하면 자동으로 인식하여 2D 및 3D로 화려하게 시각화합니다.</p>
-                    </div>
-                    <a href="grapher.html" class="btn-launch" data-en="LAUNCH GRAPHER" data-ko="그래프 생성기 실행">그래프 생성기 실행</a>
-                </div>
-
-                <!-- App 9: Neuro-evolution -->
-                <div class="app-card">
-                    <div>
-                        <h2 data-en="NEURO-EVOLUTION" data-ko="신경 진화 (SNN)">신경 진화 (SNN)</h2>
-                        <p data-en="Agents with neural brains evolve to find food in real-time." data-ko="먹이를 찾기 위해 신경망을 가진 에이전트들이 진화합니다.">먹이를 찾기 위해 신경망을 가진 에이전트들이 진화합니다.</p>
-                    </div>
-                    <a href="neuro-evolution.html" class="btn-launch" data-en="LAUNCH NEURO SIM" data-ko="신경 진화 실행">신경 진화 실행</a>
-                </div>
-            </div>
-        </section>
-
-        <section id="about" style="margin-top: 80px; text-align: left; padding: 0 40px;">
-            <h2 style="font-family: 'Orbitron', 'Noto Sans KR'; color: var(--neon-pink);" data-en="MISSION & VISION" data-ko="미션 및 비전">미션 및 비전</h2>
-            <p style="color: #aaa; line-height: 1.8;" data-en="Pushing the boundaries of browser-based physics and mathematical simulations." data-ko="웹 브라우저 기반 물리 및 수학 시뮬레이션의 한계를 넓힙니다.">웹 브라우저 기반 물리 및 수학 시뮬레이션의 한계를 넓힙니다.</p>
-        </section>
-
-        <!-- Comments Section -->
-        <div id="comments-container">
-            <button id="comments-toggle" data-en="SHOW COMMENTS" data-ko="댓글 보기">댓글 보기</button>
-            <div id="disqus_thread" style="display: none; margin-top: 20px;"></div>
+    <section id="hero">
+        <h1 data-en="ULTIMATE HUB" data-ko="얼티밋 허브">ULTIMATE HUB</h1>
+        <p style="color: #888; margin-top: 10px;">Select your destination in the digital void.</p>
+        
+        <div class="category-selector">
+            <button class="cat-btn" onclick="filterApps('game')">PLAY GAMES</button>
+            <button class="cat-btn" onclick="filterApps('sim')">EXPLORE SIMS</button>
+            <button class="cat-btn" onclick="filterApps('all')">VIEW ALL</button>
         </div>
+    </section>
 
-        <footer>
-            &copy; 2026 Ultimate Web Sim Hub. All rights reserved. | <a href="privacy.html" style="color: #666;" data-en="Privacy Policy" data-ko="개인정보 처리방침">개인정보 처리방침</a>
-        </footer>
-    </div>
-
-    <!-- Hidden Game Container -->
-    <div id="game-canvas-container" style="display: none; position: fixed; top:0; left:0; width:100vw; height:100vh; background:#000; z-index:2000;">
-        <button id="close-game" style="position: absolute; top:20px; right:20px; z-index:2100; padding:10px 20px; background:rgba(255,0,0,0.5); color:#fff; border:none; cursor:pointer;" data-en="BACK" data-ko="돌아가기">돌아가기</button>
-        <canvas id="game-canvas"></canvas>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="main.js"></script>
-    <script>
-        function applyLanguage(lang) {
-            document.querySelectorAll('[data-en]').forEach(el => {
-                const text = el.getAttribute(`data-${lang}`);
-                if (text) el.innerText = text;
-            });
-            document.documentElement.lang = lang;
-            window.currentLang = lang;
+    <div id="app-container">
+        <div class="app-grid" id="main-grid">
             
-            // Update comments button text based on visibility
-            const disqusThread = document.getElementById('disqus_thread');
-            const commentsToggle = document.getElementById('comments-toggle');
-            if (commentsToggle && disqusThread) {
-                const isHidden = disqusThread.style.display === 'none';
-                if (lang === 'ko') {
-                    commentsToggle.innerText = isHidden ? '댓글 보기' : '댓글 숨기기';
-                } else {
-                    commentsToggle.innerText = isHidden ? 'SHOW COMMENTS' : 'HIDE COMMENTS';
-                }
-            }
+            <!-- Game: Neon Breaker -->
+            <div class="app-card" data-type="game">
+                <h2>NEON BREAKER 3D</h2>
+                <p>사이버펑크 스타일의 고속 3D 벽돌 깨기 게임.</p>
+                <a href="main.js" class="btn-launch">LAUNCH GAME</a>
+            </div>
+
+            <!-- Game: Neon Minesweeper -->
+            <div class="app-card" data-type="game">
+                <h2>NEON MINESWEEPER</h2>
+                <p>화려한 시각 효과와 사운드를 갖춘 클래식 지뢰찾기.</p>
+                <a href="minesweeper.html" class="btn-launch">PLAY MISSION</a>
+            </div>
+
+            <!-- Sim: Solar System -->
+            <div class="app-card" data-type="sim">
+                <h2>SOLAR SYSTEM</h2>
+                <p>물리 엔진 기반의 행성 궤도 시뮬레이션.</p>
+                <a href="solar-system.html" class="btn-launch">EXPLORE SPACE</a>
+            </div>
+
+            <!-- Sim: Math Grapher -->
+            <div class="app-card" data-type="sim">
+                <h2>MATH GRAPHER</h2>
+                <p>GPU 레이마칭 기반 고정밀 3D 수학 그래프.</p>
+                <a href="grapher.html" class="btn-launch">RENDER MATH</a>
+            </div>
+
+            <!-- Sim: Double Pendulum -->
+            <div class="app-card" data-type="sim">
+                <h2>DOUBLE PENDULUM</h2>
+                <p>카오스 이론을 시각화하는 이중 진자 시뮬레이션.</p>
+                <a href="double-pendulum.html" class="btn-launch">RUN CHAOS</a>
+            </div>
+
+            <!-- Sim: Vector Field -->
+            <div class="app-card" data-type="sim">
+                <h2>VECTOR FIELD</h2>
+                <p>수학적 벡터장을 시각화하는 대화형 도구.</p>
+                <a href="vector.html" class="btn-launch">VIEW FIELDS</a>
+            </div>
+
+            <!-- Sim: Fish Flocking -->
+            <div class="app-card" data-type="sim">
+                <h2>FISH FLOCKING</h2>
+                <p>군집 알고리즘을 통한 물고기 떼의 움직임 시각화.</p>
+                <a href="fish-flocking.html" class="btn-launch">WATCH FLOCK</a>
+            </div>
+
+            <!-- Sim: Neuron Net -->
+            <div class="app-card" data-type="sim">
+                <h2>NEURON NETWORK</h2>
+                <p>SNN 모델을 사용한 인공 신경망 시뮬레이션.</p>
+                <a href="neuron-sim.html" class="btn-launch">SIMULATE BRAIN</a>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 Ultimate Web Sim Hub. All rights reserved.
+    </footer>
+
+    <script>
+        function filterApps(type) {
+            const grid = document.getElementById('main-grid');
+            const cards = document.querySelectorAll('.app-card');
+            const btns = document.querySelectorAll('.cat-btn');
+
+            // Update button styles
+            btns.forEach(btn => {
+                if(btn.innerText.toLowerCase().includes(type)) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+
+            grid.classList.remove('visible');
+
+            setTimeout(() => {
+                cards.forEach(card => {
+                    if (type === 'all' || card.dataset.type === type) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                grid.classList.add('visible');
+            }, 300);
         }
 
-        const userLang = navigator.language || navigator.userLanguage;
-        window.currentLang = userLang.startsWith('ko') ? 'ko' : 'en';
-        applyLanguage(window.currentLang);
-
-        // UI Controls
-        const hub = document.getElementById('hub-container');
-        const gameContainer = document.getElementById('game-canvas-container');
-        const launchBtn = document.getElementById('launch-breaker');
-        const closeBtn = document.getElementById('close-game');
-
-        if (launchBtn) {
-            launchBtn.onclick = (e) => {
-                e.preventDefault();
-                hub.style.display = 'none';
-                gameContainer.style.display = 'block';
-                window.dispatchEvent(new Event('resize'));
-            };
-        }
-
-        if (closeBtn) {
-            closeBtn.onclick = () => {
-                gameContainer.style.display = 'none';
-                hub.style.display = 'block';
-            };
-        }
-
-        // Disqus
-        var disqus_config = function () {
-            this.page.url = window.location.href;
-            this.page.identifier = 'productbuilder-hub';
-        };
-        (function() {
-            var d = document, s = d.createElement('script');
-            s.src = 'https://productbuilder-ukgobgmglb.disqus.com/embed.js';
-            s.setAttribute('data-timestamp', +new Date());
-            (d.head || d.body).appendChild(s);
-        })();
-
-        const commentsToggle = document.getElementById('comments-toggle');
-        const disqusThread = document.getElementById('disqus_thread');
-        if (commentsToggle) {
-            commentsToggle.onclick = function() {
-                if(disqusThread.style.display === 'none') {
-                    disqusThread.style.display = 'block';
-                    this.innerText = window.currentLang === 'ko' ? '댓글 숨기기' : 'HIDE COMMENTS';
-                } else {
-                    disqusThread.style.display = 'none';
-                    this.innerText = window.currentLang === 'ko' ? '댓글 보기' : 'SHOW COMMENTS';
-                }
-            };
-        }
+        // Initialize with All
+        window.onload = () => filterApps('all');
     </script>
 </body>
 </html>
