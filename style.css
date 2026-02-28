@@ -139,24 +139,26 @@ h1 {
 
 /* Disqus Comments Styles */
 #comments-container {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    width: 300px;
+    margin-top: 60px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
     pointer-events: auto;
     z-index: 50;
+    text-align: center;
 }
 
 #comments-toggle {
     background: rgba(255, 0, 255, 0.2);
     border: 2px solid #ff00ff;
     color: #ff00ff;
-    padding: 10px 20px;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 14px;
+    padding: 12px 30px;
+    font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
+    font-size: 16px;
     cursor: pointer;
     transition: all 0.3s;
     box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
+    border-radius: 5px;
 }
 
 #comments-toggle:hover {
