@@ -15,33 +15,54 @@
             position: absolute; 
             top: 20px; 
             left: 20px; 
-            background: rgba(0,0,0,0.85); 
+            background: rgba(0,0,0,0.9); 
             padding: 25px; 
             border: 2px solid #00ffff; 
             border-radius: 12px; 
-            backdrop-filter: blur(10px); 
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2); 
+            backdrop-filter: blur(15px); 
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3); 
             width: 320px;
             z-index: 10;
         }
         h1 { font-family: 'Orbitron'; font-size: 1.2rem; color: #00ffff; margin: 0 0 10px 0; text-shadow: 0 0 10px #00ffff; }
         .desc { font-size: 0.8rem; color: #ccc; margin: 0 0 20px 0; line-height: 1.4; }
         
-        input[type="text"], select {
+        /* Select & Option Styling Fix */
+        select {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 15px;
-            background: rgba(255, 255, 255, 0.1);
+            background: #111; /* Solid background for visibility */
             border: 1px solid #00ffff;
+            color: #00ffff; /* Neon text */
+            font-family: 'Orbitron', 'Noto Sans KR';
+            font-size: 0.9rem;
+            border-radius: 5px;
+            box-sizing: border-box;
+            cursor: pointer;
+            appearance: none; /* Reset for custom look */
+        }
+        select option {
+            background: #111;
+            color: #00ffff;
+            padding: 10px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #ff00ff;
             color: #fff;
             font-family: 'Orbitron', 'Noto Sans KR';
             font-size: 1rem;
             border-radius: 5px;
             box-sizing: border-box;
         }
-        input[type="text"]:focus, select:focus {
+        input[type="text"]:focus {
             outline: none;
-            box-shadow: 0 0 10px #00ffff;
+            box-shadow: 0 0 15px #ff00ff;
         }
 
         .btn-draw { 
@@ -57,17 +78,15 @@
             transition: 0.3s;
             margin-bottom: 10px;
         }
-        .btn-draw:hover { background: #ff00ff; color: #fff; box-shadow: 0 0 15px #ff00ff; }
+        .btn-draw:hover { background: #ff00ff; color: #fff; box-shadow: 0 0 20px #ff00ff; }
 
-        .back-link { display: inline-block; margin-top: 15px; color: #ff00ff; text-decoration: none; font-size: 0.9rem; font-weight: bold; border: 2px solid #ff00ff; padding: 10px; border-radius: 8px; transition: 0.3s; background: rgba(255, 0, 255, 0.1); text-align: center; width: calc(100% - 24px); box-sizing: border-box; }
+        .back-link { display: inline-block; margin-top: 15px; color: #ff00ff; text-decoration: none; font-size: 0.9rem; font-weight: bold; border: 2px solid #ff00ff; padding: 10px; border-radius: 8px; transition: 0.3s; background: rgba(255, 0, 255, 0.1); text-align: center; width: calc(100% - 2px); box-sizing: border-box; }
         .back-link:hover { background: #ff00ff; color: #000; box-shadow: 0 0 15px #ff00ff; }
 
         #error-msg { color: #ff3333; font-size: 0.8rem; margin-top: -10px; margin-bottom: 10px; display: none; }
     </style>
-    <!-- Three.js and OrbitControls -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <!-- Math.js for parsing and evaluating expressions -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
 </head>
 <body>
@@ -76,19 +95,19 @@
 
     <div id="controls">
         <h1 data-en="NEON MATH GRAPHER" data-ko="네온 수학 그래프">네온 수학 그래프</h1>
-        <p class="desc" data-en="Auto-detects 2D/3D and implicit functions for beautiful rendering." data-ko="수식을 입력하면 2D(양/음함수) 및 3D를 자동으로 분석하여 시각화합니다.">수식을 입력하면 2D(양/음함수) 및 3D를 자동으로 분석하여 시각화합니다.</p>
+        <p class="desc" data-en="Visualizing functions in 2D/3D with X-Y-Z axes." data-ko="함수를 입력하면 2D 및 3D로 시각화합니다. (X-Y-Z축 포함)">함수를 입력하면 2D 및 3D로 시각화합니다. (X-Y-Z축 포함)</p>
         
         <select id="preset-select">
-            <option value="" data-en="-- Select Preset --" data-ko="-- 멋있는 예시 선택 --">-- 멋있는 예시 선택 --</option>
-            <option value="z = sin(sqrt(x^2 + y^2))">3D Ripple (파동)</option>
-            <option value="z = (x^2 - y^2) / 10">3D Saddle (말안장)</option>
-            <option value="z = sin(x) * cos(y)">3D Interference (간섭)</option>
-            <option value="y = sin(x) * cos(20 * x)">2D Butterfly Pulse (나비 곡선)</option>
+            <option value="" data-en="-- Select Example --" data-ko="-- 멋있는 예시 선택 --">-- 멋있는 예시 선택 --</option>
+            <option value="z = 2 * sin(sqrt(x^2 + y^2))">3D Ripple (파동)</option>
+            <option value="z = (x^2 - y^2) / 5">3D Saddle (말안장)</option>
+            <option value="z = 3 * sin(x) * cos(y)">3D Interference (간섭)</option>
+            <option value="y = 5 * sin(x) * cos(10 * x)">2D Complex Wave (복합 파동)</option>
             <option value="(x^2 + y^2 - 1)^3 - x^2 * y^3 = 0">2D Heart (하트 음함수)</option>
             <option value="x^2 + y^2 = 25">2D Circle (원 음함수)</option>
         </select>
 
-        <input type="text" id="eq-input" value="z = sin(sqrt(x^2 + y^2))">
+        <input type="text" id="eq-input" value="z = 2 * sin(sqrt(x^2 + y^2))" placeholder="Enter function (e.g., z = sin(x*y))">
         <div id="error-msg" data-en="Invalid expression." data-ko="수식이 올바르지 않습니다.">수식이 올바르지 않습니다.</div>
 
         <button class="btn-draw" id="draw-btn" data-en="RENDER GRAPH" data-ko="그래프 렌더링">그래프 렌더링</button>
@@ -105,7 +124,6 @@
         }
         applyLanguage(navigator.language.startsWith('ko') ? 'ko' : 'en');
 
-        // Elements
         const eqInput = document.getElementById('eq-input');
         const drawBtn = document.getElementById('draw-btn');
         const presetSelect = document.getElementById('preset-select');
@@ -114,34 +132,36 @@
         const ctx = canvas2d.getContext('2d');
         const threeContainer = document.getElementById('three-container');
 
-        // State
         let scale2D = 50; 
 
         // Three.js Setup
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x050505, 0.03);
+        scene.fog = new THREE.FogExp2(0x050505, 0.02);
         
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(12, 12, 12);
+        camera.position.set(15, 15, 15);
         
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
         threeContainer.appendChild(renderer.domElement);
         
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        controls.autoRotate = true;
-        controls.autoRotateSpeed = 1.0;
         
+        // Add Axes Helper (Red: X, Green: Y, Blue: Z)
+        const axesHelper = new THREE.AxesHelper(20);
+        scene.add(axesHelper);
+
+        // Add Grid Helper
+        const gridHelper = new THREE.GridHelper(40, 40, 0x444444, 0x222222);
+        gridHelper.rotation.x = 0;
+        scene.add(gridHelper);
+
         // Lights
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-        scene.add(ambientLight);
-        const pointLight = new THREE.PointLight(0xff00ff, 1);
-        pointLight.position.set(10, 20, 10);
-        scene.add(pointLight);
-        const pointLight2 = new THREE.PointLight(0x00ffff, 1);
-        pointLight2.position.set(-10, -20, -10);
-        scene.add(pointLight2);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+        const p1 = new THREE.PointLight(0xff00ff, 1.5); p1.position.set(15, 20, 15); scene.add(p1);
+        const p2 = new THREE.PointLight(0x00ffff, 1.5); p2.position.set(-15, -20, -15); scene.add(p2);
 
         let currentMesh = null;
 
@@ -156,7 +176,6 @@
         window.addEventListener('resize', resize);
         resize();
 
-        // Parser & Mode Detection
         function detectMode(eq) {
             eq = eq.toLowerCase().replace(/\s+/g, '');
             if (eq.includes('z') && eq.includes('=')) {
@@ -171,22 +190,11 @@
                 let parts = eq.split('=');
                 return { mode: '2D_IMP', expr: `(${parts[0]}) - (${parts[1]})` };
             }
-            
-            try {
-                const node = math.parse(eq);
-                const symbols = node.filter(n => n.isSymbolNode).map(n => n.name);
-                if (symbols.includes('y') && symbols.includes('x')) {
-                    return { mode: '3D', expr: eq }; 
-                } else {
-                    return { mode: '2D_EXP', expr: eq }; 
-                }
-            } catch(e) {
-                return { mode: '2D_EXP', expr: eq };
-            }
+            return { mode: '2D_EXP', expr: eq };
         }
 
         function drawGrid2D() {
-            ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
             ctx.lineWidth = 1;
             ctx.beginPath();
             let w = canvas2d.width, h = canvas2d.height;
@@ -194,200 +202,107 @@
             for(let y = h/2 % scale2D; y < h; y += scale2D) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
             ctx.stroke();
             
-            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.strokeStyle = 'rgba(0,255,255,0.3)'; // X-axis
             ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h);
-            ctx.moveTo(0, h/2); ctx.lineTo(w, h/2);
-            ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, h/2); ctx.lineTo(w, h/2); ctx.stroke();
+            ctx.strokeStyle = 'rgba(255,0,255,0.3)'; // Y-axis
+            ctx.beginPath(); ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h); ctx.stroke();
         }
 
-        function getT(v1, v2) {
-            if (v1 === v2) return 0.5;
-            return v1 / (v1 - v2);
-        }
-
-        // Marching Squares Algorithm for Implicit Functions
         function draw2DImplicit(expr) {
             const compiled = math.compile(expr);
             ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
             drawGrid2D();
-            
-            const resolution = 4;
-            const width = canvas2d.width;
-            const height = canvas2d.height;
-            const cols = Math.ceil(width / resolution);
-            const rows = Math.ceil(height / resolution);
-            
-            let values = new Float32Array((cols + 1) * (rows + 1));
-            
+            const res = 4;
+            const w = canvas2d.width, h = canvas2d.height;
+            const cols = Math.ceil(w / res), rows = Math.ceil(h / res);
+            let vals = new Float32Array((cols + 1) * (rows + 1));
             for (let i = 0; i <= cols; i++) {
-                let x = (i * resolution - width/2) / scale2D;
+                let x = (i * res - w/2) / scale2D;
                 for (let j = 0; j <= rows; j++) {
-                    let y = -(j * resolution - height/2) / scale2D; 
-                    try {
-                        values[i + j * (cols + 1)] = compiled.evaluate({x: x, y: y});
-                    } catch(e) {
-                        values[i + j * (cols + 1)] = 1;
-                    }
+                    let y = -(j * res - h/2) / scale2D; 
+                    try { vals[i + j * (cols + 1)] = compiled.evaluate({x, y}); } catch(e) { vals[i + j * (cols + 1)] = 1; }
                 }
             }
-            
-            ctx.beginPath();
-            ctx.strokeStyle = '#ff00ff';
-            ctx.lineWidth = 3;
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = '#ff00ff';
-            
+            ctx.beginPath(); ctx.strokeStyle = '#ff00ff'; ctx.lineWidth = 3;
             for (let i = 0; i < cols; i++) {
                 for (let j = 0; j < rows; j++) {
-                    let v0 = values[i + j * (cols + 1)];
-                    let v1 = values[i + 1 + j * (cols + 1)];
-                    let v2 = values[i + 1 + (j + 1) * (cols + 1)];
-                    let v3 = values[i + (j + 1) * (cols + 1)];
-                    
-                    let px = i * resolution;
-                    let py = j * resolution;
-                    
+                    let v0 = vals[i + j * (cols+1)], v1 = vals[i+1 + j*(cols+1)], v2 = vals[i+1 + (j+1)*(cols+1)], v3 = vals[i + (j+1)*(cols+1)];
+                    let px = i * res, py = j * res;
                     let pts = [];
-                    if (v0 * v1 <= 0) pts.push({x: px + resolution * getT(v0, v1), y: py});
-                    if (v1 * v2 <= 0) pts.push({x: px + resolution, y: py + resolution * getT(v1, v2)});
-                    if (v2 * v3 <= 0) pts.push({x: px + resolution * (1 - getT(v2, v3)), y: py + resolution});
-                    if (v3 * v0 <= 0) pts.push({x: px, y: py + resolution * (1 - getT(v3, v0))});
-                    
-                    if (pts.length >= 2) {
-                        ctx.moveTo(pts[0].x, pts[0].y);
-                        ctx.lineTo(pts[1].x, pts[1].y);
-                        if(pts.length === 4) {
-                            ctx.moveTo(pts[2].x, pts[2].y);
-                            ctx.lineTo(pts[3].x, pts[3].y);
-                        }
-                    }
+                    const getT = (a, b) => (a === b) ? 0.5 : a / (a - b);
+                    if (v0 * v1 <= 0) pts.push({x: px + res * getT(v0, v1), y: py});
+                    if (v1 * v2 <= 0) pts.push({x: px + res, y: py + res * getT(v1, v2)});
+                    if (v2 * v3 <= 0) pts.push({x: px + res * (1 - getT(v2, v3)), y: py + res});
+                    if (v3 * v0 <= 0) pts.push({x: px, y: py + res * (1 - getT(v3, v0))});
+                    if (pts.length >= 2) { ctx.moveTo(pts[0].x, pts[0].y); ctx.lineTo(pts[1].x, pts[1].y); }
                 }
             }
             ctx.stroke();
-            ctx.shadowBlur = 0;
         }
 
-        // Standard Explicit Function Plotting
         function draw2DExplicit(expr) {
             const compiled = math.compile(expr);
-            const width = canvas2d.width;
-            const height = canvas2d.height;
-            ctx.clearRect(0, 0, width, height);
+            ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
             drawGrid2D();
-            
-            ctx.beginPath();
-            ctx.strokeStyle = '#00ffff';
-            ctx.lineWidth = 3;
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = '#00ffff';
-            
+            ctx.beginPath(); ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 3;
             let first = true;
-            for (let px = 0; px < width; px+=2) {
-                let x = (px - width/2) / scale2D;
+            for (let px = 0; px < canvas2d.width; px+=2) {
+                let x = (px - canvas2d.width/2) / scale2D;
                 try {
-                    let y = compiled.evaluate({x: x});
-                    if (isNaN(y) || !isFinite(y)) { first = true; continue; }
-                    let py = height/2 - y * scale2D;
-                    if (first) { ctx.moveTo(px, py); first = false; }
-                    else { ctx.lineTo(px, py); }
-                } catch (e) {
-                    first = true;
-                }
+                    let y = compiled.evaluate({x});
+                    let py = canvas2d.height/2 - y * scale2D;
+                    if (first) { ctx.moveTo(px, py); first = false; } else { ctx.lineTo(px, py); }
+                } catch (e) { first = true; }
             }
             ctx.stroke();
-            ctx.shadowBlur = 0;
         }
 
-        // 3D Parametric Plane
         function draw3DExplicit(expr) {
             const compiled = math.compile(expr);
             if (currentMesh) scene.remove(currentMesh);
-            
-            const range = 15;
-            const segments = 120;
-            const geometry = new THREE.PlaneGeometry(range*2, range*2, segments, segments);
-            const pos = geometry.attributes.position;
-            
+            const range = 15, segments = 100;
+            const geo = new THREE.PlaneGeometry(range*2, range*2, segments, segments);
+            const pos = geo.attributes.position;
             for (let i = 0; i < pos.count; i++) {
-                let x = pos.getX(i);
-                let y = pos.getY(i);
-                let z = 0;
-                try {
-                    z = compiled.evaluate({x: x, y: y});
-                    if (isNaN(z) || !isFinite(z)) z = 0;
-                    z = Math.max(Math.min(z, 20), -20);
-                } catch(e) {}
+                let x = pos.getX(i), y = pos.getY(i), z = 0;
+                try { z = compiled.evaluate({x, y}); z = Math.max(Math.min(z, 15), -15); } catch(e) {}
                 pos.setZ(i, z);
             }
-            geometry.computeVertexNormals();
-            
-            const material = new THREE.MeshPhongMaterial({
-                color: 0x00ffff,
-                emissive: 0x001122,
-                specular: 0xff00ff,
-                shininess: 100,
-                side: THREE.DoubleSide,
-                wireframe: true,
-                transparent: true,
-                opacity: 0.85
-            });
-            
-            currentMesh = new THREE.Mesh(geometry, material);
+            geo.computeVertexNormals();
+            const mat = new THREE.MeshPhongMaterial({ color: 0x00ffff, specular: 0xff00ff, shininess: 80, side: THREE.DoubleSide, wireframe: true, transparent: true, opacity: 0.8 });
+            currentMesh = new THREE.Mesh(geo, mat);
             currentMesh.rotation.x = -Math.PI / 2;
             scene.add(currentMesh);
+            axesHelper.visible = true; gridHelper.visible = true;
         }
 
         function drawCurrent() {
-            let eq = eqInput.value;
-            errorMsg.style.display = 'none';
+            let eq = eqInput.value; errorMsg.style.display = 'none';
             try {
-                let parsed = detectMode(eq);
-                
-                if (parsed.mode === '3D') {
-                    canvas2d.style.pointerEvents = 'none';
-                    threeContainer.style.zIndex = 1;
+                let p = detectMode(eq);
+                if (p.mode === '3D') {
+                    threeContainer.style.zIndex = 1; axesHelper.visible = true; gridHelper.visible = true;
                     ctx.clearRect(0,0,canvas2d.width, canvas2d.height);
-                    draw3DExplicit(parsed.expr);
-                } else if (parsed.mode === '2D_EXP') {
-                    canvas2d.style.pointerEvents = 'auto';
-                    threeContainer.style.zIndex = -1;
+                    draw3DExplicit(p.expr);
+                } else {
+                    threeContainer.style.zIndex = -1; axesHelper.visible = false; gridHelper.visible = false;
                     if (currentMesh) { scene.remove(currentMesh); currentMesh = null; }
-                    draw2DExplicit(parsed.expr);
-                } else if (parsed.mode === '2D_IMP') {
-                    canvas2d.style.pointerEvents = 'auto';
-                    threeContainer.style.zIndex = -1;
-                    if (currentMesh) { scene.remove(currentMesh); currentMesh = null; }
-                    draw2DImplicit(parsed.expr);
+                    if (p.mode === '2D_EXP') draw2DExplicit(p.expr); else draw2DImplicit(p.expr);
                 }
-            } catch(e) {
-                errorMsg.style.display = 'block';
-                console.error(e);
-            }
+            } catch(e) { errorMsg.style.display = 'block'; }
         }
 
         drawBtn.onclick = drawCurrent;
-        presetSelect.onchange = () => {
-            if (presetSelect.value) {
-                eqInput.value = presetSelect.value;
-                drawCurrent();
-            }
-        };
-
-        eqInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') drawCurrent();
-        });
+        presetSelect.onchange = () => { if (presetSelect.value) { eqInput.value = presetSelect.value; drawCurrent(); } };
+        eqInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') drawCurrent(); });
 
         function animate() {
             requestAnimationFrame(animate);
-            controls.update(); // Handles autoRotate
+            controls.update();
             renderer.render(scene, camera);
         }
-        
-        drawCurrent();
-        animate();
-
+        drawCurrent(); animate();
     </script>
 </body>
 </html>
