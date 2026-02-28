@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>네온 수학 그래프 | Smart Math Grapher</title>
+    <title>네온 수학 그래프 | Dynamic Math Grapher</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap');
         body { margin: 0; overflow: hidden; background: #050505; color: #fff; font-family: 'Noto Sans KR', sans-serif; }
@@ -73,10 +73,10 @@
         }
         .btn-draw:hover { background: #ff00ff; color: #fff; box-shadow: 0 0 20px #ff00ff; }
 
-        .back-link { display: inline-block; margin-top: 15px; color: #ff00ff; text-decoration: none; font-size: 0.9rem; font-weight: bold; border: 2px solid #ff00ff; padding: 10px; border-radius: 8px; transition: 0.3s; background: rgba(255, 0, 255, 0.1); text-align: center; width: calc(100% - 2px); box-sizing: border-box; }
+        .back-link { display: inline-block; margin-top: 15px; color: #ff00ff; text-decoration: none; font-size: 0.9rem; font-weight: bold; border: 2px solid #ff00ff; padding: 10px; border-radius: 8px; transition: 0.3s; background: rgba(0, 255, 255, 0.1); text-align: center; width: calc(100% - 2px); box-sizing: border-box; }
         .back-link:hover { background: #ff00ff; color: #000; box-shadow: 0 0 15px #ff00ff; }
 
-        #status-msg { font-size: 0.75rem; margin-bottom: 10px; color: #00ffff; }
+        #status-msg { font-size: 0.75rem; margin-bottom: 10px; color: #00ffff; font-family: 'Orbitron'; }
         #error-msg { color: #ff3333; font-size: 0.8rem; margin-top: -10px; margin-bottom: 10px; display: none; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -88,23 +88,23 @@
     <canvas id="canvas-2d"></canvas>
 
     <div id="controls">
-        <h1 data-en="SMART MATH GRAPHER" data-ko="스마트 수학 그래프">스마트 수학 그래프</h1>
-        <p class="desc" data-en="Implicit or Explicit, 2D or 3D. Just type it in." data-ko="수식 형태에 상관없이 자동으로 분석하여 2D/3D 그래프를 생성합니다.">수식 형태에 상관없이 자동으로 분석하여 2D/3D 그래프를 생성합니다.</p>
+        <h1 data-en="DYNAMIC MATH GRAPHER" data-ko="동적 수학 그래프">동적 수학 그래프</h1>
+        <p class="desc" data-en="Use 't' for animation! Just type z = sin(x - t)." data-ko="시간 변수 't'를 사용하여 움직이는 그래프를 그려보세요.">시간 변수 't'를 사용하여 움직이는 그래프를 그려보세요.</p>
         
-        <div id="status-msg">Ready</div>
+        <div id="status-msg">READY</div>
 
         <select id="preset-select">
-            <option value="" data-en="-- Select Example --" data-ko="-- 멋있는 예시 선택 --">-- 멋있는 예시 선택 --</option>
+            <option value="" data-en="-- Examples --" data-ko="-- 예시 선택 --">-- 예시 선택 --</option>
+            <option value="z = 2 * sin(sqrt(x^2 + y^2) - t)">[3D] Animated Ripple (파동)</option>
+            <option value="z = sin(x - t) * cos(y + t)">[3D] Interference (간섭파)</option>
+            <option value="z = (x^2 - y^2) / 5 * cos(t)">[3D] Wobbling Saddle (요동치는 말안장)</option>
+            <option value="y = 5 * sin(x - t) * cos(3 * x)">[2D] Dancing Wave (춤추는 파동)</option>
+            <option value="x^2 + y^2 = 25 + 10 * sin(t)">[2D] Pulsing Circle (박동하는 원)</option>
             <option value="y = z + x">Plane: y = z + x (3D)</option>
-            <option value="z = 2 * sin(sqrt(x^2 + y^2))">Ripple: z = f(x,y) (3D)</option>
-            <option value="z = (x^2 - y^2) / 5">Saddle: z = f(x,y) (3D)</option>
-            <option value="x^2 + y^2 + z^2 = 100">Sphere: x^2+y^2+z^2=100 (3D)</option>
-            <option value="y = 5 * sin(x) * cos(10 * x)">Wave: y = f(x) (2D)</option>
-            <option value="(x^2 + y^2 - 1)^3 - x^2 * y^3 = 0">Heart: f(x,y)=0 (2D)</option>
-            <option value="x^2 + y^2 = 25">Circle: x^2+y^2=25 (2D)</option>
+            <option value="x^2 + y^2 + z^2 = 100">Sphere: x^2 + y^2 + z^2 = 100</option>
         </select>
 
-        <input type="text" id="eq-input" value="y = z + x" placeholder="e.g., y = z + x or z = sin(x)">
+        <input type="text" id="eq-input" value="z = 2 * sin(sqrt(x^2 + y^2) - t)" placeholder="e.g., z = sin(x - t)">
         <div id="error-msg" data-en="Invalid expression." data-ko="수식이 올바르지 않습니다.">수식이 올바르지 않습니다.</div>
 
         <button class="btn-draw" id="draw-btn" data-en="RENDER GRAPH" data-ko="그래프 렌더링">그래프 렌더링</button>
@@ -131,109 +131,71 @@
         const threeContainer = document.getElementById('three-container');
 
         let scale2D = 50; 
+        let time = 0;
+        let isAnimated = false;
+        let currentCompiled = null;
+        let currentMode = null;
 
         // Three.js Setup
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x050505, 0.02);
-        
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(15, 15, 15);
-        
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
         threeContainer.appendChild(renderer.domElement);
-        
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
-        
-        const axesHelper = new THREE.AxesHelper(20);
-        scene.add(axesHelper);
-
-        const gridHelper = new THREE.GridHelper(40, 40, 0x444444, 0x222222);
-        scene.add(gridHelper);
-
+        const axesHelper = new THREE.AxesHelper(20); scene.add(axesHelper);
+        const gridHelper = new THREE.GridHelper(40, 40, 0x444444, 0x222222); scene.add(gridHelper);
         scene.add(new THREE.AmbientLight(0xffffff, 0.5));
         const p1 = new THREE.PointLight(0xff00ff, 1.5); p1.position.set(15, 20, 15); scene.add(p1);
         const p2 = new THREE.PointLight(0x00ffff, 1.5); p2.position.set(-15, -20, -15); scene.add(p2);
 
         let currentMesh = null;
 
-        function resize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            canvas2d.width = window.innerWidth;
-            canvas2d.height = window.innerHeight;
-            drawCurrent(); 
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
-        // Solve for Z numerically using Binary Search (assuming single-valued height for visualization)
-        function solveZ(compiled, x, y, range = 20) {
+        function solveZ(compiled, x, y, t, range = 15) {
             let low = -range, high = range;
             let bestZ = 0, minErr = Infinity;
-            
-            // Try explicit Z check first
             try {
-                let directZ = compiled.evaluate({x, y});
+                let directZ = compiled.evaluate({x, y, t});
                 if (typeof directZ === 'number' && isFinite(directZ)) return directZ;
             } catch(e) {}
-
-            // Binary Search for f(x,y,z) = 0
-            for (let i = 0; i < 15; i++) {
+            for (let i = 0; i < 12; i++) {
                 let mid = (low + high) / 2;
-                let val = compiled.evaluate({x, y, z: mid});
+                let val = compiled.evaluate({x, y, z: mid, t});
                 if (isNaN(val)) break;
                 if (Math.abs(val) < minErr) { minErr = Math.abs(val); bestZ = mid; }
-                
-                // We check the slope to decide direction
-                let epsilon = 0.001;
-                let valUp = compiled.evaluate({x, y, z: mid + epsilon});
-                if ((valUp - val) * val > 0) high = mid;
-                else low = mid;
+                let eps = 0.001;
+                let valUp = compiled.evaluate({x, y, z: mid + eps, t});
+                if ((valUp - val) * val > 0) high = mid; else low = mid;
             }
             return bestZ;
         }
 
         function detectMode(eq) {
             eq = eq.toLowerCase().replace(/\s+/g, '');
+            isAnimated = eq.includes('t');
             const hasZ = eq.includes('z');
             const hasY = eq.includes('y');
             const hasEqual = eq.includes('=');
-            
             let expr = eq;
             if (hasEqual) {
                 let parts = eq.split('=');
                 expr = `(${parts[0]}) - (${parts[1]})`;
-                
-                // Special case for z = ... (performance optimization)
-                if (parts[0] === 'z') {
-                    return { mode: '3D_EXPL', expr: parts[1] };
-                }
+                if (parts[0] === 'z') return { mode: '3D_EXPL', expr: parts[1] };
             }
-
-            if (hasZ) {
-                statusMsg.innerText = "Mode: 3D (Implicit/Explicit Solver)";
-                return { mode: '3D_SOLVE', expr: expr };
-            }
+            if (hasZ) return { mode: '3D_SOLVE', expr: expr };
             if (hasEqual || hasY) {
-                if (eq.startsWith('y=')) {
-                    statusMsg.innerText = "Mode: 2D Explicit (y=f(x))";
-                    return { mode: '2D_EXP', expr: eq.split('=')[1] };
-                }
-                statusMsg.innerText = "Mode: 2D Implicit (f(x,y)=0)";
+                if (eq.startsWith('y=')) return { mode: '2D_EXP', expr: eq.split('=')[1] };
                 return { mode: '2D_IMP', expr: expr };
             }
-            
-            statusMsg.innerText = "Mode: 2D Explicit";
             return { mode: '2D_EXP', expr: eq };
         }
 
         function drawGrid2D() {
-            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-            ctx.lineWidth = 1; ctx.beginPath();
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1; ctx.beginPath();
             let w = canvas2d.width, h = canvas2d.height;
             for(let x = w/2 % scale2D; x < w; x += scale2D) { ctx.moveTo(x, 0); ctx.lineTo(x, h); }
             for(let y = h/2 % scale2D; y < h; y += scale2D) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
@@ -244,103 +206,99 @@
             ctx.beginPath(); ctx.moveTo(w/2, 0); ctx.lineTo(w/2, h); ctx.stroke();
         }
 
-        function draw2DImplicit(expr) {
-            const compiled = math.compile(expr);
-            ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
-            drawGrid2D();
-            const res = 4;
-            const w = canvas2d.width, h = canvas2d.height;
-            const cols = Math.ceil(w / res), rows = Math.ceil(h / res);
-            let vals = new Float32Array((cols + 1) * (rows + 1));
-            for (let i = 0; i <= cols; i++) {
-                let x = (i * res - w/2) / scale2D;
-                for (let j = 0; j <= rows; j++) {
-                    let y = -(j * res - h/2) / scale2D; 
-                    try { vals[i + j * (cols + 1)] = compiled.evaluate({x, y}); } catch(e) { vals[i + j * (cols + 1)] = 1; }
+        function renderFrame() {
+            if (!currentCompiled) return;
+            const t = time;
+            if (currentMode.startsWith('3D')) {
+                const pos = currentMesh.geometry.attributes.position;
+                const isExpl = currentMode === '3D_EXPL';
+                const range = 15, segs = isAnimated ? 60 : 80; // Optimize for animation
+                for (let i = 0; i < pos.count; i++) {
+                    let x = pos.getX(i), y = pos.getY(i);
+                    let z = isExpl ? currentCompiled.evaluate({x, y, t}) : solveZ(currentCompiled, x, y, t);
+                    pos.setZ(i, Math.max(Math.min(z || 0, 15), -15));
+                }
+                currentMesh.geometry.attributes.position.needsUpdate = true;
+                currentMesh.geometry.computeVertexNormals();
+            } else {
+                ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
+                drawGrid2D();
+                if (currentMode === '2D_EXP') {
+                    ctx.beginPath(); ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 3;
+                    let first = true;
+                    for (let px = 0; px < canvas2d.width; px+=2) {
+                        let x = (px - canvas2d.width/2) / scale2D;
+                        try {
+                            let y = currentCompiled.evaluate({x, t});
+                            let py = canvas2d.height/2 - y * scale2D;
+                            if (first) { ctx.moveTo(px, py); first = false; } else { ctx.lineTo(px, py); }
+                        } catch (e) { first = true; }
+                    }
+                    ctx.stroke();
+                } else if (currentMode === '2D_IMP') {
+                    const res = isAnimated ? 6 : 4;
+                    const w = canvas2d.width, h = canvas2d.height;
+                    const cols = Math.ceil(w / res), rows = Math.ceil(h / res);
+                    ctx.beginPath(); ctx.strokeStyle = '#ff00ff'; ctx.lineWidth = 3;
+                    for (let i = 0; i < cols; i++) {
+                        let x = (i * res - w/2) / scale2D;
+                        for (let j = 0; j < rows; j++) {
+                            let y = -(j * res - h/2) / scale2D;
+                            let v0 = currentCompiled.evaluate({x, y, t});
+                            let v1 = currentCompiled.evaluate({x: x + res/scale2D, y, t});
+                            let v2 = currentCompiled.evaluate({x: x + res/scale2D, y: y - res/scale2D, t});
+                            let v3 = currentCompiled.evaluate({x, y: y - res/scale2D, t});
+                            let px = i * res, py = j * res;
+                            const getT = (a, b) => (a === b) ? 0.5 : a / (a - b);
+                            if (v0 * v1 <= 0) { let tx = px + res * getT(v0, v1); ctx.moveTo(tx, py); ctx.lineTo(tx, py+1); }
+                            if (v1 * v2 <= 0) { let ty = py + res * getT(v1, v2); ctx.moveTo(px+res, ty); ctx.lineTo(px+res-1, ty); }
+                        }
+                    }
+                    ctx.stroke();
                 }
             }
-            ctx.beginPath(); ctx.strokeStyle = '#ff00ff'; ctx.lineWidth = 3;
-            for (let i = 0; i < cols; i++) {
-                for (let j = 0; j < rows; j++) {
-                    let v0 = vals[i + j * (cols+1)], v1 = vals[i+1 + j*(cols+1)], v2 = vals[i+1 + (j+1)*(cols+1)], v3 = vals[i + (j+1)*(cols+1)];
-                    let px = i * res, py = j * res;
-                    let pts = [];
-                    const getT = (a, b) => (a === b) ? 0.5 : a / (a - b);
-                    if (v0 * v1 <= 0) pts.push({x: px + res * getT(v0, v1), y: py});
-                    if (v1 * v2 <= 0) pts.push({x: px + res, y: py + res * getT(v1, v2)});
-                    if (v2 * v3 <= 0) pts.push({x: px + res * (1 - getT(v2, v3)), y: py + res});
-                    if (v3 * v0 <= 0) pts.push({x: px, y: py + res * (1 - getT(v3, v0))});
-                    if (pts.length >= 2) { ctx.moveTo(pts[0].x, pts[0].y); ctx.lineTo(pts[1].x, pts[1].y); }
-                }
-            }
-            ctx.stroke();
-        }
-
-        function draw2DExplicit(expr) {
-            const compiled = math.compile(expr);
-            ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
-            drawGrid2D();
-            ctx.beginPath(); ctx.strokeStyle = '#00ffff'; ctx.lineWidth = 3;
-            let first = true;
-            for (let px = 0; px < canvas2d.width; px+=2) {
-                let x = (px - canvas2d.width/2) / scale2D;
-                try {
-                    let y = compiled.evaluate({x});
-                    let py = canvas2d.height/2 - y * scale2D;
-                    if (first) { ctx.moveTo(px, py); first = false; } else { ctx.lineTo(px, py); }
-                } catch (e) { first = true; }
-            }
-            ctx.stroke();
-        }
-
-        function draw3DSurface(expr, isExplicit = false) {
-            const compiled = math.compile(expr);
-            if (currentMesh) scene.remove(currentMesh);
-            const range = 15, segments = 80;
-            const geo = new THREE.PlaneGeometry(range*2, range*2, segments, segments);
-            const pos = geo.attributes.position;
-            for (let i = 0; i < pos.count; i++) {
-                let x = pos.getX(i), y = pos.getY(i), z = 0;
-                if (isExplicit) {
-                    try { z = compiled.evaluate({x, y}); } catch(e) {}
-                } else {
-                    z = solveZ(compiled, x, y);
-                }
-                z = Math.max(Math.min(z, 15), -15);
-                pos.setZ(i, z);
-            }
-            geo.computeVertexNormals();
-            const mat = new THREE.MeshPhongMaterial({ color: 0x00ffff, specular: 0xff00ff, shininess: 80, side: THREE.DoubleSide, wireframe: true, transparent: true, opacity: 0.8 });
-            currentMesh = new THREE.Mesh(geo, mat);
-            currentMesh.rotation.x = -Math.PI / 2;
-            scene.add(currentMesh);
         }
 
         function drawCurrent() {
             let eq = eqInput.value; errorMsg.style.display = 'none';
             try {
                 let p = detectMode(eq);
+                currentMode = p.mode;
+                currentCompiled = math.compile(p.expr);
+                statusMsg.innerText = `MODE: ${p.mode} ${isAnimated ? '(ANIMATED)' : ''}`;
+                
                 if (p.mode.startsWith('3D')) {
                     threeContainer.style.zIndex = 1; axesHelper.visible = true; gridHelper.visible = true;
-                    ctx.clearRect(0,0,canvas2d.width, canvas2d.height);
-                    draw3DSurface(p.expr, p.mode === '3D_EXPL');
+                    if (currentMesh) scene.remove(currentMesh);
+                    const range = 15, segments = isAnimated ? 60 : 80;
+                    const geo = new THREE.PlaneGeometry(range*2, range*2, segments, segments);
+                    const mat = new THREE.MeshPhongMaterial({ color: 0x00ffff, specular: 0xff00ff, shininess: 80, side: THREE.DoubleSide, wireframe: true, transparent: true, opacity: 0.8 });
+                    currentMesh = new THREE.Mesh(geo, mat); currentMesh.rotation.x = -Math.PI / 2;
+                    scene.add(currentMesh);
                 } else {
                     threeContainer.style.zIndex = -1; axesHelper.visible = false; gridHelper.visible = false;
                     if (currentMesh) { scene.remove(currentMesh); currentMesh = null; }
-                    if (p.mode === '2D_EXP') draw2DExplicit(p.expr); else draw2DImplicit(p.expr);
                 }
-            } catch(e) { errorMsg.style.display = 'block'; statusMsg.innerText = "Error parsing expression."; }
+                renderFrame();
+            } catch(e) { errorMsg.style.display = 'block'; }
         }
 
         drawBtn.onclick = drawCurrent;
         presetSelect.onchange = () => { if (presetSelect.value) { eqInput.value = presetSelect.value; drawCurrent(); } };
-        eqInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') drawCurrent(); });
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            canvas2d.width = window.innerWidth; canvas2d.height = window.innerHeight;
+            drawCurrent();
+        });
 
         function animate() {
             requestAnimationFrame(animate);
+            if (isAnimated) { time += 0.05; renderFrame(); }
             controls.update();
             renderer.render(scene, camera);
         }
+        canvas2d.width = window.innerWidth; canvas2d.height = window.innerHeight;
         drawCurrent(); animate();
     </script>
 </body>
