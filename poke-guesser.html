@@ -1,0 +1,62 @@
+<!-- poke-guesser.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8"><title>Poke Guesser | AI Simulation Universe</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-950 text-slate-50 min-h-screen flex flex-col items-center p-6">
+    <div class="relative z-10 max-w-xl w-full">
+        <header class="mb-10 text-center">
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-pink-400 to-purple-500 bg-clip-text text-transparent mb-2">POKE GUESSER</h1>
+            <p class="text-slate-400">실루엣만 보고 어떤 포켓몬인지 맞추세요!</p>
+        </header>
+        <div class="card-neon-pink bg-slate-900/60 p-8 rounded-2xl border border-border flex flex-col items-center">
+            <div id="silhouette-container" class="w-48 h-48 mb-8 flex items-center justify-center">
+                <img id="poke-img" class="w-full h-full object-contain filter brightness-0 transition-all duration-500" src="" style="display:none">
+                <div id="loader" class="animate-spin h-10 w-10 border-4 border-pink-500 border-t-transparent rounded-full"></div>
+            </div>
+            <div id="options" class="grid grid-cols-2 gap-3 w-full"></div>
+            <p id="result-msg" class="mt-6 font-bold text-lg h-8"></p>
+        </div>
+        <div class="mt-8 flex justify-between"><p id="score" class="font-mono">SCORE: 0</p><button id="next-btn" class="hidden btn-shadcn bg-pink-500/20 px-6 py-2 rounded-lg">NEXT POKEMON</button></div>
+        <div class="mt-12 text-center"><a href="index.html" class="text-slate-600 hover:text-white text-sm">Back to Hub</a></div>
+    </div>
+    <script>
+        let currentPoke = null; let score = 0;
+        async function fetchPoke() {
+            document.getElementById('next-btn').classList.add('hidden');
+            document.getElementById('result-msg').innerText = '';
+            document.getElementById('poke-img').style.display = 'none';
+            document.getElementById('poke-img').style.filter = 'brightness(0)';
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('options').innerHTML = '';
+            const ids = Array.from({length:4}, () => Math.floor(Math.random() * 898) + 1);
+            const data = await Promise.all(ids.map(id => fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then(r => r.json())));
+            currentPoke = data[Math.floor(Math.random() * 4)];
+            document.getElementById('poke-img').src = currentPoke.sprites.other['official-artwork'].front_default;
+            document.getElementById('poke-img').onload = () => {
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('poke-img').style.display = 'block';
+            };
+            data.forEach(p => {
+                const btn = document.createElement('button');
+                btn.className = 'p-3 rounded-xl border border-border bg-slate-800/50 hover:bg-pink-500/10 transition-all uppercase text-sm font-bold';
+                btn.innerText = p.name;
+                btn.onclick = () => {
+                    document.querySelectorAll('#options button').forEach(b => b.disabled = true);
+                    document.getElementById('poke-img').style.filter = 'none';
+                    if(p.id === currentPoke.id) { score += 20; document.getElementById('result-msg').innerText = 'CORRECT!'; document.getElementById('result-msg').classList.add('text-green-400'); }
+                    else { document.getElementById('result-msg').innerText = `WRONG! IT IS ${currentPoke.name}`; document.getElementById('result-msg').classList.add('text-red-400'); }
+                    document.getElementById('score').innerText = `SCORE: ${score}`;
+                    document.getElementById('next-btn').classList.remove('hidden');
+                };
+                document.getElementById('options').appendChild(btn);
+            });
+        }
+        document.getElementById('next-btn').onclick = fetchPoke;
+        fetchPoke();
+    </script>
+</body>
+</html>

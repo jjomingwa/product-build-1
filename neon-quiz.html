@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8"><title>Neon Quiz | AI Simulation Universe</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-950 text-slate-50 min-h-screen flex flex-col items-center p-6">
+    <div class="relative z-10 max-w-xl w-full">
+        <header class="mb-10 text-center">
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent mb-2">NEON QUIZ</h1>
+            <p class="text-slate-400">글로벌 상식 챌린지 (Open Trivia API)</p>
+        </header>
+        <div id="quiz-container" class="card-neon-yellow bg-slate-900/60 p-8 rounded-2xl border border-border min-h-[300px] flex flex-col justify-center">
+            <p id="category" class="text-[10px] uppercase tracking-widest text-yellow-500 mb-2"></p>
+            <h2 id="question" class="text-xl font-medium leading-relaxed mb-8">Loading question...</h2>
+            <div id="options" class="grid gap-3"></div>
+        </div>
+        <div class="mt-8 flex justify-between items-center">
+            <p id="score" class="text-slate-400 font-mono">SCORE: 0</p>
+            <button id="next-btn" class="hidden btn-shadcn bg-yellow-500/20 text-yellow-400 border border-yellow-500/40 px-6 py-2 rounded-lg">NEXT QUESTION</button>
+        </div>
+        <div class="mt-12 text-center"><a href="index.html" class="text-slate-600 hover:text-white text-sm">Back to Hub</a></div>
+    </div>
+    <script>
+        let score = 0;
+        let correctAnswer = '';
+        async function fetchQuiz() {
+            document.getElementById('next-btn').classList.add('hidden');
+            document.getElementById('options').innerHTML = '';
+            document.getElementById('question').innerText = 'Downloading data from global server...';
+            const res = await fetch('https://opentdb.com/api.php?amount=1&type=multiple');
+            const data = await res.json();
+            const q = data.results[0];
+            correctAnswer = q.correct_answer;
+            document.getElementById('category').innerText = q.category;
+            document.getElementById('question').innerHTML = q.question;
+            let options = [...q.incorrect_answers, q.correct_answer].sort(() => Math.random() - 0.5);
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full text-left p-4 rounded-xl border border-border bg-slate-800/50 hover:bg-yellow-500/10 hover:border-yellow-500/40 transition-all';
+                btn.innerHTML = opt;
+                btn.onclick = () => checkAnswer(btn, opt);
+                document.getElementById('options').appendChild(btn);
+            });
+        }
+        function checkAnswer(btn, opt) {
+            const btns = document.querySelectorAll('#options button');
+            btns.forEach(b => b.disabled = true);
+            if (opt === correctAnswer) {
+                btn.classList.add('bg-green-500/20', 'border-green-500/50');
+                score += 10;
+            } else {
+                btn.classList.add('bg-red-500/20', 'border-red-500/50');
+            }
+            document.getElementById('score').innerText = `SCORE: ${score}`;
+            document.getElementById('next-btn').classList.remove('hidden');
+        }
+        document.getElementById('next-btn').onclick = fetchQuiz;
+        fetchQuiz();
+    </script>
+</body>
+</html>

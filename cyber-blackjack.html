@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyber Blackjack | AI Simulation Universe</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-950 text-slate-50 min-h-screen flex flex-col items-center p-6">
+    <canvas id="starfield" class="pointer-events-none fixed inset-0 z-0 opacity-30"></canvas>
+    
+    <div class="relative z-10 max-w-2xl w-full">
+        <header class="mb-10 text-center">
+            <h1 class="text-4xl font-extrabold bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent mb-2">CYBER BLACKJACK</h1>
+            <p class="text-slate-400">실시간 카드 덱 API를 사용한 긴장감 넘치는 베팅 게임</p>
+        </header>
+
+        <div class="grid gap-8">
+            <!-- Dealer Area -->
+            <div class="card-neon-blue bg-slate-900/40 p-6 rounded-2xl border border-border">
+                <h3 class="text-xs font-bold text-slate-500 uppercase mb-4 tracking-widest">Dealer's Hand</h3>
+                <div id="dealer-cards" class="flex gap-2 min-h-[120px]"></div>
+                <p id="dealer-score" class="mt-4 text-sm font-mono text-blue-400"></p>
+            </div>
+
+            <!-- Player Area -->
+            <div class="card-neon-green bg-slate-900/40 p-6 rounded-2xl border border-border">
+                <h3 class="text-xs font-bold text-slate-500 uppercase mb-4 tracking-widest">Your Hand</h3>
+                <div id="player-cards" class="flex gap-2 min-h-[120px]"></div>
+                <p id="player-score" class="mt-4 text-sm font-mono text-green-400"></p>
+            </div>
+        </div>
+
+        <div id="game-status" class="my-8 text-center text-xl font-bold h-8"></div>
+
+        <div class="flex gap-4 justify-center">
+            <button id="hit-btn" class="btn-shadcn bg-green-500/20 text-green-400 border border-green-500/40 hover:bg-green-500/30 px-8 py-3 rounded-xl disabled:opacity-20">HIT</button>
+            <button id="stand-btn" class="btn-shadcn bg-blue-500/20 text-blue-400 border border-blue-500/40 hover:bg-blue-500/30 px-8 py-3 rounded-xl disabled:opacity-20">STAND</button>
+            <button id="new-game-btn" class="btn-shadcn bg-white/10 hover:bg-white/20 px-8 py-3 rounded-xl">NEW GAME</button>
+        </div>
+
+        <div class="mt-12 text-center">
+            <a href="index.html" class="text-slate-500 hover:text-white transition-colors text-sm underline underline-offset-4">Back to Hub</a>
+        </div>
+    </div>
+
+    <script>
+        let deckId = null;
+        let playerHand = [];
+        let dealerHand = [];
+        let gameOver = false;
+
+        async function initDeck() {
+            const res = await fetch('https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1');
+            const data = await res.json();
+            deckId = data.deck_id;
+            startNewGame();
+        }
+
+        async function startNewGame() {
+            gameOver = false;
+            playerHand = [];
+            dealerHand = [];
+            document.getElementById('game-status').innerText = '';
+            document.getElementById('hit-btn').disabled = false;
+            document.getElementById('stand-btn').disabled = false;
+            
+            await drawCard('player', 2);
+            await drawCard('dealer', 1);
+            render();
+        }
+
+        async function drawCard(target, count) {
+            const res = await fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=${count}`);
+            const data = await res.json();
+            if (target === 'player') playerHand.push(...data.cards);
+            else dealerHand.push(...data.cards);
+            render();
+            checkStatus();
+        }
+
+        function getScore(hand) {
+            let score = 0;
+            let aces = 0;
+            hand.forEach(card => {
+                if (['KING', 'QUEEN', 'JACK'].includes(card.value)) score += 10;
+                else if (card.value === 'ACE') { score += 11; aces += 1; }
+                else score += parseInt(card.value);
+            });
+            while (score > 21 && aces > 0) { score -= 10; aces -= 1; }
+            return score;
+        }
+
+        function render() {
+            const pArea = document.getElementById('player-cards');
+            const dArea = document.getElementById('dealer-cards');
+            pArea.innerHTML = playerHand.map(c => `<img src="${c.image}" class="h-24 md:h-28 rounded shadow-lg animate-[bounce_0.3s]">`).join('');
+            dArea.innerHTML = dealerHand.map(c => `<img src="${c.image}" class="h-24 md:h-28 rounded shadow-lg">`).join('');
+            document.getElementById('player-score').innerText = `Score: ${getScore(playerHand)}`;
+            document.getElementById('dealer-score').innerText = `Score: ${getScore(dealerHand)}`;
+        }
+
+        function checkStatus() {
+            if (getScore(playerHand) > 21) endGame('BUST! YOU LOSE');
+            else if (getScore(playerHand) === 21) endGame('BLACKJACK! YOU WIN');
+        }
+
+        async function endGame(msg) {
+            gameOver = true;
+            document.getElementById('game-status').innerText = msg;
+            document.getElementById('hit-btn').disabled = true;
+            document.getElementById('stand-btn').disabled = true;
+        }
+
+        document.getElementById('hit-btn').onclick = () => drawCard('player', 1);
+        document.getElementById('stand-btn').onclick = async () => {
+            while (getScore(dealerHand) < 17) await drawCard('dealer', 1);
+            const p = getScore(playerHand);
+            const d = getScore(dealerHand);
+            if (d > 21 || p > d) endGame('YOU WIN!');
+            else if (p < d) endGame('DEALER WINS');
+            else endGame('PUSH (DRAW)');
+        };
+        document.getElementById('new-game-btn').onclick = startNewGame;
+
+        initDeck();
+    </script>
+</body>
+</html>
