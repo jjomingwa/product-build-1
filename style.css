@@ -16,6 +16,11 @@
   --color-accent-foreground: hsl(0 0% 98%);
   --color-destructive: hsl(0 62.8% 30.6%);
   --color-destructive-foreground: hsl(0 0% 98%);
+  
+  /* v0.dev Neon Colors */
+  --color-neon-green: #4ade80;
+  --color-neon-purple: #a855f7;
+  --color-neon-blue: #38bdf8;
 }
 
 @layer base {
@@ -29,22 +34,17 @@
 
 /* Shadcn UI 스타일 컴포넌트 프리셋 */
 @layer components {
-  /* Button - Shadcn UI Default */
   .btn-shadcn {
     @apply inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
     @apply bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2;
   }
 
-  /* Input - Shadcn UI Style */
   .input-shadcn {
     @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
   }
 
-  /* Card - Shadcn UI Style */
-  .card-shadcn {
-    @apply rounded-xl border bg-card text-card-foreground shadow;
-    background: rgba(10, 10, 15, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid hsl(240 3.7% 15.9%);
-  }
+  /* Neon Card Effects */
+  .card-neon-green { @apply hover:border-neon-green/50 hover:shadow-[0_0_25px_rgba(74,222,128,0.12)]; }
+  .card-neon-purple { @apply hover:border-neon-purple/50 hover:shadow-[0_0_25px_rgba(168,85,247,0.12)]; }
+  .card-neon-blue { @apply hover:border-neon-blue/50 hover:shadow-[0_0_25px_rgba(56,189,248,0.12)]; }
 }
