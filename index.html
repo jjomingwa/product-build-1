@@ -11,7 +11,7 @@
 <body class="bg-slate-950 text-slate-50 min-h-screen overflow-x-hidden">
 
     <!-- Star Field Background -->
-    <canvas id="starfield" class="pointer-events-none fixed inset-0 z-0 opacity-60"></canvas>
+    <canvas id="starfield" class="pointer-events-none fixed inset-0 z-0 opacity-40"></canvas>
 
     <main class="relative z-10 mx-auto max-w-5xl px-4 pb-24">
         
@@ -26,14 +26,22 @@
                 Interactive Simulation Hub
             </div>
 
-            <h1 class="mb-4 text-4xl font-bold tracking-tight text-white md:text-5xl lg:text-6xl">
-                <span class="bg-gradient-to-r from-neon-green via-white to-neon-blue bg-clip-text text-transparent">
-                    AI Simulation Universe
-                </span>
-            </h1>
+            <div class="flex items-center gap-4 mb-4">
+                <!-- Neon SVG Logo -->
+                <svg width="50" height="50" viewBox="0 0 100 100" class="filter drop-shadow-[0_0_8px_rgba(74,222,128,0.8)]">
+                    <circle cx="50" cy="50" r="45" fill="none" stroke="#4ade80" stroke-width="2" stroke-dasharray="280" class="animate-[spin_10s_linear_infinite]" />
+                    <path d="M30 50 L50 30 L70 50 L50 70 Z" fill="none" stroke="#38bdf8" stroke-width="3" />
+                    <circle cx="50" cy="50" r="8" fill="#a855f7" class="animate-pulse" />
+                </svg>
+                <h1 class="text-4xl font-bold tracking-tight text-white md:text-5xl lg:text-6xl">
+                    <span class="bg-gradient-to-r from-neon-green via-white to-neon-blue bg-clip-text text-transparent">
+                        AI Simulation Universe
+                    </span>
+                </h1>
+            </div>
 
             <p class="mb-10 max-w-xl text-sm leading-relaxed text-slate-400 md:text-base">
-                미지의 우주와 수학적 공간을 탐험하는 인터랙티브 허브입니다.
+                미지의 우주와 수학적 공간을 탐험하는 인터랙티브 허브입니다. 모든 모듈이 복구되었습니다.
             </p>
 
             <!-- Search Bar -->
@@ -51,9 +59,10 @@
         <!-- Tabs Section -->
         <div class="mb-8 flex justify-center">
             <div class="flex h-10 rounded-xl border border-border bg-slate-900/60 p-1 backdrop-blur-sm" id="tab-list">
-                <button data-tab="all" class="tab-trigger rounded-lg px-4 text-sm transition-all duration-200 active-tab">전체 모듈</button>
+                <button data-tab="all" class="tab-trigger rounded-lg px-4 text-sm transition-all duration-200 active-tab">전체</button>
                 <button data-tab="game" class="tab-trigger rounded-lg px-4 text-sm transition-all duration-200">Game</button>
-                <button data-tab="science" class="tab-trigger rounded-lg px-4 text-sm transition-all duration-200">Science & Math</button>
+                <button data-tab="simulation" class="tab-trigger rounded-lg px-4 text-sm transition-all duration-200">Simulation</button>
+                <button data-tab="math" class="tab-trigger rounded-lg px-4 text-sm transition-all duration-200">Math & Physics</button>
             </div>
         </div>
 
@@ -73,166 +82,111 @@
             color: white;
             box-shadow: 0 0 12px rgba(74, 222, 128, 0.08);
         }
-        .tab-trigger {
-            color: #94a3b8;
-        }
-        .tab-trigger:hover:not(.active-tab) {
-            color: white;
-        }
+        .tab-trigger { color: #94a3b8; }
+        .tab-trigger:hover:not(.active-tab) { color: white; }
     </style>
 
     <script>
         /* ──────────────── Simulation Data ─────────────────── */
         const simulations = [
-            {
-                id: "minesweeper",
-                url: "minesweeper.html",
-                title: "네온 지뢰찾기",
-                tag: "Game",
-                category: "game",
-                description: "멋진 골프장 배경과 3D 입체 타일을 즐길 수 있는 지뢰찾기입니다.",
-                buttonText: "플레이 하기 \u2192",
-                neonColor: "green",
-                icon: `<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 12h.01M18 12h.01M12 6h.01M12 18h.01M12 12h.01M6 6h.01M18 6h.01M6 18h.01M18 18h.01"/></svg>`
-            },
-            {
-                id: "grapher",
-                url: "grapher.html",
-                title: "네온 그래퍼",
-                tag: "Science & Math",
-                category: "science",
-                description: "수학 수식을 3D 레이마칭 엔진으로 시각화하여 네온 광채로 그려냅니다.",
-                buttonText: "탐험 하기 \u2192",
-                neonColor: "purple",
-                icon: `<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M9 17c2 0 2.8-1 4.5-5.5S15 6 17 6"/></svg>`
-            },
-            {
-                id: "solar",
-                url: "solar-system.html",
-                title: "태양계 시뮬레이션",
-                tag: "Science & Math",
-                category: "science",
-                description: "실제 천체 물리 데이터를 기반으로 한 인터랙티브 행성 궤도 시뮬레이션입니다.",
-                buttonText: "관찰 하기 \u2192",
-                neonColor: "blue",
-                icon: `<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 010 20 15.3 15.3 0 010-20z"/></svg>`
-            }
+            { id: "minesweeper", url: "minesweeper.html", title: "네온 지뢰찾기", tag: "Game", category: "game", description: "골프장 배경과 3D 입체 타일을 즐길 수 있는 지뢰찾기.", neonColor: "green" },
+            { id: "grapher", url: "grapher.html", title: "네온 그래퍼", tag: "Math", category: "math", description: "3D 레이마칭 엔진으로 시각화하는 네온 수학 그래프.", neonColor: "purple" },
+            { id: "solar", url: "solar-system.html", title: "태양계", tag: "Physics", category: "math", description: "천체 물리 데이터를 기반으로 한 행성 궤도 시뮬레이션.", neonColor: "blue" },
+            { id: "slime-mold", url: "slime-mold.html", title: "슬라임 몰드", tag: "Bio", category: "simulation", description: "점균류의 유기적 패턴을 재현하는 창의적 시뮬레이션.", neonColor: "emerald" },
+            { id: "neuro-evolution", url: "neuro-evolution.html", title: "뉴로 에볼루션", tag: "AI", category: "simulation", description: "신경망과 유전 알고리즘을 결합한 생명체 진화 실험.", neonColor: "pink" },
+            { id: "neuron-sim", url: "neuron-sim.html", title: "뉴런 시뮬레이션", tag: "Bio", category: "simulation", description: "뇌 세포의 전기적 신호 전달 과정을 시각화한 모듈.", neonColor: "yellow" },
+            { id: "fish-flocking", url: "fish-flocking.html", title: "물고기 떼", tag: "Bio", category: "simulation", description: "보이드 알고리즘을 이용한 어류의 집단 행동 모사.", neonColor: "cyan" },
+            { id: "double-pendulum", url: "double-pendulum.html", title: "이중 진자", tag: "Physics", category: "math", description: "카오스 이론을 보여주는 예측 불가능한 물리 실험.", neonColor: "orange" },
+            { id: "binary-star", url: "binary-star.html", title: "이중성 시스템", tag: "Physics", category: "math", description: "두 항성이 서로의 중력에 묶여 회전하는 천체 시뮬.", neonColor: "blue" },
+            { id: "vector", url: "vector.html", title: "벡터 시각화", tag: "Math", category: "math", description: "선형대수학의 기초가 되는 벡터 연산 시각화 도구.", neonColor: "indigo" }
         ];
 
-        /* ──────────────── Star Field Background ─────────────────── */
+        /* ──────────────── Star Field ─────────────────── */
         function initStarfield() {
             const canvas = document.getElementById('starfield');
             const ctx = canvas.getContext('2d');
             let stars = [];
-            
-            function resize() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
-            window.addEventListener('resize', resize);
-            resize();
-
-            stars = Array.from({ length: 100 }, () => ({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                size: Math.random() * 1.4 + 0.3,
-                speed: Math.random() * 0.12 + 0.02,
-                opacity: Math.random() * 0.5 + 0.15,
-                twinkleSpeed: Math.random() * 0.007 + 0.002,
-                twinkleOffset: Math.random() * Math.PI * 2
+            const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+            window.addEventListener('resize', resize); resize();
+            stars = Array.from({ length: 120 }, () => ({
+                x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+                size: Math.random() * 1.5 + 0.2, speed: Math.random() * 0.1 + 0.02,
+                opacity: Math.random() * 0.5 + 0.1, twinkleSpeed: Math.random() * 0.005, twinkleOffset: Math.random() * 10
             }));
-
-            let time = 0;
             function animate() {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
-                time++;
-                stars.forEach(star => {
-                    star.y -= star.speed;
-                    if (star.y < -5) {
-                        star.y = canvas.height + 5;
-                        star.x = Math.random() * canvas.width;
-                    }
-                    const twinkle = Math.sin(time * star.twinkleSpeed + star.twinkleOffset);
-                    const alpha = star.opacity * (0.5 + 0.5 * twinkle);
-                    ctx.beginPath();
-                    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-                    ctx.fillStyle = `rgba(200, 220, 255, ${alpha})`;
-                    ctx.fill();
+                stars.forEach(s => {
+                    s.y -= s.speed; if (s.y < -5) s.y = canvas.height + 5;
+                    const alpha = s.opacity * (0.5 + 0.5 * Math.sin(Date.now() * s.twinkleSpeed + s.twinkleOffset));
+                    ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(200, 220, 255, ${alpha})`; ctx.fill();
                 });
                 requestAnimationFrame(animate);
             }
             animate();
         }
 
-        /* ──────────────── Simulation UI Logic ─────────────────── */
-        const searchInput = document.getElementById('simulation-search');
+        /* ──────────────── UI Logic ─────────────────── */
         const grid = document.getElementById('simulation-grid');
-        const noResults = document.getElementById('no-results');
-        const tabTriggers = document.querySelectorAll('.tab-trigger');
-        
-        let currentTab = 'all';
-        let searchQuery = '';
+        const searchInput = document.getElementById('simulation-search');
 
         function renderCards() {
+            const query = searchInput.value.toLowerCase().trim();
             const filtered = simulations.filter(sim => {
                 const matchesTab = currentTab === 'all' || sim.category === currentTab;
-                const matchesSearch = sim.title.toLowerCase().includes(searchQuery) || 
-                                     sim.description.toLowerCase().includes(searchQuery);
+                const matchesSearch = sim.title.toLowerCase().includes(query) || sim.description.toLowerCase().includes(query);
                 return matchesTab && matchesSearch;
             });
 
             grid.innerHTML = '';
-            if (filtered.length === 0) {
-                noResults.classList.remove('hidden');
-            } else {
-                noResults.classList.add('hidden');
-                filtered.forEach(sim => {
-                    const card = document.createElement('div');
-                    const neonClass = `card-neon-${sim.neonColor}`;
-                    const glowColor = sim.neonColor === 'green' ? 'bg-neon-green/30' : 
-                                     sim.neonColor === 'purple' ? 'bg-neon-purple/30' : 'bg-neon-blue/30';
-                    const iconColor = sim.neonColor === 'green' ? 'text-neon-green' : 
-                                     sim.neonColor === 'purple' ? 'text-neon-purple' : 'text-neon-blue';
-                    const badgeClass = sim.neonColor === 'green' ? 'bg-neon-green/10 text-neon-green border-neon-green/25' : 
-                                      sim.neonColor === 'purple' ? 'bg-neon-purple/10 text-neon-purple border-neon-purple/25' : 'bg-neon-blue/10 text-neon-blue border-neon-blue/25';
-                    const btnHoverClass = sim.neonColor === 'green' ? 'hover:bg-neon-green/10 hover:text-neon-green hover:border-neon-green/40' : 
-                                         sim.neonColor === 'purple' ? 'hover:bg-neon-purple/10 hover:text-neon-purple hover:border-neon-purple/40' : 'hover:bg-neon-blue/10 hover:text-neon-blue hover:border-neon-blue/40';
+            if (filtered.length === 0) { document.getElementById('no-results').classList.remove('hidden'); return; }
+            document.getElementById('no-results').classList.add('hidden');
 
-                    card.className = `group relative flex flex-col rounded-xl border border-border bg-slate-900/40 p-6 transition-all duration-500 ease-out hover:-translate-y-2 ${neonClass}`;
-                    card.innerHTML = `
-                        <div class="pointer-events-none absolute -top-px left-1/2 h-px w-3/4 -translate-x-1/2 opacity-0 blur-sm transition-opacity duration-500 group-hover:opacity-100 ${glowColor}"></div>
-                        <div class="mb-5 flex items-center gap-3">
-                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 transition-colors duration-300 group-hover:bg-opacity-20 ${iconColor}">
-                                ${sim.icon}
-                            </div>
-                            <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${badgeClass}">${sim.tag}</span>
+            filtered.forEach((sim, index) => {
+                const card = document.createElement('div');
+                const neonColor = sim.neonColor === 'emerald' ? 'green' : (sim.neonColor === 'indigo' ? 'blue' : sim.neonColor);
+                card.className = `reveal group relative flex flex-col rounded-xl border border-border bg-slate-900/40 p-6 card-neon-${neonColor}`;
+                card.innerHTML = `
+                    <div class="mb-5 flex items-center gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-800 text-neon-${neonColor}">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                         </div>
-                        <h3 class="mb-2 text-lg font-bold tracking-tight text-white">${sim.title}</h3>
-                        <p class="mb-6 flex-1 text-sm leading-relaxed text-slate-400">${sim.description}</p>
-                        <a href="${sim.url}" class="w-full text-center rounded-lg border border-border bg-slate-800/50 px-4 py-2.5 text-sm font-medium text-slate-400 transition-all duration-300 ${btnHoverClass}">
-                            ${sim.buttonText}
-                        </a>
-                    `;
-                    grid.appendChild(card);
-                });
-            }
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase border border-neon-${neonColor}/20 bg-neon-${neonColor}/5 text-neon-${neonColor}">${sim.tag}</span>
+                    </div>
+                    <h3 class="mb-2 text-lg font-bold text-white">${sim.title}</h3>
+                    <p class="mb-6 flex-1 text-sm text-slate-400 leading-relaxed">${sim.description}</p>
+                    <a href="${sim.url}" class="w-full text-center py-2.5 rounded-lg border border-border bg-slate-800/50 text-sm font-medium hover:border-neon-${neonColor}/40 hover:text-white transition-all">진입하기 →</a>
+                `;
+                grid.appendChild(card);
+            });
+            observeCards();
         }
 
-        searchInput.addEventListener('input', (e) => {
-            searchQuery = e.target.value.toLowerCase().trim();
-            renderCards();
-        });
-
-        tabTriggers.forEach(tab => {
-            tab.addEventListener('click', () => {
-                tabTriggers.forEach(t => t.classList.remove('active-tab'));
-                tab.classList.add('active-tab');
-                currentTab = tab.dataset.tab;
+        let currentTab = 'all';
+        document.querySelectorAll('.tab-trigger').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.tab-trigger').forEach(b => b.classList.remove('active-tab'));
+                btn.classList.add('active-tab');
+                currentTab = btn.dataset.tab;
                 renderCards();
-            });
+            };
         });
 
-        // Initialize
+        searchInput.oninput = renderCards;
+
+        /* ──────────────── Intersection Observer ─────────────────── */
+        function observeCards() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        }
+
         initStarfield();
         renderCards();
     </script>

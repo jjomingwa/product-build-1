@@ -21,6 +21,10 @@
   --color-neon-green: #4ade80;
   --color-neon-purple: #a855f7;
   --color-neon-blue: #38bdf8;
+  --color-neon-orange: #fb923c;
+  --color-neon-pink: #f472b6;
+  --color-neon-cyan: #22d3ee;
+  --color-neon-yellow: #fbbf24;
 }
 
 @layer base {
@@ -44,7 +48,19 @@
   }
 
   /* Neon Card Effects */
-  .card-neon-green { @apply hover:border-neon-green/50 hover:shadow-[0_0_25px_rgba(74,222,128,0.12)]; }
-  .card-neon-purple { @apply hover:border-neon-purple/50 hover:shadow-[0_0_25px_rgba(168,85,247,0.12)]; }
-  .card-neon-blue { @apply hover:border-neon-blue/50 hover:shadow-[0_0_25px_rgba(56,189,248,0.12)]; }
+  .card-neon-green { @apply hover:border-neon-green/50 hover:shadow-[0_0_25px_rgba(74,222,128,0.15)]; }
+  .card-neon-purple { @apply hover:border-neon-purple/50 hover:shadow-[0_0_25px_rgba(168,85,247,0.15)]; }
+  .card-neon-blue { @apply hover:border-neon-blue/50 hover:shadow-[0_0_25px_rgba(56,189,248,0.15)]; }
+  .card-neon-orange { @apply hover:border-neon-orange/50 hover:shadow-[0_0_25px_rgba(251,146,60,0.15)]; }
+  .card-neon-pink { @apply hover:border-neon-pink/50 hover:shadow-[0_0_25px_rgba(244,114,182,0.15)]; }
+  .card-neon-cyan { @apply hover:border-neon-cyan/50 hover:shadow-[0_0_25px_rgba(34,211,238,0.15)]; }
+  .card-neon-yellow { @apply hover:border-neon-yellow/50 hover:shadow-[0_0_25px_rgba(251,191,36,0.15)]; }
+
+  /* Scroll Animation Class */
+  .reveal {
+    @apply opacity-0 translate-y-12 transition-all duration-1000 ease-out;
+  }
+  .reveal.active {
+    @apply opacity-100 translate-y-0;
+  }
 }
