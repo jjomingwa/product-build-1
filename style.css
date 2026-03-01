@@ -1,268 +1,50 @@
-body {
-    margin: 0;
-    overflow-x: hidden;
-    background: radial-gradient(circle at center, #1a0b2e 0%, #050505 100%);
-    font-family: 'Orbitron', sans-serif;
-    user-select: none;
-    animation: bgPulse 10s ease-in-out infinite alternate;
+@import "tailwindcss";
+
+@theme {
+  --color-border: hsl(240 3.7% 15.9%);
+  --color-input: hsl(240 3.7% 15.9%);
+  --color-ring: hsl(240 4.9% 83.9%);
+  --color-background: hsl(240 10% 3.9%);
+  --color-foreground: hsl(0 0% 98%);
+  --color-primary: hsl(0 0% 98%);
+  --color-primary-foreground: hsl(240 5.9% 10%);
+  --color-secondary: hsl(240 3.7% 15.9%);
+  --color-secondary-foreground: hsl(0 0% 98%);
+  --color-muted: hsl(240 3.7% 15.9%);
+  --color-muted-foreground: hsl(240 5% 64.9%);
+  --color-accent: hsl(240 3.7% 15.9%);
+  --color-accent-foreground: hsl(0 0% 98%);
+  --color-destructive: hsl(0 62.8% 30.6%);
+  --color-destructive-foreground: hsl(0 0% 98%);
 }
 
-@keyframes bgPulse {
-    0% { background-color: #050505; }
-    100% { background-color: #1a0b2e; }
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-slate-950 text-foreground antialiased;
+  }
 }
 
-#game-canvas-container {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-    z-index: 1500;
-    overflow: hidden;
-}
+/* Shadcn UI 스타일 컴포넌트 프리셋 */
+@layer components {
+  /* Button - Shadcn UI Default */
+  .btn-shadcn {
+    @apply inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2;
+  }
 
-#ui-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none; /* Let clicks pass through to canvas if needed */
-}
+  /* Input - Shadcn UI Style */
+  .input-shadcn {
+    @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50;
+  }
 
-#score-board {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    color: #00ffff;
-    font-size: 24px;
-    text-shadow: 0 0 10px #00ffff;
-}
-
-#score-board div {
-    margin-bottom: 5px;
-}
-
-#tutorial-overlay, #message-overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.85);
-    border: 2px solid #00ffff;
-    padding: 40px;
-    text-align: center;
-    color: white;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-    backdrop-filter: blur(5px);
-    transition: opacity 1s;
-    pointer-events: auto;
-    max-width: 500px;
-    width: 80%;
-}
-
-h1 {
-    margin: 0 0 20px 0;
-    color: #ff00ff;
-    text-shadow: 0 0 10px #ff00ff;
-    font-size: 3em;
-}
-
-.controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin: 30px 0;
-    font-size: 1.2em;
-}
-
-.key {
-    border: 2px solid #fff;
-    padding: 10px 15px;
-    border-radius: 5px;
-    background: rgba(255, 255, 255, 0.1);
-    font-weight: bold;
-}
-
-.hint {
-    color: #ffff00;
-    margin-top: 20px;
-}
-
-.loading {
-    margin-top: 30px;
-    font-size: 0.8em;
-    color: #888;
-    animation: blink 1s infinite;
-}
-
-@keyframes blink {
-    0% { opacity: 0.5; }
-    50% { opacity: 1; }
-    100% { opacity: 0.5; }
-}
-
-#boss-hud {
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60%;
-    text-align: center;
-}
-
-.boss-name {
-    color: #ff0000;
-    font-size: 20px;
-    margin-bottom: 5px;
-    text-shadow: 0 0 10px #ff0000;
-}
-
-.health-bar-container {
-    width: 100%;
-    height: 20px;
-    background: #330000;
-    border: 2px solid #ff0000;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-#boss-health-bar {
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, #ff0000, #ff6600);
-    transition: width 0.2s;
-}
-
-/* Disqus Comments Styles */
-#comments-container {
-    margin-top: 60px;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    pointer-events: auto;
-    z-index: 50;
-    text-align: center;
-}
-
-#comments-toggle {
-    background: rgba(255, 0, 255, 0.2);
-    border: 2px solid #ff00ff;
-    color: #ff00ff;
-    padding: 12px 30px;
-    font-family: 'Orbitron', 'Noto Sans KR', sans-serif;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 0 10px rgba(255, 0, 255, 0.3);
-    border-radius: 5px;
-}
-
-#comments-toggle:hover {
-    background: #ff00ff;
-    color: #fff;
-    box-shadow: 0 0 20px #ff00ff;
-}
-
-#disqus_thread {
-    margin-top: 10px;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 15px;
-    border: 1px solid #ff00ff;
-    max-height: 400px;
-    overflow-y: auto;
-    border-radius: 5px;
-}
-
-#form-toggle-btn:hover {
-    background: #00ffff;
-    color: #000;
-    box-shadow: 0 0 20px #00ffff;
-}
-
-#intern-form-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(10, 10, 10, 0.95);
-    border: 2px solid #00ffff;
-    width: 400px;
-    padding: 30px;
-    pointer-events: auto;
-    z-index: 100;
-    box-shadow: 0 0 30px rgba(0, 255, 255, 0.5);
+  /* Card - Shadcn UI Style */
+  .card-shadcn {
+    @apply rounded-xl border bg-card text-card-foreground shadow;
+    background: rgba(10, 10, 15, 0.8);
     backdrop-filter: blur(10px);
-}
-
-.form-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    border-bottom: 1px solid #00ffff;
-    padding-bottom: 10px;
-}
-
-.form-header h2 {
-    margin: 0;
-    font-size: 18px;
-    color: #00ffff;
-}
-
-#form-close-btn {
-    background: none;
-    border: none;
-    color: #00ffff;
-    font-size: 24px;
-    cursor: pointer;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    color: #00ffff;
-    font-size: 12px;
-    margin-bottom: 5px;
-}
-
-.form-group input, .form-group textarea {
-    width: 100%;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid #333;
-    padding: 10px;
-    color: white;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 14px;
-    box-sizing: border-box;
-}
-
-.form-group input:focus, .form-group textarea:focus {
-    outline: none;
-    border-color: #00ffff;
-    background: rgba(255, 255, 255, 0.2);
-}
-
-.submit-btn {
-    width: 100%;
-    background: #00ffff;
-    border: none;
-    padding: 15px;
-    color: #000;
-    font-family: 'Orbitron', sans-serif;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.submit-btn:hover {
-    background: #ff00ff;
-    color: #fff;
-    box-shadow: 0 0 15px #ff00ff;
+    border: 1px solid hsl(240 3.7% 15.9%);
+  }
 }
