@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Survivors | AI Simulation Universe</title>
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Noto+Sans+KR:wght@300;400;700&display=swap');
+        
+        body { margin: 0; overflow: hidden; background: #020617; font-family: 'Noto Sans KR', sans-serif; }
+        #game-container { position: relative; width: 100vw; height: 100vh; }
+        canvas { display: block; }
+        
+        /* Level Up UI */
+        #ui-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 6, 23, 0.85); backdrop-filter: blur(10px);
+            display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 100;
+        }
+        .upgrade-card {
+            background: rgba(30, 41, 59, 0.7); border: 2px solid #38bdf8;
+            border-radius: 16px; padding: 20px; margin: 10px; width: 320px;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center; color: white;
+        }
+        .upgrade-card:hover {
+            transform: translateY(-5px) scale(1.05);
+            background: rgba(56, 189, 248, 0.2);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+        
+        /* XP Bar */
+        #xp-container {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            width: 80%; height: 12px; background: rgba(255,255,255,0.1);
+            border-radius: 6px; border: 1px solid rgba(255,255,255,0.2); overflow: hidden;
+        }
+        #xp-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #4ade80, #38bdf8); transition: width 0.3s; }
+        
+        #stats {
+            position: absolute; top: 40px; left: 50%; transform: translateX(-50%);
+            color: #94a3b8; font-family: 'Orbitron'; font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="xp-container"><div id="xp-bar"></div></div>
+    <div id="stats">LEVEL: <span id="lvl-val">1</span> | KILLS: <span id="kill-val">0</span></div>
+
+    <div id="ui-overlay">
+        <h2 class="text-3xl font-bold text-white mb-8 font-['Orbitron'] tracking-widest text-neon-blue">LEVEL UP</h2>
+        <div id="upgrade-list" class="flex flex-wrap justify-center"></div>
+    </div>
+</div>
+
+<script>
+/**
+ * VampireGameModule - 고퀄리티 뱀파이어 서바이벌 장르 게임 엔진
+ */
+class VampireGameModule {
+    constructor(canvasId) {
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d');
+        this.width = window.innerWidth;
+        this.height = window.innerHeight;
+        this.canvas.width = this.width;
+        this.canvas.height = this.height;
+
+        // 게임 상태 관리
+        this.isRunning = false;
+        this.isPaused = false;
+        this.lastTime = 0;
+        this.entities = { player: null, enemies: [], projectiles: [], gems: [], particles: [] };
+        this.camera = { x: 0, y: 0 };
+        this.keys = {};
+        this.assets = {};
+        this.stats = { kills: 0, spawnTimer: 0, spawnInterval: 1000 };
+        
+        this.initEventListeners();
+    }
+
+    async init() {
+        await this.loadAssets();
+        this.entities.player = new Player(0, 0, this.assets.player);
+        this.start();
+    }
+
+    async loadAssets() {
+        const loadImg = (url) => new Promise(res => {
+            const img = new Image();
+            img.onload = () => res(img);
+            img.src = url;
+        });
+
+        this.assets.player = await loadImg('https://api.dicebear.com/7.x/bottts/svg?seed=Hero&backgroundColor=b6e3f4');
+        this.assets.enemy1 = await loadImg('https://api.dicebear.com/7.x/bottts/svg?seed=Enemy1&backgroundColor=ffadad');
+        this.assets.enemy2 = await loadImg('https://api.dicebear.com/7.x/bottts/svg?seed=Enemy2&backgroundColor=ffd6a5');
+    }
+
+    initEventListeners() {
+        this._onKeyDown = (e) => this.keys[e.code] = true;
+        this._onKeyUp = (e) => this.keys[e.code] = false;
+        this._onResize = () => {
+            this.width = window.innerWidth; this.height = window.innerHeight;
+            this.canvas.width = this.width; this.canvas.height = this.height;
+        };
+
+        window.addEventListener('keydown', this._onKeyDown);
+        window.addEventListener('keyup', this._onKeyUp);
+        window.addEventListener('resize', this._onResize);
+    }
+
+    start() {
+        this.isRunning = true;
+        this.lastTime = performance.now();
+        this.gameLoop();
+    }
+
+    stop() { this.isPaused = true; }
+    resume() { this.isPaused = false; this.lastTime = performance.now(); this.gameLoop(); }
+
+    destroy() {
+        this.isRunning = false;
+        window.removeEventListener('keydown', this._onKeyDown);
+        window.removeEventListener('keyup', this._onKeyUp);
+        window.removeEventListener('resize', this._onResize);
+    }
+
+    gameLoop(timestamp = 0) {
+        if (!this.isRunning || this.isPaused) return;
+
+        const deltaTime = timestamp - this.lastTime;
+        this.lastTime = timestamp;
+
+        this.update(deltaTime);
+        this.draw();
+
+        requestAnimationFrame((t) => this.gameLoop(t));
+    }
+
+    update(dt) {
+        if (dt > 100) dt = 16; // 탭 전환 시 보정
+
+        const { player, enemies, projectiles, gems, particles } = this.entities;
+
+        // 플레이어 업데이트
+        player.update(this.keys, dt);
+        this.camera.x = player.x - this.width / 2;
+        this.camera.y = player.y - this.height / 2;
+
+        // 적 스폰
+        this.stats.spawnTimer += dt;
+        if (this.stats.spawnTimer > this.stats.spawnInterval) {
+            this.spawnEnemy();
+            this.stats.spawnTimer = 0;
+            this.stats.spawnInterval = Math.max(300, 1000 - (player.level * 50));
+        }
+
+        // 적 업데이트 및 AI (Flocking Separation)
+        enemies.forEach((en, i) => {
+            en.update(player, enemies, dt);
+            if (en.checkCollision(player)) {
+                player.takeDamage(0.1);
+            }
+        });
+
+        // 무기 로직 (자동 발사)
+        player.weapons.forEach(w => w.update(player, enemies, projectiles, dt));
+
+        // 투사체 업데이트 및 충돌 체크
+        for (let i = projectiles.length - 1; i >= 0; i--) {
+            const p = projectiles[i];
+            p.update(dt);
+            
+            let hit = false;
+            for (let j = enemies.length - 1; j >= 0; j--) {
+                const en = enemies[j];
+                if (p.checkCollision(en)) {
+                    en.hp -= player.stats.damage;
+                    this.createHitEffect(en.x, en.y);
+                    hit = true;
+                    if (en.hp <= 0) {
+                        this.stats.kills++;
+                        gems.push(new XPGem(en.x, en.y, 10));
+                        enemies.splice(j, 1);
+                    }
+                    break;
+                }
+            }
+            if (hit || p.life <= 0) projectiles.splice(i, 1);
+        }
+
+        // 보석 획득 로직
+        for (let i = gems.length - 1; i >= 0; i--) {
+            const g = gems[i];
+            g.update(player, dt);
+            if (g.checkCollision(player)) {
+                if (player.addXP(g.value)) this.showLevelUp();
+                gems.splice(i, 1);
+            }
+        }
+
+        // 파티클
+        particles.forEach((p, i) => {
+            p.update(dt);
+            if (p.life <= 0) particles.splice(i, 1);
+        });
+
+        // UI 업데이트
+        document.getElementById('xp-bar').style.width = `${(player.xp / player.nextLevelXP) * 100}%`;
+        document.getElementById('lvl-val').innerText = player.level;
+        document.getElementById('kill-val').innerText = this.stats.kills;
+    }
+
+    draw() {
+        const { ctx, width, height, camera, entities } = this;
+        ctx.fillStyle = '#020617';
+        ctx.fillRect(0, 0, width, height);
+
+        ctx.save();
+        ctx.translate(-camera.x, -camera.y);
+
+        // 배경 그리드
+        this.drawGrid();
+
+        // 보석 (Glow)
+        ctx.shadowBlur = 10;
+        entities.gems.forEach(g => g.draw(ctx));
+
+        // 적
+        ctx.shadowBlur = 0;
+        entities.enemies.forEach(en => en.draw(ctx));
+
+        // 투사체 (Neon Glow)
+        ctx.shadowBlur = 15;
+        entities.projectiles.forEach(p => p.draw(ctx));
+
+        // 플레이어 및 궤도 무기
+        ctx.shadowBlur = 0;
+        entities.player.draw(ctx);
+        entities.player.weapons.filter(w => w.type === 'orbital').forEach(w => w.draw(ctx, entities.player));
+
+        // 파티클
+        ctx.globalCompositeOperation = 'lighter';
+        entities.particles.forEach(p => p.draw(ctx));
+        ctx.globalCompositeOperation = 'source-over';
+
+        ctx.restore();
+    }
+
+    drawGrid() {
+        const { ctx, width, height, camera } = this;
+        const size = 100;
+        const startX = Math.floor(camera.x / size) * size;
+        const startY = Math.floor(camera.y / size) * size;
+        
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.05)';
+        ctx.beginPath();
+        for (let x = startX; x < startX + width + size; x += size) {
+            ctx.moveTo(x, camera.y); ctx.lineTo(x, camera.y + height);
+        }
+        for (let y = startY; y < startY + height + size; y += size) {
+            ctx.moveTo(camera.x, y); ctx.lineTo(camera.x + width, y);
+        }
+        ctx.stroke();
+    }
+
+    spawnEnemy() {
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.max(this.width, this.height) / 1.5;
+        const x = this.entities.player.x + Math.cos(angle) * dist;
+        const y = this.entities.player.y + Math.sin(angle) * dist;
+        const asset = Math.random() > 0.5 ? this.assets.enemy1 : this.assets.enemy2;
+        this.entities.enemies.push(new Enemy(x, y, asset, 10 + this.entities.player.level * 5));
+    }
+
+    createHitEffect(x, y) {
+        for (let i = 0; i < 5; i++) {
+            this.entities.particles.push(new Particle(x, y, '#f472b6'));
+        }
+    }
+
+    showLevelUp() {
+        this.stop();
+        const overlay = document.getElementById('ui-overlay');
+        const list = document.getElementById('upgrade-list');
+        overlay.style.display = 'flex';
+        list.innerHTML = '';
+
+        const upgrades = [
+            { name: 'Attack DMG UP', desc: '공격력 +20%', action: () => this.entities.player.stats.damage *= 1.2 },
+            { name: 'Speed UP', desc: '이동속도 +10%', action: () => this.entities.player.stats.speed *= 1.1 },
+            { name: 'Haste', desc: '쿨타임 -15%', action: () => this.entities.player.stats.cooldown *= 0.85 },
+            { name: 'Heal', desc: '체력 50% 회복', action: () => this.entities.player.hp = Math.min(100, this.entities.player.hp + 50) }
+        ];
+
+        // 랜덤 3개 선택
+        const shuffled = upgrades.sort(() => 0.5 - Math.random()).slice(0, 3);
+        shuffled.forEach(up => {
+            const card = document.createElement('div');
+            card.className = 'upgrade-card';
+            card.innerHTML = `<h3 class="text-xl font-bold mb-2">${up.name}</h3><p class="text-slate-400 text-sm">${up.desc}</p>`;
+            card.onclick = () => {
+                up.action();
+                overlay.style.display = 'none';
+                this.resume();
+            };
+            list.appendChild(card);
+        });
+    }
+}
+
+/**
+ * Entity Classes
+ */
+class Player {
+    constructor(x, y, img) {
+        this.x = x; this.y = y; this.img = img;
+        this.size = 50; this.hp = 100;
+        this.level = 1; this.xp = 0; this.nextLevelXP = 100;
+        this.stats = { speed: 0.3, damage: 10, cooldown: 1.0 };
+        this.weapons = [new MagicWand(), new OrbitalWeapon()];
+        this.velX = 0; this.velY = 0;
+    }
+
+    update(keys, dt) {
+        let ax = 0, ay = 0;
+        if (keys['KeyW'] || keys['ArrowUp']) ay -= 1;
+        if (keys['KeyS'] || keys['ArrowDown']) ay += 1;
+        if (keys['KeyA'] || keys['ArrowLeft']) ax -= 1;
+        if (keys['KeyD'] || keys['ArrowRight']) ax += 1;
+
+        const mag = Math.sqrt(ax * ax + ay * ay) || 1;
+        this.velX += (ax / mag) * 0.05 * dt;
+        this.velY += (ay / mag) * 0.05 * dt;
+        this.velX *= 0.9; this.velY *= 0.9; // 마찰력
+
+        this.x += this.velX * this.stats.speed;
+        this.y += this.velY * this.stats.speed;
+    }
+
+    draw(ctx) {
+        ctx.drawImage(this.img, this.x - this.size / 2, this.y - this.size / 2, this.size, this.size);
+        // HP bar
+        ctx.fillStyle = '#1e293b'; ctx.fillRect(this.x - 25, this.y + 35, 50, 6);
+        ctx.fillStyle = '#ef4444'; ctx.fillRect(this.x - 25, this.y + 35, 50 * (this.hp / 100), 6);
+    }
+
+    addXP(val) {
+        this.xp += val;
+        if (this.xp >= this.nextLevelXP) {
+            this.level++;
+            this.xp = 0;
+            this.nextLevelXP *= 1.2;
+            return true;
+        }
+        return false;
+    }
+
+    takeDamage(v) { this.hp = Math.max(0, this.hp - v); }
+}
+
+class Enemy {
+    constructor(x, y, img, hp) {
+        this.x = x; this.y = y; this.img = img;
+        this.size = 40; this.hp = hp; this.maxHp = hp;
+        this.speed = 0.12 + Math.random() * 0.05;
+    }
+
+    update(player, others, dt) {
+        const dx = player.x - this.x;
+        const dy = player.y - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        let vx = (dx / dist) * this.speed;
+        let vy = (dy / dist) * this.speed;
+
+        // Separation (Flocking)
+        others.forEach(other => {
+            if (other === this) return;
+            const dX = this.x - other.x;
+            const dY = this.y - other.y;
+            const d = Math.sqrt(dX * dX + dY * dY);
+            if (d < 45) {
+                vx += dX * 0.01; vy += dY * 0.01;
+            }
+        });
+
+        this.x += vx * dt;
+        this.y += vy * dt;
+    }
+
+    draw(ctx) {
+        ctx.drawImage(this.img, this.x - this.size / 2, this.y - this.size / 2, this.size, this.size);
+    }
+
+    checkCollision(other) {
+        const d = Math.sqrt((this.x - other.x)**2 + (this.y - other.y)**2);
+        return d < (this.size + other.size) / 2.5;
+    }
+}
+
+class MagicWand {
+    constructor() { this.timer = 0; this.type = 'projectile'; }
+    update(player, enemies, projectiles, dt) {
+        this.timer += dt;
+        if (this.timer > 1000 * player.stats.cooldown) {
+            const target = enemies.sort((a,b) => 
+                Math.sqrt((a.x-player.x)**2+(a.y-player.y)**2) - 
+                Math.sqrt((b.x-player.x)**2+(b.y-player.y)**2))[0];
+            
+            if (target) {
+                const angle = Math.atan2(target.y - player.y, target.x - player.x);
+                projectiles.push(new Projectile(player.x, player.y, angle));
+                this.timer = 0;
+            }
+        }
+    }
+}
+
+class Projectile {
+    constructor(x, y, angle) {
+        this.x = x; this.y = y; this.angle = angle;
+        this.speed = 0.6; this.size = 8; this.life = 2000;
+    }
+    update(dt) {
+        this.x += Math.cos(this.angle) * this.speed * dt;
+        this.y += Math.sin(this.angle) * this.speed * dt;
+        this.life -= dt;
+    }
+    draw(ctx) {
+        ctx.fillStyle = '#38bdf8'; ctx.shadowColor = '#38bdf8';
+        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+    }
+    checkCollision(en) {
+        return Math.sqrt((this.x - en.x)**2 + (this.y - en.y)**2) < en.size/2;
+    }
+}
+
+class OrbitalWeapon {
+    constructor() { this.angle = 0; this.type = 'orbital'; }
+    update(player, enemies, projectiles, dt) {
+        this.angle += 0.005 * dt;
+        const radius = 80;
+        const wx = player.x + Math.cos(this.angle) * radius;
+        const wy = player.y + Math.sin(this.angle) * radius;
+        
+        enemies.forEach(en => {
+            if (Math.sqrt((wx - en.x)**2 + (wy - en.y)**2) < 30) {
+                en.hp -= 0.5; // 지속 데미지
+            }
+        });
+    }
+    draw(ctx, player) {
+        const radius = 80;
+        const wx = player.x + Math.cos(this.angle) * radius;
+        const wy = player.y + Math.sin(this.angle) * radius;
+        ctx.fillStyle = '#a855f7'; ctx.shadowColor = '#a855f7'; ctx.shadowBlur = 15;
+        ctx.beginPath(); ctx.arc(wx, wy, 15, 0, Math.PI*2); ctx.fill();
+    }
+}
+
+class XPGem {
+    constructor(x, y, value) { this.x = x; this.y = y; this.value = value; this.size = 6; this.isPulling = false; }
+    update(player, dt) {
+        const d = Math.sqrt((this.x - player.x)**2 + (this.y - player.y)**2);
+        if (d < 150) this.isPulling = true;
+        if (this.isPulling) {
+            this.x += (player.x - this.x) * 0.01 * dt;
+            this.y += (player.y - this.y) * 0.01 * dt;
+        }
+    }
+    draw(ctx) {
+        ctx.fillStyle = '#4ade80'; ctx.shadowColor = '#4ade80';
+        ctx.beginPath(); ctx.moveTo(this.x, this.y - 8); ctx.lineTo(this.x + 6, this.y); 
+        ctx.lineTo(this.x, this.y + 8); ctx.lineTo(this.x - 6, this.y); ctx.closePath(); ctx.fill();
+    }
+    checkCollision(player) {
+        return Math.sqrt((this.x - player.x)**2 + (this.y - player.y)**2) < 20;
+    }
+}
+
+class Particle {
+    constructor(x, y, color) {
+        this.x = x; this.y = y; this.color = color;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.life = 500 + Math.random() * 500;
+        this.initialLife = this.life;
+    }
+    update(dt) { this.x += this.vx * dt; this.y += this.vy * dt; this.life -= dt; }
+    draw(ctx) {
+        ctx.globalAlpha = this.life / this.initialLife;
+        ctx.fillStyle = this.color;
+        ctx.beginPath(); ctx.arc(this.x, this.y, 3, 0, Math.PI*2); ctx.fill();
+        ctx.globalAlpha = 1;
+    }
+}
+
+// 모듈 실행
+const game = new VampireGameModule('gameCanvas');
+game.init();
+</script>
+
+</body>
+</html>
